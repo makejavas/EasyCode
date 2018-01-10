@@ -4,6 +4,8 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.sjhy.plugin.entity.Template;
+import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.service.ConfigService;
@@ -23,13 +25,14 @@ public class ConfigServiceImpl implements ConfigService {
     private Map<String, TypeMapperGroup> typeMapperGroupMap;
     //当前模板组名
     private String currTemplateGroupName;
-//    //模板组
-//    private Map<String, Map<String, String>> templateGroup;
+    //模板组
+    private Map<String, TemplateGroup> templateGroupMap;
     //默认编码
     private String encode;
     //作者
     private String author;
 
+    //是否初始化
     private Boolean init = false;
 
     public ConfigServiceImpl() {
@@ -49,6 +52,9 @@ public class ConfigServiceImpl implements ConfigService {
     public void loadState(ConfigService configService) {
         //重点，没有数据时，不要序列化
         if (configService.getTypeMapperGroupMap().isEmpty()) {
+            return;
+        }
+        if (configService.getTemplateGroupMap().isEmpty()) {
             return;
         }
         //加载配置信息
@@ -71,13 +77,17 @@ public class ConfigServiceImpl implements ConfigService {
         if (this.currTypeMapperGroupName==null) {
             this.currTypeMapperGroupName = DEFAULT_NAME;
         }
-//        //配置默认模板
-//        if (this.templateGroup==null) {
-//            this.templateGroup = new LinkedHashMap<>();
-//        }
-//        Map<String, String> template = new LinkedHashMap<>();
-//        template.put("entity", loadTemplate("entity"));
-//        this.templateGroup.put(DEFAULT_NAME, template);
+        //配置默认模板
+        if (this.templateGroupMap==null) {
+            this.templateGroupMap = new LinkedHashMap<>();
+        }
+        TemplateGroup templateGroup = new TemplateGroup();
+        List<Template> templateList = new ArrayList<>();
+        templateList.add(new Template("entity", loadTemplate("entity")));
+        templateList.add(new Template("dao", loadTemplate("dao")));
+        templateGroup.setName(DEFAULT_NAME);
+        templateGroup.setTemplateList(templateList);
+        this.templateGroupMap.put(DEFAULT_NAME, templateGroup);
 
         //配置默认类型映射
         if (this.typeMapperGroupMap==null) {
@@ -133,11 +143,6 @@ public class ConfigServiceImpl implements ConfigService {
         this.currTemplateGroupName = currTemplateGroupName;
     }
 
-//    @Override
-//    public Map<String, Map<String, String>> getTemplateGroup() {
-//        return templateGroup;
-//    }
-
     @Override
     public String getEncode() {
         return encode;
@@ -163,10 +168,15 @@ public class ConfigServiceImpl implements ConfigService {
         this.typeMapperGroupMap = typeMapperGroupMap;
     }
 
-//    public void setTemplateGroup(Map<String, Map<String, String>> templateGroup) {
-//        this.templateGroup = templateGroup;
-//    }
+    @Override
+    public Map<String, TemplateGroup> getTemplateGroupMap() {
+        return templateGroupMap;
+    }
 
+    @Override
+    public void setTemplateGroupMap(Map<String, TemplateGroup> templateGroupMap) {
+        this.templateGroupMap = templateGroupMap;
+    }
 
     public Boolean getInit() {
         return init;

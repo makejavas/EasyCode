@@ -19,7 +19,7 @@ public abstract class AbstractTableModel<T> extends DefaultTableModel {
         }
         this.data = data;
         removeAllRow();
-        data.forEach(this::addRow);
+        data.forEach(item-> super.addRow(toObj(item)));
     }
 
 

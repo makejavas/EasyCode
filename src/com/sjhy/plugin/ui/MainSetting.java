@@ -46,8 +46,9 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
     @NotNull
     @Override
     public Configurable[] getConfigurables() {
-        Configurable[] result = new Configurable[1];
+        Configurable[] result = new Configurable[2];
         result[0] = new TypeMapperSetting(configService);
+        result[1] = new TemplateSetting(configService);
         return result;
     }
 

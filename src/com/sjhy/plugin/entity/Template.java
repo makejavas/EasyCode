@@ -6,6 +6,14 @@ public class Template implements Cloneable {
     //模板代码
     private String code;
 
+    public Template() {
+    }
+
+    public Template(String name, String code) {
+        this.name = name;
+        this.code = code;
+    }
+
     public String getName() {
         return name;
     }
