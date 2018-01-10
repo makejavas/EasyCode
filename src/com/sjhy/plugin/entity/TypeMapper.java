@@ -32,8 +32,16 @@ public class TypeMapper implements Cloneable, Serializable {
         this.javaType = javaType;
     }
 
+    public TypeMapper cloneTypeMapper() {
+        try {
+            return (TypeMapper) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 

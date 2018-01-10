@@ -28,22 +28,15 @@ public class TypeMapperGroup implements Cloneable, Serializable {
         try {
             return (TypeMapperGroup) clone();
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
         TypeMapperGroup typeMapperGroup = (TypeMapperGroup) super.clone();
         typeMapperGroup.typeMapperList = new ArrayList<>();
-        this.typeMapperList.forEach(typeMapper -> {
-            try {
-                typeMapperGroup.typeMapperList.add((TypeMapper) typeMapper.clone());
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-            }
-        });
+        this.typeMapperList.forEach(typeMapper -> typeMapperGroup.typeMapperList.add(typeMapper.cloneTypeMapper()));
         return typeMapperGroup;
     }
 
