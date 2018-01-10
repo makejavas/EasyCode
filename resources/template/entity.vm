@@ -1,0 +1,19 @@
+#* @vtlvariable name="tool" type="com.sjhy.plugin.tool.NameUtils" *#
+#* @vtlvariable name="tableInfo" type="com.sjhy.plugin.entity.TableInfo" *#
+public class ${tableInfo.name} {
+#foreach($column in $tableInfo.fullColumn)
+    #if(${column.comment})//${column.comment}#end
+
+    private ${tool.getClsNameByFullName($column.type)} ${column.name};
+#end
+
+#foreach($column in $tableInfo.fullColumn)
+    public ${tool.getClsNameByFullName($column.type)} get${tool.firstUpperCase($column.name)}() {
+        return ${column.name};
+    }
+    public void set${tool.firstUpperCase($column.name)}(${tool.getClsNameByFullName($column.type)} ${column.name}) {
+        this.${column.name} = ${column.name};
+    }
+#end
+
+}
