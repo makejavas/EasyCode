@@ -13,26 +13,35 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TypeMapperSetting implements Configurable {
+    //主面板
     private JPanel mainPanel;
+    //类型映射分组切换下拉框
     private JComboBox typeMapperComboBox;
+    //分组复制按钮
     private JButton typeMapperCopyButton;
+    //类型映射表
     private JTable typeMapperTable;
+    //添加映射按钮
     private JButton addButton;
+    //移除映射按钮
     private JButton removeButton;
+    //删除分组按钮
     private JButton deleteButton;
 
+    //是否初始化完成
     private boolean init;
+    //类型映射表模型
     private TypeMapperModel typeMapperModel;
 
+    //当前选中分组
     private String currGroupName;
-
+    //类型映射分组集合
     private Map<String, TypeMapperGroup> typeMapperGroupMap;
-
+    //全局配置服务
     private ConfigService configService;
 
 
-    @SuppressWarnings("WeakerAccess")
-    public TypeMapperSetting(ConfigService configService) {
+    TypeMapperSetting(ConfigService configService) {
         this.configService = configService;
         //添加类型
         addButton.addActionListener(e -> typeMapperModel.addRow(new TypeMapper("demoColumn", "java.lang.Object")));
@@ -95,10 +104,14 @@ public class TypeMapperSetting implements Configurable {
                 refresh();
             }
         });
+
+        init();
     }
 
 
-
+    /**
+     * 初始化方法
+     */
     private void init() {
         //复制数据
         this.typeMapperGroupMap = new LinkedHashMap<>();
@@ -113,6 +126,9 @@ public class TypeMapperSetting implements Configurable {
         refresh();
     }
 
+    /**
+     * 刷新方法
+     */
     @SuppressWarnings("unchecked")
     private void refresh() {
         init = false;
@@ -120,7 +136,7 @@ public class TypeMapperSetting implements Configurable {
         this.typeMapperComboBox.removeAllItems();
         typeMapperGroupMap.keySet().forEach(this.typeMapperComboBox::addItem);
         this.typeMapperComboBox.setSelectedItem(this.currGroupName);
-        this.typeMapperModel.init(this.typeMapperGroupMap.get(currGroupName));
+        this.typeMapperModel.init(this.typeMapperGroupMap.get(currGroupName).getTypeMapperList());
         init = true;
     }
 
@@ -133,7 +149,6 @@ public class TypeMapperSetting implements Configurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        init();
         return mainPanel;
     }
 

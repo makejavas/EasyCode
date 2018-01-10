@@ -10,15 +10,23 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class MainSetting extends ServiceComm implements Configurable, Configurable.Composite {
+    //主面板
     private JPanel mainPanel;
+    //编码选择下拉框
     private JComboBox encodeComboBox;
+    //作者编辑框
     private JTextField authorTextField;
+    //全局配置服务
     private ConfigService configService;
 
     public MainSetting(ConfigService configService) {
         this.configService = configService;
+        init();
     }
 
+    /**
+     * 初始化方法
+     */
     private void init() {
         //初始化数据
         authorTextField.setText(configService.getAuthor());
@@ -31,6 +39,10 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
         return "Easy Code";
     }
 
+    /**
+     * 更多配置
+     * @return 配置选项
+     */
     @NotNull
     @Override
     public Configurable[] getConfigurables() {
@@ -42,20 +54,17 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
     @Nullable
     @Override
     public JComponent createComponent() {
-        init();
         return mainPanel;
     }
 
     @Override
     public boolean isModified() {
-        ConfigService configService = getConfigService();
         return !configService.getEncode().equals(encodeComboBox.getSelectedItem()) || !configService.getAuthor().equals(authorTextField.getText());
     }
 
     @Override
     public void apply() {
         //保存数据
-        ConfigService configService = getConfigService();
         configService.setAuthor(authorTextField.getText());
         configService.setEncode((String) encodeComboBox.getSelectedItem());
     }
