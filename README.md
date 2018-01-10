@@ -1,0 +1,2 @@
+# EasyCode
+idea plugin
