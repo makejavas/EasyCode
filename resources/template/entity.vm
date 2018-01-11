@@ -1,5 +1,22 @@
+#* @vtlvariable name="author" type="java.lang.String" *#
+#* @vtlvariable name="importList" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="callback" type="com.sjhy.plugin.entity.Callback" *#
+#* @vtlvariable name="packageName" type="java.lang.String" *#
 #* @vtlvariable name="tool" type="com.sjhy.plugin.tool.NameUtils" *#
 #* @vtlvariable name="tableInfo" type="com.sjhy.plugin.entity.TableInfo" *#
+#set($fileName = ${tableInfo.name}+".java")
+$callback.setFileName(${fileName})
+
+package $packageName;
+
+#foreach($import in $importList)
+import $import;
+#end
+
+/**
+ * $!{tableInfo.comment}(${tableInfo.name})表实体类
+ * @author $author
+ */
 public class ${tableInfo.name} {
 #foreach($column in $tableInfo.fullColumn)
     #if(${column.comment})//${column.comment}#end

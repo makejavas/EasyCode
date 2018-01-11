@@ -33,6 +33,7 @@ public class EditTemplatePanel {
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
         Document velocityTemplate = factory.createDocument(template.getCode());
+        //TODO 退出时，会导致无法创建编辑器。
         editor = factory.createEditor(velocityTemplate, null, FILE_TYPE, false);
         editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
     }
