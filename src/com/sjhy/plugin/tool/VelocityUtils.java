@@ -1,6 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
@@ -100,10 +101,10 @@ public class VelocityUtils {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                JOptionPane.showMessageDialog(null, "Code Generate Success!");
             });
         });
-
+        JOptionPane.showMessageDialog(null, "Code Generate Success!");
+        VirtualFileManager.getInstance().syncRefresh();
     }
 
     private Set<String> getImportList(TableInfo tableInfo) {

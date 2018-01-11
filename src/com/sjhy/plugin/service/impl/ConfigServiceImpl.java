@@ -104,6 +104,7 @@ public class ConfigServiceImpl implements ConfigService {
         typeMapperList.add(new TypeMapper("bigint", "java.lang.Long"));
         typeMapperList.add(new TypeMapper("datetime", "java.util.Date"));
         typeMapperList.add(new TypeMapper("timestamp", "java.util.Date"));
+        typeMapperList.add(new TypeMapper("boolean", "java.lang.Boolean"));
         typeMapperGroup.setName(DEFAULT_NAME);
         typeMapperGroup.setTypeMapperList(typeMapperList);
         typeMapperGroupMap.put(DEFAULT_NAME, typeMapperGroup);
