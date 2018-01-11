@@ -43,14 +43,14 @@ public class ConfigServiceImpl implements ConfigService {
     @Nullable
     @Override
     public ConfigService getState() {
-        if (this.encode==null && !init) {
-            initDefault();
-        }
         return this;
     }
 
     @Override
     public void loadState(ConfigService configService) {
+        if (configService==null || configService.getTemplateGroupMap()==null || configService.getTypeMapperGroupMap()==null) {
+            return;
+        }
         //重点，没有数据时，不要序列化
         if (configService.getTypeMapperGroupMap().isEmpty()) {
             return;
