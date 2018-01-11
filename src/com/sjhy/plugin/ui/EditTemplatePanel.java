@@ -15,29 +15,30 @@ public class EditTemplatePanel {
     private JPanel mainPanel;
     private JPanel editPanel;
     private Template template;
+    private Editor editor;
+
+    private final static FileType FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension("vm");
+
+    private final static GridConstraints GRID_CONSTRAINTS = new GridConstraints(0, 0, 1, 1,
+            GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED,
+            null, new Dimension(600, 400), null,
+            0, true);
 
     EditTemplatePanel(Template template) {
         this.template = template;
         init();
     }
 
-    private FileType getVelocityFileType() {
-        return FileTypeManager.getInstance().getFileTypeByExtension("vm");
-    }
-
-    private GridConstraints getGridConstraints() {
-        return new GridConstraints(0, 0, 1, 1,
-                GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED,
-                null, new Dimension(600, 400), null,
-                0, true);
-    }
-
     private void init() {
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
         Document velocityTemplate = factory.createDocument(template.getCode());
-        Editor editor = factory.createEditor(velocityTemplate, null, getVelocityFileType(), false);
-        editPanel.add(editor.getComponent(), getGridConstraints());
+        editor = factory.createEditor(velocityTemplate, null, FILE_TYPE, false);
+        editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
+    }
+
+    public void refresh() {
+        this.template.setCode(editor.getDocument().getText());
     }
 
     public JPanel getMainPanel() {

@@ -8,7 +8,9 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TemplateSetting implements Configurable {
@@ -20,6 +22,7 @@ public class TemplateSetting implements Configurable {
     private JButton addButton;
     private JButton removeButton;
 
+    private List<EditTemplatePanel> editTemplatePanelList = new ArrayList<>();
     private Map<String, TemplateGroup> templateGroupMap;
     private String currGroupName;
 
@@ -126,6 +129,7 @@ public class TemplateSetting implements Configurable {
         this.templateGroupMap.keySet().forEach(this.groupButton::addItem);
         this.groupButton.setSelectedItem(this.currGroupName);
         //初始化选项卡
+        editTemplatePanelList.clear();
         int count = this.templateTabbedPane.getTabCount();
         if (count>0) {
             for (int i = 0; i < count; i++) {
@@ -134,6 +138,7 @@ public class TemplateSetting implements Configurable {
         }
         getTemplateGroup().getTemplateList().forEach(template -> {
             EditTemplatePanel editTemplatePanel = new EditTemplatePanel(template);
+            editTemplatePanelList.add(editTemplatePanel);
             this.templateTabbedPane.addTab(template.getName(), editTemplatePanel.getMainPanel());
         });
         this.init = true;
@@ -153,6 +158,7 @@ public class TemplateSetting implements Configurable {
 
     @Override
     public boolean isModified() {
+        editTemplatePanelList.forEach(EditTemplatePanel::refresh);
         return !configService.getTemplateGroupMap().equals(this.templateGroupMap);
     }
 
