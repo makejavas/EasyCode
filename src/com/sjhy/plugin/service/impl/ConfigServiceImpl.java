@@ -112,7 +112,8 @@ public class ConfigServiceImpl implements ConfigService {
 
     private String loadTemplate(String name) {
         try {
-            return FileUtil.loadFile(new File(getClass().getResource("/template/"+name+".vm").getFile()), "UTF-8").replaceAll("\r", "");
+            byte[] temp = FileUtil.loadBytes(getClass().getResourceAsStream("/template/"+name+".vm"));
+            return new String(temp, "UTF-8").replaceAll("\r", "");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
