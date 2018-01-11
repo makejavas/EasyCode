@@ -1,9 +1,11 @@
 ### IntelliJ IDEA ###
+
+!*.iml
+!.idea/*.iml
+
+
 .idea
 *.iws
 *.ipr
 
 out/
-
-!*.iml
-!.idea/*.iml
