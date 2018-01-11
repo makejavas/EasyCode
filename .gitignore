@@ -1,11 +1,32 @@
 ### IntelliJ IDEA ###
 
-!*.iml
-!.idea/*.iml
+## 忽略其他配置文件，防止冲突
+.idea/*
 
-
-.idea
-*.iws
-*.ipr
-
+##忽略输出文件夹
 out/
+target/
+
+
+## IDEA主要文件，用于保证项目结构正常
+!*.iml
+
+## IDEA 代码样式文件，保证代码样式的一致性
+!.idea/codeStyles
+!.idea/codeStyles/codeStyleConfig.xml
+
+## IDEA 编译文件
+!.idea/compiler.xml
+
+## IDEA 项目编码文件
+!.idea/encodings.xml
+
+## IDEA JDK版本文件
+!.idea/misc.xml
+
+## IDEA modules 配置
+!.idea/modules.xml
+
+## IDEA 版本控制配置
+!.idea/vcs.xml
+
