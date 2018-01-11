@@ -11,6 +11,7 @@ import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.service.ConfigService;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -110,11 +111,10 @@ public class ConfigServiceImpl implements ConfigService {
 
     private String loadTemplate(String name) {
         try {
-            return FileUtil.loadTextAndClose(getClass().getResourceAsStream("/template/"+name+".vm"));
+            return FileUtil.loadFile(new File(getClass().getResource("/template/"+name+".vm").getFile()), "UTF-8").replaceAll("\r", "");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return "";
     }
 
     //GET SET
