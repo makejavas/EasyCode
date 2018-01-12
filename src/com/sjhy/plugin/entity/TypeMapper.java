@@ -1,8 +1,8 @@
 package com.sjhy.plugin.entity;
 
-import java.io.Serializable;
+import com.sjhy.plugin.comm.CommClone;
 
-public class TypeMapper implements Cloneable, Serializable {
+public class TypeMapper extends CommClone<TypeMapper> {
     //列类型
     private String columnType;
     //java类型
@@ -30,19 +30,6 @@ public class TypeMapper implements Cloneable, Serializable {
 
     public void setJavaType(String javaType) {
         this.javaType = javaType;
-    }
-
-    public TypeMapper cloneTypeMapper() {
-        try {
-            return (TypeMapper) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     @Override

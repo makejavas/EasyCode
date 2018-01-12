@@ -67,7 +67,7 @@ public class TableInfoUtils extends ServiceComm {
      * @return java类型
      */
     private String getColumnType(String typeName) {
-        for (TypeMapper typeMapper : getCurrMapper().getTypeMapperList()) {
+        for (TypeMapper typeMapper : getCurrMapper().getElementList()) {
             if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
                 return typeMapper.getJavaType();
             }

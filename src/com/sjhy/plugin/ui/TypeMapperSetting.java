@@ -84,7 +84,7 @@ public class TypeMapperSetting implements Configurable {
                 JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
-            TypeMapperGroup typeMapperGroup = typeMapperGroupMap.get(currGroupName).cloneTypeMapperGroup();
+            TypeMapperGroup typeMapperGroup = typeMapperGroupMap.get(currGroupName).clone();
             typeMapperGroup.setName(value);
             typeMapperGroupMap.put(value, typeMapperGroup);
             currGroupName = value;
@@ -116,7 +116,7 @@ public class TypeMapperSetting implements Configurable {
         //复制数据
         this.typeMapperGroupMap = new LinkedHashMap<>();
         for (Map.Entry<String, TypeMapperGroup> entry : configService.getTypeMapperGroupMap().entrySet()) {
-            this.typeMapperGroupMap.put(entry.getKey(), entry.getValue().cloneTypeMapperGroup());
+            this.typeMapperGroupMap.put(entry.getKey(), entry.getValue().clone());
         }
         this.currGroupName = configService.getCurrTypeMapperGroupName();
 
@@ -136,7 +136,7 @@ public class TypeMapperSetting implements Configurable {
         this.typeMapperComboBox.removeAllItems();
         typeMapperGroupMap.keySet().forEach(this.typeMapperComboBox::addItem);
         this.typeMapperComboBox.setSelectedItem(this.currGroupName);
-        this.typeMapperModel.init(this.typeMapperGroupMap.get(currGroupName).getTypeMapperList());
+        this.typeMapperModel.init(this.typeMapperGroupMap.get(currGroupName).getElementList());
         init = true;
     }
 

@@ -11,7 +11,6 @@ import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.service.ConfigService;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -87,7 +86,7 @@ public class ConfigServiceImpl implements ConfigService {
         templateList.add(new Template("entity", loadTemplate("entity")));
         templateList.add(new Template("dao", loadTemplate("dao")));
         templateGroup.setName(DEFAULT_NAME);
-        templateGroup.setTemplateList(templateList);
+        templateGroup.setElementList(templateList);
         this.templateGroupMap.put(DEFAULT_NAME, templateGroup);
 
         //配置默认类型映射
@@ -106,7 +105,7 @@ public class ConfigServiceImpl implements ConfigService {
         typeMapperList.add(new TypeMapper("timestamp", "java.util.Date"));
         typeMapperList.add(new TypeMapper("boolean", "java.lang.Boolean"));
         typeMapperGroup.setName(DEFAULT_NAME);
-        typeMapperGroup.setTypeMapperList(typeMapperList);
+        typeMapperGroup.setElementList(typeMapperList);
         typeMapperGroupMap.put(DEFAULT_NAME, typeMapperGroup);
     }
 

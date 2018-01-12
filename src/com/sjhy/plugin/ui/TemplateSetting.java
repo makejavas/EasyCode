@@ -47,18 +47,18 @@ public class TemplateSetting implements Configurable {
                 JOptionPane.showMessageDialog(null, "Tab Name Can't Is Empty!");
                 return;
             }
-            for (Template template : getTemplateGroup().getTemplateList()) {
+            for (Template template : getTemplateGroup().getElementList()) {
                 if (template.getName().equals(value)){
                     JOptionPane.showMessageDialog(null, "Tab Name Already exist!");
                     return;
                 }
             }
-            getTemplateGroup().getTemplateList().add(new Template(value, ""));
+            getTemplateGroup().getElementList().add(new Template(value, ""));
             refresh();
         });
         //删除选项卡
         removeButton.addActionListener(e -> {
-            getTemplateGroup().getTemplateList().remove(templateTabbedPane.getSelectedIndex());
+            getTemplateGroup().getElementList().remove(templateTabbedPane.getSelectedIndex());
             refresh();
         });
 
@@ -91,7 +91,7 @@ public class TemplateSetting implements Configurable {
                 JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
-            TemplateGroup templateGroup = templateGroupMap.get(currGroupName).cloneTemplateGroup();
+            TemplateGroup templateGroup = templateGroupMap.get(currGroupName).clone();
             templateGroup.setName(value);
             templateGroupMap.put(value, templateGroup);
             currGroupName = value;
@@ -116,7 +116,7 @@ public class TemplateSetting implements Configurable {
     private void init() {
         //复制一份
         this.templateGroupMap = new LinkedHashMap<>();
-        configService.getTemplateGroupMap().forEach((s, templateGroup) -> this.templateGroupMap.put(s, templateGroup.cloneTemplateGroup()));
+        configService.getTemplateGroupMap().forEach((s, templateGroup) -> this.templateGroupMap.put(s, templateGroup.clone()));
         this.currGroupName = configService.getCurrTemplateGroupName();
         refresh();
     }
@@ -136,7 +136,7 @@ public class TemplateSetting implements Configurable {
                 this.templateTabbedPane.removeTabAt(0);
             }
         }
-        getTemplateGroup().getTemplateList().forEach(template -> {
+        getTemplateGroup().getElementList().forEach(template -> {
             EditTemplatePanel editTemplatePanel = new EditTemplatePanel(template);
             editTemplatePanelList.add(editTemplatePanel);
             this.templateTabbedPane.addTab(template.getName(), editTemplatePanel.getMainPanel());

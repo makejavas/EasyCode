@@ -70,7 +70,7 @@ public class SelectSavePath extends JDialog {
         if (selectTemplateNameList.isEmpty()){
             return selectTemplateList;
         }
-        templateGroup.getTemplateList().forEach(template -> {
+        templateGroup.getElementList().forEach(template -> {
             if (selectTemplateNameList.contains(template.getName())) {
                 selectTemplateList.add(template);
             }
@@ -105,7 +105,7 @@ public class SelectSavePath extends JDialog {
         //添加模板组
         checkBoxList.clear();
         templatePanel.setLayout(new GridLayout(6, 2));
-        templateGroup.getTemplateList().forEach(template -> {
+        templateGroup.getElementList().forEach(template -> {
             JCheckBox checkBox = new JCheckBox(template.getName());
             checkBoxList.add(checkBox);
             templatePanel.add(checkBox);

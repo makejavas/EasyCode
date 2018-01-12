@@ -1,6 +1,8 @@
 package com.sjhy.plugin.entity;
 
-public class Template implements Cloneable {
+import com.sjhy.plugin.comm.CommClone;
+
+public class Template extends CommClone<Template> {
     //模板名称
     private String name;
     //模板代码
@@ -28,19 +30,6 @@ public class Template implements Cloneable {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Template cloneTemplate() {
-        try {
-            return (Template) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     @Override
