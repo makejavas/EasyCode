@@ -28,7 +28,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
 
     String currGroupName;
 
-    protected Map<String, T> group;
+    Map<String, T> group;
 
     AbstractGroupPanel(Map<String, T> group, String selectGroupName) {
         itemGroupPanel.setLayout(new VerticalFlowLayout());
@@ -237,39 +237,39 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
     protected abstract E createItem(String name);
 
     //所有元素Get方法
-    public JPanel getMainPanel() {
+    JPanel getMainPanel() {
         return mainPanel;
     }
 
-    public JComboBox getGroupComboBox() {
+    JComboBox getGroupComboBox() {
         return groupComboBox;
     }
 
-    public JButton getCopyGroupButton() {
+    JButton getCopyGroupButton() {
         return copyGroupButton;
     }
 
-    public JButton getDeleteGroupButton() {
+    JButton getDeleteGroupButton() {
         return deleteGroupButton;
     }
 
-    public JButton getAddItemButton() {
+    JButton getAddItemButton() {
         return addItemButton;
     }
 
-    public JButton getDeleteItemButton() {
+    JButton getDeleteItemButton() {
         return deleteItemButton;
     }
 
-    public JButton getCopyItemButton() {
+    JButton getCopyItemButton() {
         return copyItemButton;
     }
 
-    public JPanel getItemGroupPanel() {
+    JPanel getItemGroupPanel() {
         return itemGroupPanel;
     }
 
-    public JPanel getItemPanel() {
+    JPanel getItemPanel() {
         return itemPanel;
     }
 }
