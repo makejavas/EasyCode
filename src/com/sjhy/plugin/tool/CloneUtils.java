@@ -3,7 +3,9 @@ package com.sjhy.plugin.tool;
 import com.sjhy.plugin.comm.CommClone;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CloneUtils {
     //单例模式
@@ -30,4 +32,12 @@ public class CloneUtils {
         return result;
     }
 
+    public <K,E extends CommClone<E>> Map<K, E> cloneMap(Map<K, E> src) {
+        if (src==null) {
+            return null;
+        }
+        Map<K, E> result = new HashMap<>();
+        src.forEach((k, e) -> result.put(k, e.clone()));
+        return result;
+    }
 }
