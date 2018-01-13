@@ -24,6 +24,15 @@ public class CacheDataUtils {
     private String savePath;
     private List<Template> selectTemplate;
     private String packageName;
+    private Module selectModule;
+
+    public Module getSelectModule() {
+        return selectModule;
+    }
+
+    public void setSelectModule(Module selectModule) {
+        this.selectModule = selectModule;
+    }
 
     public String getPackageName() {
         return packageName;

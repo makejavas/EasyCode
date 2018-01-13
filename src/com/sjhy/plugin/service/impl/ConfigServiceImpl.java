@@ -2,16 +2,15 @@ package com.sjhy.plugin.service.impl;
 
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.service.ConfigService;
+import com.sjhy.plugin.tool.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,8 +31,8 @@ public class ConfigServiceImpl implements ConfigService {
     //作者
     private String author;
 
-    //是否初始化
-    private Boolean init = false;
+    private FileUtils fileUtils = FileUtils.getInstance();
+
 
     public ConfigServiceImpl() {
         initDefault();
@@ -110,12 +109,7 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private String loadTemplate(String name) {
-        try {
-            byte[] temp = FileUtil.loadBytes(getClass().getResourceAsStream("/template/"+name+".vm"));
-            return new String(temp, "UTF-8").replaceAll("\r", "");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return fileUtils.read(getClass().getResourceAsStream("/template/"+name+".vm")).replaceAll("\r", "");
     }
 
     //GET SET
@@ -177,13 +171,5 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public void setTemplateGroupMap(Map<String, TemplateGroup> templateGroupMap) {
         this.templateGroupMap = templateGroupMap;
-    }
-
-    public Boolean getInit() {
-        return init;
-    }
-
-    public void setInit(Boolean init) {
-        this.init = init;
     }
 }

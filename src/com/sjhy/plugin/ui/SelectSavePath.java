@@ -92,6 +92,7 @@ public class SelectSavePath extends JDialog {
         cacheDataUtils.setSavePath(savePath);
         cacheDataUtils.setSelectTemplate(selectTemplateList);
         cacheDataUtils.setPackageName(packageField.getText());
+        cacheDataUtils.setSelectModule(getSelectModule());
         VelocityUtils.getInstance().handler();
         dispose();
     }
