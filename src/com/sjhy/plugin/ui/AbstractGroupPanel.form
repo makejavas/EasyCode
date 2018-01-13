@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.sjhy.plugin.ui.AbstractGroupPanel">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="2" y="0" width="610" height="400"/>
+      <xy x="2" y="0" width="434" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -23,34 +23,9 @@
         </constraints>
         <properties/>
       </component>
-      <component id="50465" class="javax.swing.JButton" binding="copyGroupButton">
-        <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <icon value="actions/copy.png"/>
-          <text value="Copy"/>
-        </properties>
-      </component>
-      <component id="fda8" class="javax.swing.JButton" binding="deleteGroupButton">
-        <constraints>
-          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <icon value="actions/delete.png"/>
-          <text value="Delete"/>
-        </properties>
-      </component>
-      <hspacer id="daa95">
-        <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="218" height="11"/>
-          </grid>
-        </constraints>
-      </hspacer>
       <vspacer id="d4861">
         <constraints>
-          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
       <scrollpane id="78371">
@@ -74,19 +49,20 @@
       <grid id="c4f5e" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
           <toolbar id="3c926">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="4" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="-1" height="20"/>
               </grid>
             </constraints>
             <properties>
               <borderPainted value="false"/>
+              <floatable value="false"/>
             </properties>
             <border type="none"/>
             <children>
@@ -115,12 +91,41 @@
       <grid id="53d32" binding="itemPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children/>
       </grid>
+      <toolbar id="29fbc">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="20"/>
+          </grid>
+        </constraints>
+        <properties>
+          <borderPainted value="false"/>
+          <floatable value="false"/>
+        </properties>
+        <clientProperties>
+          <JToolBar.isRollover class="java.lang.Boolean" value="false"/>
+        </clientProperties>
+        <border type="none"/>
+        <children>
+          <component id="50465" class="javax.swing.JButton" binding="copyGroupButton">
+            <constraints/>
+            <properties>
+              <icon value="actions/copy.png"/>
+            </properties>
+          </component>
+          <component id="fda8" class="javax.swing.JButton" binding="deleteGroupButton">
+            <constraints/>
+            <properties>
+              <icon value="actions/delete.png"/>
+            </properties>
+          </component>
+        </children>
+      </toolbar>
     </children>
   </grid>
   <inspectionSuppressions>
