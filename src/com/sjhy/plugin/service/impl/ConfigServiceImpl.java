@@ -120,7 +120,7 @@ public class ConfigServiceImpl implements ConfigService {
         }
         ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
         List<ColumnConfig> columnConfigList = new ArrayList<>();
-        columnConfigList.add(new ColumnConfig("required", ColumnConfigType.BOOLEAN));
+        columnConfigList.add(new ColumnConfig("disable", ColumnConfigType.BOOLEAN));
         columnConfigGroup.setName(DEFAULT_NAME);
         columnConfigGroup.setElementList(columnConfigList);
         columnConfigGroupMap.put(DEFAULT_NAME, columnConfigGroup);
