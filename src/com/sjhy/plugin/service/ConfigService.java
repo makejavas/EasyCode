@@ -2,6 +2,7 @@ package com.sjhy.plugin.service;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
+import com.sjhy.plugin.entity.ColumnConfigGroup;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 
@@ -38,4 +39,12 @@ public interface ConfigService extends PersistentStateComponent<ConfigService> {
     Map<String, TemplateGroup> getTemplateGroupMap();
 
     void setTemplateGroupMap(Map<String, TemplateGroup> templateGroupMap);
+
+    Map<String, ColumnConfigGroup> getColumnConfigGroupMap();
+
+    void setColumnConfigGroupMap(Map<String, ColumnConfigGroup> columnConfigGroupMap);
+
+    String getCurrColumnConfigGroupName();
+
+    void setCurrColumnConfigGroupName(String currColumnConfigGroupName);
 }
