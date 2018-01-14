@@ -23,16 +23,14 @@ public class ConfigServiceImpl implements ConfigService {
     private String currTemplateGroupName;
     //模板组
     private Map<String, TemplateGroup> templateGroupMap;
-    //配置表组
-    private Map<String, ColumnConfigGroup> columnConfigGroupMap;
     //当前配置表组名
     private String currColumnConfigGroupName;
+    //配置表组
+    private Map<String, ColumnConfigGroup> columnConfigGroupMap;
     //默认编码
     private String encode;
     //作者
     private String author;
-
-    private FileUtils fileUtils = FileUtils.getInstance();
 
 
     public ConfigServiceImpl() {
@@ -127,7 +125,7 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private String loadTemplate(String name) {
-        return fileUtils.read(getClass().getResourceAsStream("/template/"+name+".vm")).replaceAll("\r", "");
+        return FileUtils.getInstance().read(getClass().getResourceAsStream("/template/"+name+".vm")).replaceAll("\r", "");
     }
 
     //GET SET
