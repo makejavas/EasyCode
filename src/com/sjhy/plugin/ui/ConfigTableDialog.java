@@ -11,10 +11,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ConfigTableDialog extends JDialog {
     private JPanel contentPane;
@@ -40,17 +37,9 @@ public class ConfigTableDialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -61,17 +50,14 @@ public class ConfigTableDialog extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         init();
         initEvent();
     }
 
     private void onOK() {
+        tableInfoUtils.save(tableInfo);
         // add your code here
         dispose();
     }
@@ -80,6 +66,10 @@ public class ConfigTableDialog extends JDialog {
         // add your code here if necessary
         dispose();
     }
+
+
+
+
 
     private void init() {
         initFlag = false;
@@ -96,16 +86,62 @@ public class ConfigTableDialog extends JDialog {
 
     private void refresh() {
         tableModel = new DefaultTableModel();
-        columnConfigList.forEach(columnConfig -> {
-            tableModel.addColumn(columnConfig.getTitle());
-        });
+        columnConfigList.forEach(columnConfig -> tableModel.addColumn(columnConfig.getTitle()));
         //追加数据
         tableInfo.getFullColumn().forEach(columnInfo -> {
-            tableModel.addRow(new Object[]{columnInfo.getName(), columnInfo.getType(), columnInfo.getComment()});
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(columnInfo.getName());
+            dataList.add(columnInfo.getType());
+            dataList.add(columnInfo.getComment());
+            //渲染附加数据
+            if (columnInfo.getExt()!=null && !columnInfo.getExt().isEmpty()){
+                for (int i=3; i<tableModel.getColumnCount(); i++) {
+                    dataList.add(columnInfo.getExt().get(tableModel.getColumnName(i)));
+                }
+            }
+            tableModel.addRow(dataList.toArray());
         });
         table.setModel(tableModel);
         //刷新列编辑器
         refreshColumnEditor(columnConfigList);
+
+        //添加数据修改事件
+        tableModel.addTableModelListener(e -> {
+            if (e.getFirstRow()!=e.getLastRow()){
+                return;
+            }
+            int row = e.getFirstRow();
+            int column = e.getColumn();
+            Object val = tableModel.getValueAt(row, column);
+            ColumnInfo columnInfo = tableInfo.getFullColumn().get(row);
+            if (column==0){
+                for (ColumnInfo info : tableInfo.getFullColumn()) {
+                    if (info.getName().equals(val) && !info.getName().equals(columnInfo.getName())) {
+                        JOptionPane.showMessageDialog(null, "Column Name Already exist!");
+                        tableModel.setValueAt(columnInfo.getName(), row, column);
+                        return;
+                    }
+                }
+            }
+            switch (column) {
+                case 0:
+                    columnInfo.setName((String) val);
+                    break;
+                case 1:
+                    columnInfo.setType((String) val);
+                    break;
+                case 2:
+                    columnInfo.setComment((String) val);
+                    break;
+            }
+            if (column>2) {
+                if (columnInfo.getExt()==null) {
+                    columnInfo.setExt(new HashMap<>());
+                }
+                String title = tableModel.getColumnName(column);
+                columnInfo.getExt().put(title, val);
+            }
+        });
     }
 
     private void initEvent() {

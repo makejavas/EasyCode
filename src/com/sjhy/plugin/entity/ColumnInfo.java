@@ -2,6 +2,8 @@ package com.sjhy.plugin.entity;
 
 import com.intellij.database.model.DasColumn;
 
+import java.util.Map;
+
 public class ColumnInfo {
     //原对象
     private DasColumn obj;
@@ -11,6 +13,8 @@ public class ColumnInfo {
     private String comment;
     //类型
     private String type;
+    //扩展数据
+    private Map<String, Object> ext;
 
     public DasColumn getObj() {
         return obj;
@@ -42,5 +46,13 @@ public class ColumnInfo {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Map<String, Object> getExt() {
+        return ext;
+    }
+
+    public void setExt(Map<String, Object> ext) {
+        this.ext = ext;
     }
 }
