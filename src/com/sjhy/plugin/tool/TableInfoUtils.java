@@ -83,6 +83,7 @@ public class TableInfoUtils extends ServiceComm {
                     //自定义附加列
                     if (i>tableInfo.getFullColumn().size()-1){
                         tableInfo.getFullColumn().add(columnInfo);
+                        tableInfo.getOtherColumn().add(columnInfo);
                         continue;
                     }
                     if (columnInfo.getType()!=null) {
