@@ -1,0 +1,10 @@
+#* @implicitly included *#
+#* @vtlvariable name="author" type="java.lang.String" *#
+#* @vtlvariable name="encode" type="java.lang.String" *#
+#* @vtlvariable name="packageName" type="java.lang.String" *#
+#* @vtlvariable name="modulePath" type="java.lang.String" *#
+#* @vtlvariable name="importList" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="callback" type="com.sjhy.plugin.entity.Callback" *#
+#* @vtlvariable name="tool" type="com.sjhy.plugin.tool.NameUtils" *#
+#* @vtlvariable name="tableInfo" type="com.sjhy.plugin.entity.TableInfo" *#
+#* @vtlvariable name="tableInfoList" type="java.util.List<com.sjhy.plugin.entity.TableInfo>" *#

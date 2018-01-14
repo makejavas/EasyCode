@@ -59,4 +59,14 @@ public class NameUtils {
         matcher.appendTail(buffer);
         return buffer.toString();
     }
+
+    public String append(Object ...objects) {
+        StringBuilder builder = new StringBuilder();
+        for (Object s : objects) {
+            if (s!=null) {
+                builder.append(s);
+            }
+        }
+        return builder.toString();
+    }
 }
