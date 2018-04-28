@@ -15,6 +15,16 @@ public class ColumnInfo {
     private String type;
     //扩展数据
     private Map<String, Object> ext;
+    //允许为空
+    private Boolean notNull;
+
+    public Boolean getNotNull() {
+        return notNull;
+    }
+
+    public void setNotNull(Boolean notNull) {
+        this.notNull = notNull;
+    }
 
     public DasColumn getObj() {
         return obj;

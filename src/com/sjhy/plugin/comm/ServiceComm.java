@@ -22,14 +22,4 @@ public abstract class ServiceComm {
         ConfigService configService = getConfigService();
         configService.getTypeMapperGroupMap().put(configService.getCurrTypeMapperGroupName(), typeMapper);
     }
-
-//    protected Map<String, String> getCurrTemplate() {
-//        ConfigService configService = getConfigService();
-//        return configService.getTemplateGroup().get(configService.getCurrTemplateGroupName());
-//    }
-//
-//    protected void setCurrTemplate(Map<String, String> template) {
-//        ConfigService configService = getConfigService();
-//        configService.getTemplateGroup().put(configService.getCurrTemplateGroupName(), template);
-//    }
 }

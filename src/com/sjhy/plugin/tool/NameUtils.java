@@ -1,5 +1,7 @@
 package com.sjhy.plugin.tool;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,5 +70,9 @@ public class NameUtils {
             }
         }
         return builder.toString();
+    }
+
+    public String datetime(String pattern) {
+        return new SimpleDateFormat(pattern).format(new Date());
     }
 }

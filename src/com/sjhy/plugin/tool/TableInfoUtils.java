@@ -52,7 +52,16 @@ public class TableInfoUtils extends ServiceComm {
         dbTables.forEach(dbTable -> {
             TableInfo tableInfo = new TableInfo();
             tableInfo.setObj(dbTable);
-            tableInfo.setName(nameUtils.firstUpperCase(nameUtils.getJavaName(dbTable.getName().toLowerCase())));
+            String tableName = dbTable.getName().toLowerCase();
+            //定制化处理
+            if (tableName.startsWith("t_")) {
+                tableName = tableName.substring(2);
+            }
+            if (tableName.endsWith("_info")) {
+                tableName = tableName.substring(0, tableName.length()-5);
+            }
+            tableName = nameUtils.firstUpperCase(nameUtils.getJavaName(tableName));
+            tableInfo.setName(tableName);
             tableInfo.setComment(dbTable.getComment());
             tableInfo.setFullColumn(new ArrayList<>());
             tableInfo.setPkColumn(new ArrayList<>());
@@ -64,6 +73,7 @@ public class TableInfoUtils extends ServiceComm {
                 columnInfo.setType(getColumnType(column.getDataType().getSpecification()));
                 columnInfo.setName(nameUtils.getJavaName(column.getName().toLowerCase()));
                 columnInfo.setComment(column.getComment());
+                columnInfo.setNotNull(column.isNotNull());
                 tableInfo.getFullColumn().add(columnInfo);
                 if(DasUtil.isPrimary(column)){
                     tableInfo.getPkColumn().add(columnInfo);

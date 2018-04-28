@@ -127,6 +127,7 @@ public class VelocityUtils {
 
         tableInfoList.forEach(tableInfo -> {
             Callback callback = new Callback();
+            callback.setSavePath(cacheDataUtils.getSavePath());
             map.put("tableInfo", tableInfo);
             map.put("importList", getImportList(tableInfo));
             map.put("callback", callback);

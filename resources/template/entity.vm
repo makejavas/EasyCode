@@ -18,6 +18,7 @@ columnInfo 列对象
     name 列名（首字母小写）
     comment 列注释
     type 列类型（类型全名）
+    notNull 不能为空字段
     ext 附加字段（Map类型）
 $tableInfoList 所有选中的表
 $importList 所有需要导入的包集合
@@ -34,20 +35,28 @@ $tool
     append(... Object) 多个数据进行拼接
 *#
 $callback.setFileName($tool.append($tableInfo.name, ".java"))
+$callback.setSavePath($tool.append($callback.savePath, "/bean"))
 
-package $packageName;
+package ${packageName}.bean;
 
 #foreach($import in $importList)
 import $import;
 #end
+import com.alibaba.fastjson.JSON;
 
 /**
  * $!{tableInfo.comment}(${tableInfo.name})表实体类
+ *
  * @author $author
+ * @version 1.0
+ * @since $tool.datetime("yyyy/M/d H:m")
  */
 public class ${tableInfo.name} {
 #foreach($column in $tableInfo.fullColumn)
-    #if(${column.comment})//${column.comment}#end
+
+    #if(${column.comment})/**
+     * ${column.comment}
+     */#end
 
     private ${tool.getClsNameByFullName($column.type)} ${column.name};
 #end
@@ -61,4 +70,8 @@ public class ${tableInfo.name} {
     }
 #end
 
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
+    }
 }
