@@ -67,8 +67,7 @@ public class VelocityUtils {
         map.put("packageName", cacheDataUtils.getPackageName());
         if (selectModule!=null){
             //module路径
-            //noinspection ConstantConditions
-            map.put("modulePath", selectModule.getModuleFile().getParent().getPath());
+            map.put("modulePath", new File(selectModule.getModuleFilePath()).getParent());
         }
         return map;
     }

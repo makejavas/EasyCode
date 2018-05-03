@@ -155,7 +155,11 @@ public class SelectSavePath extends JDialog {
     @SuppressWarnings("ConstantConditions")
     private String getBasePath() {
         Module module = getSelectModule();
-        String baseDir = module.getModuleFile().getParent().getPath();
+        if (module==null || module.getModuleFilePath()==null) {
+            return null;
+        }
+//        String baseDir = module.getModuleFile().getParent().getPath();
+        String baseDir = new File(module.getModuleFilePath()).getParent();
         File file = new File(baseDir+"/src/main/java");
         if (file.exists()){
             return file.getAbsolutePath();
