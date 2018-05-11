@@ -1,1 +1,21 @@
-这里什么都没有
+$callback.setFileName($tool.append($tableInfo.name, "Mapper.java"))
+$callback.setSavePath($tool.append($callback.savePath, "/dao"))
+
+package ${packageName}.dao;
+
+import com.yhxd.bgn.common.dao.IMapper;
+import ${packageName}.bean.${tableInfo.name};
+import ${packageName}.query.${tableInfo.name}Query;
+import org.springframework.stereotype.Repository;
+
+/**
+* $!{tableInfo.comment}(${tableInfo.name})表Mapper类
+*
+* @author $author
+* @version 1.0
+* @since $tool.datetime("yyyy/M/d H:m")
+*/
+@Repository
+public interface ${tableInfo.name}Mapper extends IMapper<${tableInfo.name},${tableInfo.name}Query> {
+
+}

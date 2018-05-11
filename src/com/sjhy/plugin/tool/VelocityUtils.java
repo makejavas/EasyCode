@@ -126,11 +126,12 @@ public class VelocityUtils {
 
         tableInfoList.forEach(tableInfo -> {
             Callback callback = new Callback();
-            callback.setSavePath(cacheDataUtils.getSavePath());
             map.put("tableInfo", tableInfo);
             map.put("importList", getImportList(tableInfo));
             map.put("callback", callback);
             templateList.forEach(template -> {
+                //重置路径
+                callback.setSavePath(cacheDataUtils.getSavePath());
                 String content = generate(template.getCode(), map, encode).trim();
                 //保存的文件名
                 String fileName = callback.getFileName();

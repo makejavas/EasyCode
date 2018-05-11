@@ -11,6 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.comm.ServiceComm;
+import com.sjhy.plugin.constant.MybatisTypeMapper;
 import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
@@ -74,6 +75,7 @@ public class TableInfoUtils extends ServiceComm {
                 columnInfo.setName(nameUtils.getJavaName(column.getName().toLowerCase()));
                 columnInfo.setComment(column.getComment());
                 columnInfo.setNotNull(column.isNotNull());
+                columnInfo.setJdbcType(MybatisTypeMapper.ME.getTypeName(column.getDataType()));
                 tableInfo.getFullColumn().add(columnInfo);
                 if(DasUtil.isPrimary(column)){
                     tableInfo.getPkColumn().add(columnInfo);
@@ -96,12 +98,16 @@ public class TableInfoUtils extends ServiceComm {
                         tableInfo.getOtherColumn().add(columnInfo);
                         continue;
                     }
+                    ColumnInfo oldColumnInfo = tableInfo.getFullColumn().get(i);
+                    //自定义内容复写
                     if (columnInfo.getType()!=null) {
-                        tableInfo.getFullColumn().get(i).setType(columnInfo.getType());
+                        oldColumnInfo.setType(columnInfo.getType());
                     }
                     if (columnInfo.getComment()!=null) {
-                        tableInfo.getFullColumn().get(i).setComment(columnInfo.getComment());
+                        oldColumnInfo.setComment(columnInfo.getComment());
                     }
+                    //额外数据
+                    oldColumnInfo.setExt(columnInfo.getExt());
                 }
             }
             result.add(tableInfo);

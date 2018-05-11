@@ -1,0 +1,45 @@
+$callback.setFileName($tool.append($tableInfo.name, "Query.java"))
+$callback.setSavePath($tool.append($callback.savePath, "/query"))
+
+package ${packageName}.query;
+
+import com.yhxd.bgn.common.query.AbstractQuery;
+#foreach($import in $importList)
+import $import;
+#end
+import com.alibaba.fastjson.JSON;
+
+/**
+* $!{tableInfo.comment}(${tableInfo.name})表查询类
+*
+* @author $author
+* @version 1.0
+* @since $tool.datetime("yyyy/M/d H:m")
+*/
+public class ${tableInfo.name}Query extends AbstractQuery {
+#foreach($column in $tableInfo.fullColumn)
+#if($column.ext.query)
+    #if(${column.comment})/**
+    * ${column.comment}
+    */#end
+
+    private ${tool.getClsNameByFullName($column.type)} ${column.name};
+#end
+#end
+
+#foreach($column in $tableInfo.fullColumn)
+#if($column.ext.query)
+    public ${tool.getClsNameByFullName($column.type)} get${tool.firstUpperCase($column.name)}() {
+        return ${column.name};
+    }
+    public void set${tool.firstUpperCase($column.name)}(${tool.getClsNameByFullName($column.type)} ${column.name}) {
+        this.${column.name} = ${column.name};
+    }
+#end
+#end
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
+    }
+}

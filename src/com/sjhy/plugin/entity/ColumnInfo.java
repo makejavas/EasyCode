@@ -17,6 +17,16 @@ public class ColumnInfo {
     private Map<String, Object> ext;
     //允许为空
     private Boolean notNull;
+    //JDBC类型
+    private String jdbcType;
+
+    public String getJdbcType() {
+        return jdbcType;
+    }
+
+    public void setJdbcType(String jdbcType) {
+        this.jdbcType = jdbcType;
+    }
 
     public Boolean getNotNull() {
         return notNull;
