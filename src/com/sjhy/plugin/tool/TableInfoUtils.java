@@ -1,6 +1,5 @@
 package com.sjhy.plugin.tool;
 
-import com.intellij.codeInsight.actions.ReformatCodeAction;
 import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
@@ -155,7 +154,6 @@ public class TableInfoUtils extends ServiceComm {
             newColumn.setObj(null);
         }
         String content = JsonOutput.toJson(tableInfo);
-        ReformatCodeAction.containsAtLeastOneFile(null);
         String path = cacheDataUtils.getProject().getBasePath()+"/.idea/EasyCodeConfig";
         File dir = new File(path);
         if (!dir.exists()){
