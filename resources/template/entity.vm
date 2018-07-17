@@ -43,6 +43,8 @@ package ${packageName}.bean;
 import $import;
 #end
 import com.alibaba.fastjson.JSON;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * $!{tableInfo.comment}(${tableInfo.name})表实体类
@@ -51,8 +53,18 @@ import com.alibaba.fastjson.JSON;
  * @version 1.0
  * @since $tool.datetime("yyyy/M/d H:m")
  */
+@Table(name = "$tableInfo.obj.name")
 public class ${tableInfo.name} {
-#foreach($column in $tableInfo.fullColumn)
+#foreach($column in $tableInfo.pkColumn)
+
+    #if(${column.comment})/**
+    * ${column.comment}
+    */#end
+
+    @Id
+    private ${tool.getClsNameByFullName($column.type)} ${column.name};
+#end
+#foreach($column in $tableInfo.otherColumn)
 
     #if(${column.comment})/**
      * ${column.comment}

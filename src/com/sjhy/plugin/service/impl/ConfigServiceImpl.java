@@ -104,6 +104,7 @@ public class ConfigServiceImpl implements ConfigService {
         TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
         List<TypeMapper> typeMapperList = new ArrayList<>();
         typeMapperList.add(new TypeMapper("varchar(\\(\\d+\\))?", "java.lang.String"));
+        typeMapperList.add(new TypeMapper("text(\\(\\d+\\))?", "java.lang.String"));
         typeMapperList.add(new TypeMapper("decimal(\\(\\d+(,\\d+)?\\))?", "java.lang.Double"));
         typeMapperList.add(new TypeMapper("integer", "java.lang.Integer"));
         typeMapperList.add(new TypeMapper("int(\\(\\d+\\))?", "java.lang.Integer"));

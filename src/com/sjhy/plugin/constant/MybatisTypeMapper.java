@@ -21,6 +21,7 @@ public class MybatisTypeMapper {
     private void init() {
         map = new HashMap<>();
         map.put("varchar(\\(\\d+\\))?", "VARCHAR");
+        map.put("text(\\(\\d+\\))?", "VARCHAR");
         map.put("int(\\(\\d+\\))?", "INTEGER");
         map.put("timestamp(\\(\\d+\\))?", "TIMESTAMP");
     }

@@ -38,6 +38,15 @@ public class ${tableInfo.name}Query extends AbstractQuery {
 #end
 #end
 
+    //表字段信息
+#foreach($column in $tableInfo.fullColumn)
+    /**
+     * $column.comment
+     */
+    public static final String $column.obj.name.toUpperCase() = "$column.name";
+
+#end
+
     @Override
     public String toString() {
         return JSON.toJSONString(this);
