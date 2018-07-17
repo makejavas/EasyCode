@@ -13,33 +13,67 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 操作按钮分组
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class MainActionGroup extends ActionGroup {
+    /**
+     * 缓存数据工具类
+     */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
 
+    /**
+     * 是否不存在子菜单
+     */
+    private boolean notExistsChildren;
+
+    /**
+     * 是否分组按钮
+     *
+     * @return 是否隐藏
+     */
+    @Override
+    public boolean hideIfNoVisibleChildren() {
+        return this.notExistsChildren;
+    }
+
+
+    /**
+     * 根据右键在不同的选项上展示不同的子菜单
+     *
+     * @param event 事件对象
+     * @return 动作组
+     */
     @NotNull
     @Override
-    public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
-        if (anActionEvent == null) {
-            return AnAction.EMPTY_ARRAY;
-        }
-        Project project = anActionEvent.getProject();
+    public AnAction[] getChildren(@Nullable AnActionEvent event) {
+        // 获取当前项目
+        Project project = getEventProject(event);
         if (project == null) {
+            this.notExistsChildren = true;
             return AnAction.EMPTY_ARRAY;
         }
         //获取模型
         Module[] modules = ModuleManager.getInstance(project).getModules();
+
         //获取选中的单个表
-        PsiElement psiElement = anActionEvent.getData(LangDataKeys.PSI_ELEMENT);
+        PsiElement psiElement = event.getData(LangDataKeys.PSI_ELEMENT);
         DbTable selectDbTable = null;
         if (psiElement instanceof DbTable) {
             selectDbTable = (DbTable) psiElement;
         }
         if (selectDbTable == null) {
+            this.notExistsChildren = true;
             return AnAction.EMPTY_ARRAY;
         }
         //获取选中的所有表
-        PsiElement[] psiElements = anActionEvent.getData(LangDataKeys.PSI_ELEMENT_ARRAY);
+        PsiElement[] psiElements = event.getData(LangDataKeys.PSI_ELEMENT_ARRAY);
         if (psiElements == null || psiElements.length == 0) {
+            this.notExistsChildren = true;
             return AnAction.EMPTY_ARRAY;
         }
         List<DbTable> dbTableList = new ArrayList<>();
@@ -51,30 +85,41 @@ public class MainActionGroup extends ActionGroup {
             dbTableList.add(dbTable);
         }
         if (dbTableList.isEmpty()) {
+            this.notExistsChildren = true;
             return AnAction.EMPTY_ARRAY;
         }
-        //保存数据
+
+        //保存数据到缓存
         cacheDataUtils.setProject(project);
         cacheDataUtils.setDbTableList(dbTableList);
         cacheDataUtils.setModules(modules);
         cacheDataUtils.setSelectDbTable(selectDbTable);
+        this.notExistsChildren = false;
         return getMenuList();
     }
 
+    /**
+     * 初始化注册子菜单项目
+     *
+     * @return 子菜单数组
+     */
     private AnAction[] getMenuList() {
         String mainActionId = "com.sjhy.easy.code.action.generate";
         String configActionId = "com.sjhy.easy.code.action.config";
         ActionManager actionManager = ActionManager.getInstance();
+        // 代码生成菜单
         AnAction mainAction = actionManager.getAction(mainActionId);
         if (mainAction == null) {
             mainAction = new MainAction("Generate Code");
             actionManager.registerAction(mainActionId, mainAction);
         }
+        // 表配置菜单
         AnAction configAction = actionManager.getAction(configActionId);
         if (configAction == null) {
             configAction = new ConfigAction("Config Table");
             actionManager.registerAction(configActionId, configAction);
         }
+        // 返回所有菜单
         return new AnAction[]{mainAction, configAction};
     }
 }

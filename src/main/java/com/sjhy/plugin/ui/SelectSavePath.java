@@ -19,6 +19,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 选择保存路径
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class SelectSavePath extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
@@ -50,6 +57,7 @@ public class SelectSavePath extends JDialog {
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }

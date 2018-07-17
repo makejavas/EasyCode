@@ -13,6 +13,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 配置服务实现类
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 @State(name = "EasyCodeSetting", storages = @Storage("$APP_CONFIG$/EasyCode-settings.xml"))
 public class ConfigServiceImpl implements ConfigService {
     //当前类型映射组名

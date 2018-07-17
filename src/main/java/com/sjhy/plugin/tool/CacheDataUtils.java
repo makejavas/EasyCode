@@ -4,89 +4,68 @@ import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.sjhy.plugin.entity.Template;
+import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 缓存数据工具类
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
+@Data
 public class CacheDataUtils {
-    //单例模式
-    private static class Instance {
-        private static final CacheDataUtils ME = new CacheDataUtils();
-    }
+    private volatile static CacheDataUtils cacheDataUtils;
+
+    /**
+     * 单例模式
+     */
     public static CacheDataUtils getInstance() {
-        return Instance.ME;
+        if (cacheDataUtils == null) {
+            synchronized (CacheDataUtils.class) {
+                if (cacheDataUtils == null) {
+                    cacheDataUtils = new CacheDataUtils();
+                }
+            }
+        }
+        return cacheDataUtils;
     }
-    private CacheDataUtils(){}
 
+    private CacheDataUtils() {
+    }
+
+    /**
+     * 所有选中的表
+     */
     private List<DbTable> dbTableList;
+    /**
+     * 项目中所有的modules
+     */
     private Module[] modules;
+    /**
+     * 当前项目
+     */
     private Project project;
+    /**
+     * 当前选中的表
+     */
     private DbTable selectDbTable;
+    /**
+     * 保存路径
+     */
     private String savePath;
+    /**
+     * 选中的所有模板
+     */
     private List<Template> selectTemplate;
+    /**
+     * 设置的包名称
+     */
     private String packageName;
+    /**
+     * 选中的model
+     */
     private Module selectModule;
-
-    public Module getSelectModule() {
-        return selectModule;
-    }
-
-    public void setSelectModule(Module selectModule) {
-        this.selectModule = selectModule;
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public List<Template> getSelectTemplate() {
-        return selectTemplate;
-    }
-
-    public void setSelectTemplate(List<Template> selectTemplate) {
-        this.selectTemplate = selectTemplate;
-    }
-
-    public List<DbTable> getDbTableList() {
-        return dbTableList;
-    }
-
-    public void setDbTableList(List<DbTable> dbTableList) {
-        this.dbTableList = dbTableList;
-    }
-
-    public Module[] getModules() {
-        return modules;
-    }
-
-    public void setModules(Module[] modules) {
-        this.modules = modules;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public DbTable getSelectDbTable() {
-        return selectDbTable;
-    }
-
-    public void setSelectDbTable(DbTable selectDbTable) {
-        this.selectDbTable = selectDbTable;
-    }
-
-    public String getSavePath() {
-        return savePath;
-    }
-
-    public void setSavePath(String savePath) {
-        this.savePath = savePath;
-    }
 }

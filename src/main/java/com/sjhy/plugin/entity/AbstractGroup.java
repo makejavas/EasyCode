@@ -4,10 +4,21 @@ import com.sjhy.plugin.comm.CommClone;
 
 import java.util.List;
 
+/**
+ * 抽象分组类
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public abstract class AbstractGroup<T extends CommClone, E extends CommClone> extends CommClone<T> {
-    //组名
+    /**
+     * 组名
+     */
     private String name;
-    //组元素
+    /**
+     * 组元素
+     */
     private List<E> elementList;
 
     public String getName() {
@@ -37,8 +48,12 @@ public abstract class AbstractGroup<T extends CommClone, E extends CommClone> ex
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         AbstractGroup that = (AbstractGroup) o;
 

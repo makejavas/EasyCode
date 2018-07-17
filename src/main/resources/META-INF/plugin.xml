@@ -16,6 +16,8 @@
     ]]>
     </change-notes>
 
+    <idea-version since-build="IU-181.4445.20"/>
+
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <!-- uncomment to enable plugin in all products
@@ -24,6 +26,8 @@
     <depends>com.intellij.modules.lang</depends>
     <!--必须运行在企业版-->
     <depends optional="true">com.intellij.modules.ultimate</depends>
+    <!--必须存在database插件-->
+    <!--suppress PluginXmlValidity -->
     <depends optional="true">com.intellij.database</depends>
 
     <extensions defaultExtensionNs="com.intellij">
