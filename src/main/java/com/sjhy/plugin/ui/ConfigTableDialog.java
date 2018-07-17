@@ -44,6 +44,7 @@ public class ConfigTableDialog extends JDialog {
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
@@ -66,9 +67,6 @@ public class ConfigTableDialog extends JDialog {
         // add your code here if necessary
         dispose();
     }
-
-
-
 
 
     private void init() {
@@ -94,8 +92,8 @@ public class ConfigTableDialog extends JDialog {
             dataList.add(columnInfo.getType());
             dataList.add(columnInfo.getComment());
             //渲染附加数据
-            if (columnInfo.getExt()!=null && !columnInfo.getExt().isEmpty()){
-                for (int i=3; i<tableModel.getColumnCount(); i++) {
+            if (columnInfo.getExt() != null && !columnInfo.getExt().isEmpty()) {
+                for (int i = 3; i < tableModel.getColumnCount(); i++) {
                     dataList.add(columnInfo.getExt().get(tableModel.getColumnName(i)));
                 }
             }
@@ -107,14 +105,14 @@ public class ConfigTableDialog extends JDialog {
 
         //添加数据修改事件
         tableModel.addTableModelListener(e -> {
-            if (e.getFirstRow()!=e.getLastRow()){
+            if (e.getFirstRow() != e.getLastRow()) {
                 return;
             }
             int row = e.getFirstRow();
             int column = e.getColumn();
             Object val = tableModel.getValueAt(row, column);
             ColumnInfo columnInfo = tableInfo.getFullColumn().get(row);
-            if (column==0){
+            if (column == 0) {
                 for (ColumnInfo info : tableInfo.getFullColumn()) {
                     if (info.getName().equals(val) && !info.getName().equals(columnInfo.getName())) {
                         JOptionPane.showMessageDialog(null, "Column Name Already exist!");
@@ -133,9 +131,11 @@ public class ConfigTableDialog extends JDialog {
                 case 2:
                     columnInfo.setComment((String) val);
                     break;
+                default:
+                    break;
             }
-            if (column>2) {
-                if (columnInfo.getExt()==null) {
+            if (column > 2) {
+                if (columnInfo.getExt() == null) {
                     columnInfo.setExt(new HashMap<>());
                 }
                 String title = tableModel.getColumnName(column);
@@ -151,16 +151,16 @@ public class ConfigTableDialog extends JDialog {
                 return;
             }
             String value = JOptionPane.showInputDialog(null, "Input Column Name:", "Demo");
-            if (value==null) {
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Column Name Can't Is Empty!");
                 return;
             }
 
             for (ColumnInfo columnInfo : tableInfo.getFullColumn()) {
-                if (columnInfo.getName().equals(value)){
+                if (columnInfo.getName().equals(value)) {
                     JOptionPane.showMessageDialog(null, "Column Name Already exist!");
                     return;
                 }
@@ -190,12 +190,14 @@ public class ConfigTableDialog extends JDialog {
                     break;
                 case BOOLEAN:
                     //给空列赋初始值
-                    for (int row=0; row< tableModel.getRowCount(); row++) {
-                        if (tableModel.getValueAt(row, index)==null){
+                    for (int row = 0; row < tableModel.getRowCount(); row++) {
+                        if (tableModel.getValueAt(row, index) == null) {
                             tableModel.setValueAt(false, row, index);
                         }
                     }
                     tableColumn.setCellEditor(new BooleanTableCellEditor());
+                    break;
+                default:
                     break;
             }
         });
@@ -211,7 +213,7 @@ public class ConfigTableDialog extends JDialog {
     }
 
     public void open() {
-        setTitle("Config Table "+cacheDataUtils.getSelectDbTable().getName());
+        setTitle("Config Table " + cacheDataUtils.getSelectDbTable().getName());
         pack();
         setLocationRelativeTo(null);
         setVisible(true);

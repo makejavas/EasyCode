@@ -16,16 +16,14 @@
     ]]>
     </change-notes>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="173.0"/>
-
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
-
-    <!--suppress PluginXmlValidity -->
+    <depends>com.intellij.modules.lang</depends>
+    <!--必须运行在企业版-->
+    <depends optional="true">com.intellij.modules.ultimate</depends>
     <depends optional="true">com.intellij.database</depends>
 
     <extensions defaultExtensionNs="com.intellij">

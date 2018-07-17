@@ -15,14 +15,15 @@ import java.util.List;
 
 public class MainActionGroup extends ActionGroup {
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
+
     @NotNull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
-        if (anActionEvent==null) {
+        if (anActionEvent == null) {
             return AnAction.EMPTY_ARRAY;
         }
         Project project = anActionEvent.getProject();
-        if (project==null) {
+        if (project == null) {
             return AnAction.EMPTY_ARRAY;
         }
         //获取模型
@@ -33,7 +34,7 @@ public class MainActionGroup extends ActionGroup {
         if (psiElement instanceof DbTable) {
             selectDbTable = (DbTable) psiElement;
         }
-        if (selectDbTable==null) {
+        if (selectDbTable == null) {
             return AnAction.EMPTY_ARRAY;
         }
         //获取选中的所有表
@@ -65,12 +66,12 @@ public class MainActionGroup extends ActionGroup {
         String configActionId = "com.sjhy.easy.code.action.config";
         ActionManager actionManager = ActionManager.getInstance();
         AnAction mainAction = actionManager.getAction(mainActionId);
-        if (mainAction==null) {
+        if (mainAction == null) {
             mainAction = new MainAction("Generate Code");
             actionManager.registerAction(mainActionId, mainAction);
         }
         AnAction configAction = actionManager.getAction(configActionId);
-        if (configAction==null) {
+        if (configAction == null) {
             configAction = new ConfigAction("Config Table");
             actionManager.registerAction(configActionId, configAction);
         }

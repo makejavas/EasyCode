@@ -33,31 +33,31 @@ $tool
     getJavaName(String) 将下划线分割字符串转驼峰命名
     append(... Object) 多个数据进行拼接
 *#
-$callback.setFileName($tool.append($tableInfo.name, ".java"))
+$!callback.setFileName($tool.append($tableInfo.name, ".java"))
 
-package $packageName;
+package $!packageName;
 
 #foreach($import in $importList)
-import $import;
+import $!import;
 #end
 
 /**
- * $!{tableInfo.comment}(${tableInfo.name})表实体类
- * @author $author
+ * $!{tableInfo.comment}($!{tableInfo.name})表实体类
+ * @author $!author
  */
-public class ${tableInfo.name} {
+public class $!{tableInfo.name} {
 #foreach($column in $tableInfo.fullColumn)
     #if(${column.comment})//${column.comment}#end
 
-    private ${tool.getClsNameByFullName($column.type)} ${column.name};
+    private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
 #end
 
 #foreach($column in $tableInfo.fullColumn)
-    public ${tool.getClsNameByFullName($column.type)} get${tool.firstUpperCase($column.name)}() {
-        return ${column.name};
+    public $!{tool.getClsNameByFullName($column.type)} get$!{tool.firstUpperCase($column.name)}() {
+        return $!{column.name};
     }
-    public void set${tool.firstUpperCase($column.name)}(${tool.getClsNameByFullName($column.type)} ${column.name}) {
-        this.${column.name} = ${column.name};
+    public void set$!{tool.firstUpperCase($column.name)}($!{tool.getClsNameByFullName($column.type)} $!{column.name}) {
+        this.$!{column.name} = $!{column.name};
     }
 #end
 
