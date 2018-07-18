@@ -1,7 +1,7 @@
 package com.sjhy.plugin.entity;
 
-import com.sjhy.plugin.comm.CommClone;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 列配置信息
@@ -11,7 +11,8 @@ import lombok.Data;
  * @since 2018/07/17 13:10
  */
 @Data
-public class ColumnConfig extends CommClone<ColumnConfig> {
+@NoArgsConstructor
+public class ColumnConfig {
     /**
      * 标题
      */

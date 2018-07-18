@@ -11,6 +11,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
+/**
+ * 表设置面板
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class TableSettingPanel extends AbstractTableGroupPanel<ColumnConfigGroup, ColumnConfig> implements Configurable {
     private ConfigInfo configInfo = ConfigInfo.getInstance();
     private CloneUtils cloneUtils = CloneUtils.getInstance();
@@ -74,6 +81,8 @@ public class TableSettingPanel extends AbstractTableGroupPanel<ColumnConfigGroup
 
     @Override
     public void reset() {
-        init(cloneUtils.cloneMap(configInfo.getColumnConfigGroupMap()), configInfo.getCurrColumnConfigGroupName());
+        this.group = cloneUtils.cloneMap(configInfo.getColumnConfigGroupMap());
+        this.currGroupName = configInfo.getCurrColumnConfigGroupName();
+        init();
     }
 }

@@ -1,7 +1,5 @@
 package com.sjhy.plugin.entity;
 
-import com.sjhy.plugin.comm.CommClone;
-
 import java.util.List;
 
 /**
@@ -11,59 +9,32 @@ import java.util.List;
  * @version 1.0.0
  * @since 2018/07/17 13:10
  */
-public abstract class AbstractGroup<T extends CommClone, E extends CommClone> extends CommClone<T> {
+public interface AbstractGroup<E> {
     /**
-     * 组名
+     * 获取分组名称
+     *
+     * @return 分组名称
      */
-    private String name;
+    String getName();
+
     /**
-     * 组元素
+     * 设置分组名称
+     *
+     * @param name 分组名称
      */
-    private List<E> elementList;
+    void setName(String name);
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * 获取元素集合
+     *
+     * @return 元素集合
+     */
+    List<E> getElementList();
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<E> getElementList() {
-        return elementList;
-    }
-
-    public void setElementList(List<E> elementList) {
-        this.elementList = elementList;
-    }
-
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T clone() {
-        AbstractGroup group = (AbstractGroup) super.clone();
-        group.elementList = cloneUtils.cloneList(this.elementList);
-        return (T) group;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        AbstractGroup that = (AbstractGroup) o;
-
-        return name.equals(that.name) && elementList.equals(that.elementList);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + elementList.hashCode();
-        return result;
-    }
+    /**
+     * 设置元素集合
+     *
+     * @param elementList 元素集合
+     */
+    void setElementList(List<E> elementList);
 }

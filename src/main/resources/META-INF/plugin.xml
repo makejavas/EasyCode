@@ -23,9 +23,8 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
-    <depends>com.intellij.modules.lang</depends>
     <!--必须运行在企业版-->
-    <depends optional="true">com.intellij.modules.ultimate</depends>
+    <depends>com.intellij.modules.ultimate</depends>
     <!--必须存在database插件-->
     <!--suppress PluginXmlValidity -->
     <depends optional="true">com.intellij.database</depends>

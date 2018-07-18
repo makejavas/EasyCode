@@ -4,51 +4,89 @@ import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.entity.TypeMapperModel;
+import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * 类型映射设置
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class TypeMapperSetting implements Configurable {
-    //主面板
+    /**
+     * 主面板
+     */
     private JPanel mainPanel;
-    //类型映射分组切换下拉框
+    /**
+     * 类型映射分组切换下拉框
+     */
     private JComboBox typeMapperComboBox;
-    //分组复制按钮
+    /**
+     * 分组复制按钮
+     */
     private JButton typeMapperCopyButton;
-    //类型映射表
+    /**
+     * 类型映射表
+     */
     private JTable typeMapperTable;
-    //添加映射按钮
+    /**
+     * 添加映射按钮
+     */
     private JButton addButton;
-    //移除映射按钮
+    /**
+     * 移除映射按钮
+     */
     private JButton removeButton;
-    //删除分组按钮
+    /**
+     * 删除分组按钮
+     */
     private JButton deleteButton;
 
-    //是否初始化完成
+    /**
+     * 是否初始化完成
+     */
     private boolean init;
-    //类型映射表模型
+    /**
+     * 类型映射表模型
+     */
     private TypeMapperModel typeMapperModel;
 
-    //当前选中分组
+    /**
+     * 当前选中分组
+     */
     private String currGroupName;
-    //类型映射分组集合
+    /**
+     * 类型映射分组集合
+     */
     private Map<String, TypeMapperGroup> typeMapperGroupMap;
-    //全局配置服务
+    /**
+     * 全局配置服务
+     */
     private ConfigInfo configInfo;
+    /**
+     * 克隆工具类
+     */
+    private CloneUtils cloneUtils = CloneUtils.getInstance();
 
 
-    TypeMapperSetting(ConfigInfo configInfo) {
+    public TypeMapperSetting(ConfigInfo configInfo) {
         this.configInfo = configInfo;
+        this.typeMapperGroupMap = cloneUtils.cloneMap(configInfo.getTypeMapperGroupMap());
+        this.currGroupName = configInfo.getCurrTypeMapperGroupName();
         //添加类型
         addButton.addActionListener(e -> typeMapperModel.addRow(new TypeMapper("demoColumn", "java.lang.Object")));
 
         //移除类型
         removeButton.addActionListener(e -> {
             int[] selectRows = typeMapperTable.getSelectedRows();
+            // 从后面往前面移除，防止下标错位问题。
             for (int i = selectRows.length - 1; i >= 0; i--) {
                 typeMapperModel.removeRow(selectRows[i]);
             }
@@ -84,7 +122,8 @@ public class TypeMapperSetting implements Configurable {
                 JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
-            TypeMapperGroup typeMapperGroup = typeMapperGroupMap.get(currGroupName).clone();
+            // 克隆对象
+            TypeMapperGroup typeMapperGroup = cloneUtils.clone(typeMapperGroupMap.get(currGroupName));
             typeMapperGroup.setName(value);
             typeMapperGroupMap.put(value, typeMapperGroup);
             currGroupName = value;
@@ -105,6 +144,7 @@ public class TypeMapperSetting implements Configurable {
             }
         });
 
+        // 初始化操作
         init();
     }
 
@@ -113,13 +153,6 @@ public class TypeMapperSetting implements Configurable {
      * 初始化方法
      */
     private void init() {
-        //复制数据
-        this.typeMapperGroupMap = new LinkedHashMap<>();
-        for (Map.Entry<String, TypeMapperGroup> entry : configInfo.getTypeMapperGroupMap().entrySet()) {
-            this.typeMapperGroupMap.put(entry.getKey(), entry.getValue().clone());
-        }
-        this.currGroupName = configInfo.getCurrTypeMapperGroupName();
-
         //初始化表格
         this.typeMapperModel = new TypeMapperModel();
         this.typeMapperTable.setModel(typeMapperModel);
@@ -129,11 +162,11 @@ public class TypeMapperSetting implements Configurable {
     /**
      * 刷新方法
      */
-    @SuppressWarnings("unchecked")
     private void refresh() {
         init = false;
         //初始化下拉框
         this.typeMapperComboBox.removeAllItems();
+        //noinspection unchecked
         typeMapperGroupMap.keySet().forEach(this.typeMapperComboBox::addItem);
         this.typeMapperComboBox.setSelectedItem(this.currGroupName);
         this.typeMapperModel.init(this.typeMapperGroupMap.get(currGroupName).getElementList());

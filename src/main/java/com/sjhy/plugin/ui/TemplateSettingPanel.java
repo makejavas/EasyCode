@@ -23,10 +23,6 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      */
     private ConfigInfo configInfo = ConfigInfo.getInstance();
     /**
-     * 对象克隆工具
-     */
-    private CloneUtils cloneUtils = CloneUtils.getInstance();
-    /**
      * 编辑框面板
      */
     private EditTemplatePanel editTemplatePanel;
@@ -34,18 +30,20 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     /**
      * 默认构造方法
      */
-    TemplateSettingPanel() {
+    public TemplateSettingPanel() {
         super(CloneUtils.getInstance().cloneMap(ConfigInfo.getInstance().getTemplateGroupMap()), ConfigInfo.getInstance().getCurrTemplateGroupName());
     }
 
     /**
      * 切换模板编辑时
+     *
      * @param itemPanel 面板对象
-     * @param item 模板对象
+     * @param item      模板对象
      */
     @Override
     protected void initItemPanel(JPanel itemPanel, Template item) {
-        if (editTemplatePanel!=null) {
+        // 如果编辑面板已经实例化，需要选释放后再初始化
+        if (editTemplatePanel != null) {
             editTemplatePanel.disposeEditor();
         }
         itemPanel.removeAll();
@@ -69,18 +67,33 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
         return new Template(name, "Demo!");
     }
 
+    /**
+     * 获取设置显示的名称
+     *
+     * @return 名称
+     */
     @Nls
     @Override
     public String getDisplayName() {
         return "Template Setting";
     }
 
+    /**
+     * 获取主面板对象
+     *
+     * @return 主面板对象
+     */
     @Nullable
     @Override
     public JComponent createComponent() {
-        return getMainPanel();
+        return super.mainPanel;
     }
 
+    /**
+     * 配置是否修改过
+     *
+     * @return 是否修改过
+     */
     @Override
     public boolean isModified() {
         editTemplatePanel.refresh();
@@ -101,7 +114,10 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      */
     @Override
     public void reset() {
-        init(cloneUtils.cloneMap(configInfo.getTemplateGroupMap()), configInfo.getCurrTemplateGroupName());
+        // 防止对象篡改，需要进行克隆
+        super.group = cloneUtils.cloneMap(configInfo.getTemplateGroupMap());
+        super.currGroupName = configInfo.getCurrTemplateGroupName();
+        super.init();
     }
 
     /**
