@@ -2,7 +2,7 @@ package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.comm.ServiceComm;
-import com.sjhy.plugin.service.ConfigService;
+import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,17 +10,25 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class MainSetting extends ServiceComm implements Configurable, Configurable.Composite {
-    //主面板
+    /**
+     * 主面板
+     */
     private JPanel mainPanel;
-    //编码选择下拉框
+    /**
+     * 编码选择下拉框
+     */
     private JComboBox encodeComboBox;
-    //作者编辑框
+    /**
+     * 作者编辑框
+     */
     private JTextField authorTextField;
-    //全局配置服务
-    private ConfigService configService;
+    /**
+     * 全局配置服务
+     */
+    private ConfigInfo configInfo;
 
-    public MainSetting(ConfigService configService) {
-        this.configService = configService;
+    public MainSetting(ConfigInfo configInfo) {
+        this.configInfo = configInfo;
         init();
     }
 
@@ -29,8 +37,8 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
      */
     private void init() {
         //初始化数据
-        authorTextField.setText(configService.getAuthor());
-        encodeComboBox.setSelectedItem(configService.getEncode());
+        authorTextField.setText(configInfo.getAuthor());
+        encodeComboBox.setSelectedItem(configInfo.getEncode());
     }
 
     @Nls
@@ -41,13 +49,14 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
 
     /**
      * 更多配置
+     *
      * @return 配置选项
      */
     @NotNull
     @Override
     public Configurable[] getConfigurables() {
         Configurable[] result = new Configurable[3];
-        result[0] = new TypeMapperSetting(configService);
+        result[0] = new TypeMapperSetting(configInfo);
         result[1] = new TemplateSettingPanel();
         result[2] = new TableSettingPanel();
         return result;
@@ -61,14 +70,14 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
 
     @Override
     public boolean isModified() {
-        return !configService.getEncode().equals(encodeComboBox.getSelectedItem()) || !configService.getAuthor().equals(authorTextField.getText());
+        return !configInfo.getEncode().equals(encodeComboBox.getSelectedItem()) || !configInfo.getAuthor().equals(authorTextField.getText());
     }
 
     @Override
     public void apply() {
         //保存数据
-        configService.setAuthor(authorTextField.getText());
-        configService.setEncode((String) encodeComboBox.getSelectedItem());
+        configInfo.setAuthor(authorTextField.getText());
+        configInfo.setEncode((String) encodeComboBox.getSelectedItem());
     }
 
     @Override

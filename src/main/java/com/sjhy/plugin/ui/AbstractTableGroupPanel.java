@@ -5,14 +5,21 @@ import com.intellij.util.ui.ComboBoxCellEditor;
 import com.sjhy.plugin.comm.CommClone;
 import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.entity.ColumnConfig;
-import com.sjhy.plugin.service.ConfigService;
+import com.sjhy.plugin.tool.ConfigInfo;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.util.*;
 
-public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E extends CommClone> {
+/**
+ * 抽象的表分组面板
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
+public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T, E>, E extends CommClone> {
     private JPanel mainPanel;
     private JComboBox groupComboBox;
     private JTable table;
@@ -25,7 +32,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
 
     private DefaultTableModel tableModel;
 
-    protected Map<String,T> group;
+    protected Map<String, T> group;
     protected String currGroupName;
 
     private boolean initFlag;
@@ -36,11 +43,13 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
         initEvent();
     }
 
-    protected AbstractGroup<T,E> getCurrGroup() {
+    protected AbstractGroup<T, E> getCurrGroup() {
         return this.group.get(this.currGroupName);
     }
 
-    //刷新类类型配置
+    /**
+     * 刷新类类型配置
+     */
     private void refreshEditorType() {
         for (ColumnConfig column : columnConfigInfo) {
             TableColumn tableColumn = table.getColumn(column.getTitle());
@@ -57,6 +66,8 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
                     break;
                 case BOOLEAN:
                     tableColumn.setCellEditor(new BooleanTableCellEditor());
+                    break;
+                default:
                     break;
             }
         }
@@ -87,11 +98,11 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
     private void initEvent() {
         //切换分组事件
         groupComboBox.addActionListener(e -> {
-            if (!initFlag){
+            if (!initFlag) {
                 return;
             }
             String groupName = (String) groupComboBox.getSelectedItem();
-            if (groupName==null) {
+            if (groupName == null) {
                 return;
             }
             if (currGroupName.equals(groupName)) {
@@ -104,15 +115,15 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
             if (!initFlag) {
                 return;
             }
-            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName+" Copy");
-            if (value==null) {
+            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName + " Copy");
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Group Name Can't Is Empty!");
                 return;
             }
-            if (group.containsKey(value)){
+            if (group.containsKey(value)) {
                 JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
@@ -127,14 +138,14 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
             if (!initFlag) {
                 return;
             }
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group "+currGroupName+"?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (result==0){
-                if(ConfigService.DEFAULT_NAME.equals(currGroupName)){
+            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group " + currGroupName + "?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
+            if (result == 0) {
+                if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
                     JOptionPane.showMessageDialog(null, "Can't Delete Default Group!");
                     return;
                 }
                 group.remove(currGroupName);
-                init(group, ConfigService.DEFAULT_NAME);
+                init(group, ConfigInfo.DEFAULT_NAME);
             }
         });
         //添加元素事件
@@ -143,16 +154,16 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
                 return;
             }
             String value = JOptionPane.showInputDialog(null, "Input Item Name:", "Demo");
-            if (value==null) {
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
                 return;
             }
             List<E> itemList = group.get(currGroupName).getElementList();
             for (E item : itemList) {
-                if (getItemName(item).equals(value)){
+                if (getItemName(item).equals(value)) {
                     JOptionPane.showMessageDialog(null, "Item Name Already exist!");
                     return;
                 }
@@ -170,9 +181,9 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
                 return;
             }
             int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Selected Item?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (result==0) {
+            if (result == 0) {
                 int[] rows = table.getSelectedRows();
-                for (int i = rows.length-1; i>=0; i--) {
+                for (int i = rows.length - 1; i >= 0; i--) {
                     tableModel.removeRow(rows[i]);
                     getCurrGroup().getElementList().remove(rows[i]);
                 }
@@ -190,7 +201,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
 
     //用于数据回绑定
     protected void refresh() {
-        if (tableModel==null){
+        if (tableModel == null) {
             return;
         }
         Vector vector = tableModel.getDataVector();
@@ -201,11 +212,11 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<T,E>, E ex
                 Object[] itemArr = new Object[item.size()];
                 int i = 0;
                 for (Object obj2 : item) {
-                    if (obj2!=null && obj2 instanceof String) {
+                    if (obj2 != null && obj2 instanceof String) {
                         String str = (String) obj2;
                         str = str.trim();
                         obj2 = str;
-                        if (str.isEmpty()){
+                        if (str.isEmpty()) {
                             obj2 = null;
                         }
                     }

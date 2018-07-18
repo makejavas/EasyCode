@@ -3,7 +3,7 @@ package com.sjhy.plugin.ui;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.sjhy.plugin.comm.CommClone;
 import com.sjhy.plugin.entity.AbstractGroup;
-import com.sjhy.plugin.service.ConfigService;
+import com.sjhy.plugin.tool.ConfigInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends CommClone> {
+public abstract class AbstractGroupPanel<T extends AbstractGroup<T, E>, E extends CommClone> {
     private JPanel mainPanel;
     private JComboBox groupComboBox;
     private JButton copyGroupButton;
@@ -68,7 +68,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
     private void initItem(List<E> itemList) {
         initFlag = false;
         itemGroupPanel.removeAll();
-        if (itemList.isEmpty()){
+        if (itemList.isEmpty()) {
             itemGroupPanel.updateUI();
             initFlag = true;
             return;
@@ -83,7 +83,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
                     return;
                 }
                 String itemName = button.getText();
-                for (int i=0; i < itemList.size(); i++) {
+                for (int i = 0; i < itemList.size(); i++) {
                     E element = itemList.get(i);
                     if (itemName.equals(getItemName(element))) {
                         selectItemIndex = i;
@@ -104,11 +104,11 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
     private void initEvent() {
         //切换分组事件
         groupComboBox.addActionListener(e -> {
-            if (!initFlag){
+            if (!initFlag) {
                 return;
             }
             String groupName = (String) groupComboBox.getSelectedItem();
-            if (groupName==null) {
+            if (groupName == null) {
                 return;
             }
             if (currGroupName.equals(groupName)) {
@@ -121,15 +121,15 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
             if (!initFlag) {
                 return;
             }
-            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName+" Copy");
-            if (value==null) {
+            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName + " Copy");
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Group Name Can't Is Empty!");
                 return;
             }
-            if (group.containsKey(value)){
+            if (group.containsKey(value)) {
                 JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
@@ -144,14 +144,14 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
             if (!initFlag) {
                 return;
             }
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group "+currGroupName+"?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (result==0){
-                if(ConfigService.DEFAULT_NAME.equals(currGroupName)){
+            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group " + currGroupName + "?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
+            if (result == 0) {
+                if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
                     JOptionPane.showMessageDialog(null, "Can't Delete Default Group!");
                     return;
                 }
                 group.remove(currGroupName);
-                init(group, ConfigService.DEFAULT_NAME);
+                init(group, ConfigInfo.DEFAULT_NAME);
             }
         });
         //添加元素事件
@@ -160,22 +160,22 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
                 return;
             }
             String value = JOptionPane.showInputDialog(null, "Input Item Name:", "Demo");
-            if (value==null) {
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
                 return;
             }
             List<E> itemList = group.get(currGroupName).getElementList();
             for (E item : itemList) {
-                if (getItemName(item).equals(value)){
+                if (getItemName(item).equals(value)) {
                     JOptionPane.showMessageDialog(null, "Item Name Already exist!");
                     return;
                 }
             }
             itemList.add(createItem(value));
-            selectItemIndex = itemList.size()-1;
+            selectItemIndex = itemList.size() - 1;
             initItem(itemList);
         });
         //删除元素
@@ -188,11 +188,11 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
                 return;
             }
             String itemName = getItemName(itemList.get(selectItemIndex));
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Item "+itemName+"?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (result==0) {
+            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Item " + itemName + "?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
+            if (result == 0) {
                 itemList.remove(selectItemIndex);
-                if (selectItemIndex>=itemList.size()) {
-                    selectItemIndex = itemList.size()-1;
+                if (selectItemIndex >= itemList.size()) {
+                    selectItemIndex = itemList.size() - 1;
                 }
                 initItem(itemList);
             }
@@ -208,11 +208,11 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
             }
             E item = itemList.get(selectItemIndex);
             String itemName = getItemName(item);
-            String value = JOptionPane.showInputDialog(null, "Input Item Name:", itemName+" Copy");
-            if (value==null) {
+            String value = JOptionPane.showInputDialog(null, "Input Item Name:", itemName + " Copy");
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
                 return;
             }
@@ -220,7 +220,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<T,E>, E extends
             item = (E) item.clone();
             setItemName(item, value);
             itemList.add(item);
-            selectItemIndex = itemList.size()-1;
+            selectItemIndex = itemList.size() - 1;
             initItem(itemList);
         });
     }

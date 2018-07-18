@@ -12,8 +12,17 @@ import lombok.Data;
  */
 @Data
 public class ColumnConfig extends CommClone<ColumnConfig> {
+    /**
+     * 标题
+     */
     private String title;
+    /**
+     * 类型
+     */
     private ColumnConfigType type;
+    /**
+     * 可选值，逗号分割
+     */
     private String selectValue;
 
     public ColumnConfig(String title, ColumnConfigType type) {

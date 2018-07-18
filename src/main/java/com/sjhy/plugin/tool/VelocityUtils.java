@@ -5,7 +5,6 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
-import com.sjhy.plugin.service.ConfigService;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
@@ -21,10 +20,12 @@ public class VelocityUtils {
     private static class Instance {
         private static final VelocityUtils ME = new VelocityUtils();
     }
+
     public static VelocityUtils getInstance() {
         return Instance.ME;
     }
-    private VelocityUtils(){
+
+    private VelocityUtils() {
         velocityEngine = new VelocityEngine();
     }
 
@@ -34,9 +35,9 @@ public class VelocityUtils {
     private NameUtils nameUtils = NameUtils.getInstance();
     private FileUtils fileUtils = FileUtils.getInstance();
 
-    private String generate(String template, Map<String,Object> map, String encode) {
+    private String generate(String template, Map<String, Object> map, String encode) {
         VelocityContext velocityContext = new VelocityContext();
-        if (map==null) {
+        if (map == null) {
             map = new HashMap<>();
         }
         map.forEach(velocityContext::put);
@@ -49,10 +50,10 @@ public class VelocityUtils {
 
     //设置全局参数
     private Map<String, Object> handlerMap() {
-        ConfigService configService = ConfigService.getInstance();
-        Map<String, Object> map = new HashMap<>();
-        String encode = configService.getEncode();
-        String author = configService.getAuthor();
+        ConfigInfo configInfo = ConfigInfo.getInstance();
+        Map<String, Object> map = new HashMap<>(10);
+        String encode = configInfo.getEncode();
+        String author = configInfo.getAuthor();
         List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
         Module selectModule = cacheDataUtils.getSelectModule();
 
@@ -65,7 +66,7 @@ public class VelocityUtils {
         map.put("tool", nameUtils);
         //设置的包名
         map.put("packageName", cacheDataUtils.getPackageName());
-        if (selectModule!=null){
+        if (selectModule != null) {
             //module路径
             //noinspection ConstantConditions
             map.put("modulePath", selectModule.getModuleFile().getParent().getPath());
@@ -78,15 +79,15 @@ public class VelocityUtils {
         File path = new File(savePath);
         if (!new File(savePath).exists()) {
             int result = JOptionPane.showConfirmDialog(null, "Save Path Is Not Exists, Confirm Create?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if(result==0){
-                if(!path.mkdirs()){
+            if (result == 0) {
+                if (!path.mkdirs()) {
                     return false;
                 }
-            }else{
+            } else {
                 return false;
             }
         }
-        if (path.isFile()){
+        if (path.isFile()) {
             JOptionPane.showMessageDialog(null, "Error,Save Path Is File!");
             return false;
         }
@@ -96,15 +97,15 @@ public class VelocityUtils {
     //创建或覆盖文件
     private boolean coverFile(File file) {
         if (file.exists()) {
-            if (file.isDirectory()){
+            if (file.isDirectory()) {
                 JOptionPane.showMessageDialog(null, "Error,Save File Is Path!");
                 return false;
             }
-            int result = JOptionPane.showConfirmDialog(null, "File "+file.getName()+" Exists, Confirm Continue?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog(null, "File " + file.getName() + " Exists, Confirm Continue?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
             return result == 0;
-        }else{
+        } else {
             try {
-                if(!file.createNewFile()){
+                if (!file.createNewFile()) {
                     return false;
                 }
             } catch (IOException e) {
@@ -116,13 +117,13 @@ public class VelocityUtils {
 
     public void handler() {
         AtomicReference<String> savePath = new AtomicReference<>(cacheDataUtils.getSavePath());
-        if (!createPath(savePath.get())){
+        if (!createPath(savePath.get())) {
             return;
         }
         List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
         List<Template> templateList = cacheDataUtils.getSelectTemplate();
-        ConfigService configService = ConfigService.getInstance();
-        String encode = configService.getEncode();
+        ConfigInfo configInfo = ConfigInfo.getInstance();
+        String encode = configInfo.getEncode();
         Map<String, Object> map = handlerMap();
 
         tableInfoList.forEach(tableInfo -> {
@@ -137,18 +138,18 @@ public class VelocityUtils {
                 //保存路径
                 String callbackSavePath = callback.getSavePath();
                 //是否使用保存路径
-                if (callbackSavePath!=null && callbackSavePath.trim().length()>0){
-                    if (!createPath(callbackSavePath)){
+                if (callbackSavePath != null && callbackSavePath.trim().length() > 0) {
+                    if (!createPath(callbackSavePath)) {
                         return;
                     }
                     savePath.set(callbackSavePath);
                 }
-                if (fileName==null) {
-                    fileName = tableInfo.getName()+"Default.java";
+                if (fileName == null) {
+                    fileName = tableInfo.getName() + "Default.java";
                 }
                 File file = new File(new File(savePath.get()), fileName);
                 //覆盖或创建文件
-                if (!coverFile(file)){
+                if (!coverFile(file)) {
                     return;
                 }
                 fileUtils.write(file, content);
@@ -162,7 +163,7 @@ public class VelocityUtils {
     private Set<String> getImportList(TableInfo tableInfo) {
         Set<String> result = new TreeSet<>();
         tableInfo.getFullColumn().forEach(columnInfo -> {
-            if (!columnInfo.getType().startsWith("java.lang")){
+            if (!columnInfo.getType().startsWith("java.lang")) {
                 result.add(columnInfo.getType());
             }
         });

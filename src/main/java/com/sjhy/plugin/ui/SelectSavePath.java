@@ -8,13 +8,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiPackage;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
-import com.sjhy.plugin.service.ConfigService;
 import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.ConfigInfo;
 import com.sjhy.plugin.tool.VelocityUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +45,8 @@ public class SelectSavePath extends JDialog {
     private TemplateGroup templateGroup;
 
     public SelectSavePath() {
-        ConfigService configService = ConfigService.getInstance();
-        this.templateGroup = configService.getTemplateGroupMap().get(configService.getCurrTemplateGroupName());
+        ConfigInfo configInfo = ConfigInfo.getInstance();
+        this.templateGroup = configInfo.getTemplateGroupMap().get(configInfo.getCurrTemplateGroupName());
         init();
         setContentPane(contentPane);
         setModal(true);
@@ -70,12 +72,12 @@ public class SelectSavePath extends JDialog {
     private List<Template> getSelectTemplate() {
         List<String> selectTemplateNameList = new ArrayList<>();
         checkBoxList.forEach(jCheckBox -> {
-            if(jCheckBox.isSelected()){
+            if (jCheckBox.isSelected()) {
                 selectTemplateNameList.add(jCheckBox.getText());
             }
         });
         List<Template> selectTemplateList = new ArrayList<>();
-        if (selectTemplateNameList.isEmpty()){
+        if (selectTemplateNameList.isEmpty()) {
             return selectTemplateList;
         }
         templateGroup.getElementList().forEach(template -> {
@@ -93,7 +95,7 @@ public class SelectSavePath extends JDialog {
             return;
         }
         String savePath = pathField.getText();
-        if (savePath.isEmpty()){
+        if (savePath.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Can't Select Save Path!");
             return;
         }
@@ -132,7 +134,7 @@ public class SelectSavePath extends JDialog {
             PackageChooserDialog dialog = new PackageChooserDialog("Package Chooser", cacheDataUtils.getProject());
             dialog.show();
             PsiPackage psiPackage = dialog.getSelectedPackage();
-            if (psiPackage!=null) {
+            if (psiPackage != null) {
                 packageField.setText(psiPackage.getQualifiedName());
             }
             refreshPath();
@@ -144,7 +146,7 @@ public class SelectSavePath extends JDialog {
         //选择路径
         pathChooseButton.addActionListener(e -> {
             @SuppressWarnings("ConstantConditions") VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), cacheDataUtils.getProject(), getSelectModule().getModuleFile().getParent());
-            if (virtualFile!=null) {
+            if (virtualFile != null) {
                 pathField.setText(virtualFile.getPath());
             }
         });
@@ -153,7 +155,7 @@ public class SelectSavePath extends JDialog {
     private Module getSelectModule() {
         String name = (String) moduleComboBox.getSelectedItem();
         for (Module module : cacheDataUtils.getModules()) {
-            if(module.getName().equals(name)){
+            if (module.getName().equals(name)) {
                 return module;
             }
         }
@@ -164,12 +166,12 @@ public class SelectSavePath extends JDialog {
     private String getBasePath() {
         Module module = getSelectModule();
         String baseDir = module.getModuleFile().getParent().getPath();
-        File file = new File(baseDir+"/src/main/java");
-        if (file.exists()){
+        File file = new File(baseDir + "/src/main/java");
+        if (file.exists()) {
             return file.getAbsolutePath();
         }
-        file = new File(baseDir+"/src");
-        if (file.exists()){
+        file = new File(baseDir + "/src");
+        if (file.exists()) {
             return file.getAbsolutePath();
         }
         return baseDir;
@@ -178,7 +180,7 @@ public class SelectSavePath extends JDialog {
     private void refreshPath() {
         String packageName = packageField.getText();
         String path = getBasePath();
-        if (!packageName.isEmpty()){
+        if (!packageName.isEmpty()) {
             path += "\\" + packageName.replaceAll("\\.", "\\\\");
         }
         pathField.setText(path);

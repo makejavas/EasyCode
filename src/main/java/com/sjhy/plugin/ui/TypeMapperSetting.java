@@ -4,7 +4,7 @@ import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.entity.TypeMapperModel;
-import com.sjhy.plugin.service.ConfigService;
+import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,29 +38,29 @@ public class TypeMapperSetting implements Configurable {
     //类型映射分组集合
     private Map<String, TypeMapperGroup> typeMapperGroupMap;
     //全局配置服务
-    private ConfigService configService;
+    private ConfigInfo configInfo;
 
 
-    TypeMapperSetting(ConfigService configService) {
-        this.configService = configService;
+    TypeMapperSetting(ConfigInfo configInfo) {
+        this.configInfo = configInfo;
         //添加类型
         addButton.addActionListener(e -> typeMapperModel.addRow(new TypeMapper("demoColumn", "java.lang.Object")));
 
         //移除类型
         removeButton.addActionListener(e -> {
             int[] selectRows = typeMapperTable.getSelectedRows();
-            for (int i = selectRows.length-1; i>=0; i--){
+            for (int i = selectRows.length - 1; i >= 0; i--) {
                 typeMapperModel.removeRow(selectRows[i]);
             }
         });
 
         //切换分组
         typeMapperComboBox.addActionListener(e -> {
-            if (!init){
+            if (!init) {
                 return;
             }
             String value = (String) typeMapperComboBox.getSelectedItem();
-            if (value==null) {
+            if (value == null) {
                 return;
             }
             if (currGroupName.equals(value)) {
@@ -72,15 +72,15 @@ public class TypeMapperSetting implements Configurable {
 
         //复制分组按钮
         typeMapperCopyButton.addActionListener(e -> {
-            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName+" Copy");
-            if (value==null) {
+            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName + " Copy");
+            if (value == null) {
                 return;
             }
-            if (value.trim().length()==0){
+            if (value.trim().length() == 0) {
                 JOptionPane.showMessageDialog(null, "Group Name Can't Is Empty!");
                 return;
             }
-            if (typeMapperGroupMap.containsKey(value)){
+            if (typeMapperGroupMap.containsKey(value)) {
                 JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
@@ -93,14 +93,14 @@ public class TypeMapperSetting implements Configurable {
 
         //删除分组
         deleteButton.addActionListener(e -> {
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group "+typeMapperComboBox.getSelectedItem()+"?", "温馨提示", JOptionPane.OK_CANCEL_OPTION);
-            if (result==0){
-                if(ConfigService.DEFAULT_NAME.equals(currGroupName)){
+            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group " + typeMapperComboBox.getSelectedItem() + "?", "温馨提示", JOptionPane.OK_CANCEL_OPTION);
+            if (result == 0) {
+                if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
                     JOptionPane.showMessageDialog(null, "Can't Delete Default Group!");
                     return;
                 }
                 typeMapperGroupMap.remove(currGroupName);
-                currGroupName = ConfigService.DEFAULT_NAME;
+                currGroupName = ConfigInfo.DEFAULT_NAME;
                 refresh();
             }
         });
@@ -115,10 +115,10 @@ public class TypeMapperSetting implements Configurable {
     private void init() {
         //复制数据
         this.typeMapperGroupMap = new LinkedHashMap<>();
-        for (Map.Entry<String, TypeMapperGroup> entry : configService.getTypeMapperGroupMap().entrySet()) {
+        for (Map.Entry<String, TypeMapperGroup> entry : configInfo.getTypeMapperGroupMap().entrySet()) {
             this.typeMapperGroupMap.put(entry.getKey(), entry.getValue().clone());
         }
-        this.currGroupName = configService.getCurrTypeMapperGroupName();
+        this.currGroupName = configInfo.getCurrTypeMapperGroupName();
 
         //初始化表格
         this.typeMapperModel = new TypeMapperModel();
@@ -154,13 +154,13 @@ public class TypeMapperSetting implements Configurable {
 
     @Override
     public boolean isModified() {
-        return !typeMapperGroupMap.equals(configService.getTypeMapperGroupMap()) || !currGroupName.equals(configService.getCurrTypeMapperGroupName());
+        return !typeMapperGroupMap.equals(configInfo.getTypeMapperGroupMap()) || !currGroupName.equals(configInfo.getCurrTypeMapperGroupName());
     }
 
     @Override
     public void apply() {
-        configService.setCurrTypeMapperGroupName(currGroupName);
-        configService.setTypeMapperGroupMap(typeMapperGroupMap);
+        configInfo.setCurrTypeMapperGroupName(currGroupName);
+        configInfo.setTypeMapperGroupMap(typeMapperGroupMap);
     }
 
     @Override

@@ -3,14 +3,16 @@ package com.sjhy.plugin.ui;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
 import com.sjhy.plugin.entity.*;
-import com.sjhy.plugin.service.ConfigService;
 import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.ConfigInfo;
 import com.sjhy.plugin.tool.TableInfoUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.*;
 
 public class ConfigTableDialog extends JDialog {
@@ -71,8 +73,8 @@ public class ConfigTableDialog extends JDialog {
 
     private void init() {
         initFlag = false;
-        ConfigService configService = ConfigService.getInstance();
-        ColumnConfigGroup columnConfigGroup = configService.getColumnConfigGroupMap().get(configService.getCurrColumnConfigGroupName());
+        ConfigInfo configInfo = ConfigInfo.getInstance();
+        ColumnConfigGroup columnConfigGroup = configInfo.getColumnConfigGroupMap().get(configInfo.getCurrColumnConfigGroupName());
         columnConfigList = getInitColumn(columnConfigGroup.getElementList());
         //绑定数据
         tableInfo = tableInfoUtils.handler(Collections.singletonList(cacheDataUtils.getSelectDbTable())).get(0);

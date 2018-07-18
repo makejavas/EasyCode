@@ -32,7 +32,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceInterface="com.sjhy.plugin.service.ConfigService" serviceImplementation="com.sjhy.plugin.service.impl.ConfigServiceImpl"/>
+        <applicationService serviceImplementation="com.sjhy.plugin.tool.ConfigInfo"/>
         <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSetting"/>
     </extensions>
 
