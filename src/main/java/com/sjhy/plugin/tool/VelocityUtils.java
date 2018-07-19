@@ -119,8 +119,9 @@ public class VelocityUtils {
         map.put("packageName", cacheDataUtils.getPackageName());
         if (selectModule != null) {
             //module绝对路径
-            //noinspection ConstantConditions
-            map.put("modulePath", selectModule.getModuleFile().getParent().getPath());
+            if (selectModule.getModuleFile()!=null) {
+                map.put("modulePath", selectModule.getModuleFile().getParent().getPath());
+            }
             map.put("moduleName", selectModule.getName());
         }
         return map;

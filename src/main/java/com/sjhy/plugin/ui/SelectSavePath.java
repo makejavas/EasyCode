@@ -217,8 +217,12 @@ public class SelectSavePath extends JDialog {
         //选择路径
         pathChooseButton.addActionListener(e -> {
             //将当前选中的model设置为基础路径
-            //noinspection ConstantConditions
-            VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), cacheDataUtils.getProject(), getSelectModule().getModuleFile().getParent());
+            VirtualFile path = cacheDataUtils.getProject().getBaseDir();
+            Module module = getSelectModule();
+            if (module!=null && module.getModuleFile()!=null) {
+                path = module.getModuleFile().getParent();
+            }
+            VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), cacheDataUtils.getProject(), path);
             if (virtualFile != null) {
                 pathField.setText(virtualFile.getPath());
             }
@@ -259,8 +263,10 @@ public class SelectSavePath extends JDialog {
      */
     private String getBasePath() {
         Module module = getSelectModule();
-        //noinspection ConstantConditions
-        String baseDir = module.getModuleFile().getParent().getPath();
+        String baseDir = cacheDataUtils.getProject().getBasePath();
+        if (module!=null && module.getModuleFile()!=null) {
+            baseDir = module.getModuleFile().getParent().getPath();
+        }
         // 针对Maven项目
         File file = new File(baseDir + "/src/main/java");
         if (file.exists()) {
