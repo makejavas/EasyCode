@@ -22,7 +22,7 @@ public abstract class AbstractService {
      * @return 类型映射Mapper
      */
     protected TypeMapperGroup getCurrMapper() {
-        return configInfo.getTypeMapperGroupMap().get(configInfo.getCurrTemplateGroupName());
+        return configInfo.getTypeMapperGroupMap().get(configInfo.getCurrTypeMapperGroupName());
     }
 
     /**

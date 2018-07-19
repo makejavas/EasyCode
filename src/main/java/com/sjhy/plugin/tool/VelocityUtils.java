@@ -124,6 +124,8 @@ public class VelocityUtils {
             }
             map.put("moduleName", selectModule.getName());
         }
+        // 项目路径
+        map.put("projectPath", cacheDataUtils.getProject().getBasePath());
         return map;
     }
 
