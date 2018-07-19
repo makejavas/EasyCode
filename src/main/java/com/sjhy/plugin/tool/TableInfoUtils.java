@@ -194,10 +194,10 @@ public class TableInfoUtils extends AbstractService {
         //排除部分字段，这些字段不进行保存
         tableInfo.setOtherColumn(null);
         tableInfo.setPkColumn(null);
+        //获取原数据
+        TableInfo oldTableInfo = handler(Collections.singletonList(tableInfo.getObj()), false).get(0);
         //将原始对象置空
         tableInfo.setObj(null);
-        //获取原数据
-        TableInfo oldTableInfo = handler(Collections.singletonList(cacheDataUtils.getSelectDbTable()), false).get(0);
         //将一致的原数据置空，保证数据的动态修改
         for (int i = 0; i < oldTableInfo.getFullColumn().size(); i++) {
             ColumnInfo columnInfo = oldTableInfo.getFullColumn().get(i);

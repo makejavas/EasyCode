@@ -68,4 +68,8 @@ public class CacheDataUtils {
      * 选中的model
      */
     private Module selectModule;
+    /**
+     * 是否统一配置
+     */
+    private boolean unifiedConfig;
 }

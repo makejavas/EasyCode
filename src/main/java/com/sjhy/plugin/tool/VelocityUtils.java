@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
@@ -13,48 +14,97 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Velocity工具类，主要用于代码生成
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class VelocityUtils {
-    //单例模式
-    private static class Instance {
-        private static final VelocityUtils ME = new VelocityUtils();
-    }
+    private volatile static VelocityUtils velocityUtils;
 
+    /**
+     * 单例模式
+     */
     public static VelocityUtils getInstance() {
-        return Instance.ME;
+        if (velocityUtils == null) {
+            synchronized (VelocityUtils.class) {
+                if (velocityUtils == null) {
+                    velocityUtils = new VelocityUtils();
+                }
+            }
+        }
+        return velocityUtils;
     }
 
+    /**
+     * 私有构造方法
+     */
     private VelocityUtils() {
         velocityEngine = new VelocityEngine();
     }
 
+    /**
+     * Velocity引擎
+     */
     private final VelocityEngine velocityEngine;
+    /**
+     * 缓存工具类
+     */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
+    /**
+     * 表信息工具
+     */
     private TableInfoUtils tableInfoUtils = TableInfoUtils.getInstance();
+    /**
+     * 命名工具类
+     */
     private NameUtils nameUtils = NameUtils.getInstance();
+    /**
+     * 文件工具类
+     */
     private FileUtils fileUtils = FileUtils.getInstance();
+    /**
+     * 导入包时过滤的包前缀
+     */
+    private static final String FILTER_PACKAGENAME = "java.lang";
 
+    /**
+     * 生成代码
+     * @param template 模板对象
+     * @param map 参数集合
+     * @param encode 编码类型
+     * @return 生成结果
+     */
     private String generate(String template, Map<String, Object> map, String encode) {
         VelocityContext velocityContext = new VelocityContext();
-        if (map == null) {
-            map = new HashMap<>();
+        if (map != null) {
+            map.forEach(velocityContext::put);
         }
-        map.forEach(velocityContext::put);
         StringWriter stringWriter = new StringWriter();
         velocityEngine.setProperty("input.encode", encode);
         velocityEngine.setProperty("output.encode", encode);
-        velocityEngine.evaluate(velocityContext, stringWriter, "", template);
+        velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate", template);
         return stringWriter.toString();
     }
 
-    //设置全局参数
+    /**
+     * 设置全局参数
+     * @return 全局参数
+     */
     private Map<String, Object> handlerMap() {
         ConfigInfo configInfo = ConfigInfo.getInstance();
-        Map<String, Object> map = new HashMap<>(10);
+        Map<String, Object> map = new HashMap<>(16);
+        // 编码类型
         String encode = configInfo.getEncode();
+        // 坐着名称
         String author = configInfo.getAuthor();
+        // 表信息集合
         List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+        // 选中的module
         Module selectModule = cacheDataUtils.getSelectModule();
 
         map.put("encode", encode);
@@ -67,14 +117,20 @@ public class VelocityUtils {
         //设置的包名
         map.put("packageName", cacheDataUtils.getPackageName());
         if (selectModule != null) {
-            //module路径
+            //module绝对路径
             //noinspection ConstantConditions
             map.put("modulePath", selectModule.getModuleFile().getParent().getPath());
+            map.put("moduleName", selectModule.getName());
         }
         return map;
     }
 
-    //创建目录
+    /**
+     * 创建目录
+     * @param savePath 路径
+     * @return 保存结果
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean createPath(String savePath) {
         File path = new File(savePath);
         if (!new File(savePath).exists()) {
@@ -94,13 +150,18 @@ public class VelocityUtils {
         return true;
     }
 
-    //创建或覆盖文件
+    /**
+     * 创建或覆盖文件
+     * @param file 文件
+     * @return 是否成功
+     */
     private boolean coverFile(File file) {
         if (file.exists()) {
             if (file.isDirectory()) {
                 JOptionPane.showMessageDialog(null, "Error,Save File Is Path!");
                 return false;
             }
+            // 是否覆盖
             int result = JOptionPane.showConfirmDialog(null, "File " + file.getName() + " Exists, Confirm Continue?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
             return result == 0;
         } else {
@@ -110,48 +171,62 @@ public class VelocityUtils {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                return false;
             }
         }
         return true;
     }
 
+    /**
+     * 生成代码
+     */
     public void handler() {
-        AtomicReference<String> savePath = new AtomicReference<>(cacheDataUtils.getSavePath());
-        if (!createPath(savePath.get())) {
+        if (!createPath(cacheDataUtils.getSavePath())) {
             return;
         }
-        List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+        // 获取覆盖的表配置信息
+        List<TableInfo> tableInfoList = coverConfigInfo();
         List<Template> templateList = cacheDataUtils.getSelectTemplate();
         ConfigInfo configInfo = ConfigInfo.getInstance();
+        // 获取编码信息
         String encode = configInfo.getEncode();
+        // 获取默认的配置信息
         Map<String, Object> map = handlerMap();
 
         tableInfoList.forEach(tableInfo -> {
             Callback callback = new Callback();
+            // 表信息对象
             map.put("tableInfo", tableInfo);
+            // 导入的包集合
             map.put("importList", getImportList(tableInfo));
+            // 回调函数
             map.put("callback", callback);
             templateList.forEach(template -> {
+                // 获取保存路径
+                String savePath = cacheDataUtils.getSavePath();
+                // 生成代码并去除两端空格
                 String content = generate(template.getCode(), map, encode).trim();
                 //保存的文件名
                 String fileName = callback.getFileName();
                 //保存路径
                 String callbackSavePath = callback.getSavePath();
-                //是否使用保存路径
-                if (callbackSavePath != null && callbackSavePath.trim().length() > 0) {
+                //是否使用回调中的保存路径
+                if (!StringUtils.isEmpty(callbackSavePath)) {
                     if (!createPath(callbackSavePath)) {
                         return;
                     }
-                    savePath.set(callbackSavePath);
+                    savePath = callbackSavePath;
                 }
+                // 当回调中没有保存文件名时
                 if (fileName == null) {
                     fileName = tableInfo.getName() + "Default.java";
                 }
-                File file = new File(new File(savePath.get()), fileName);
+                File file = new File(new File(savePath), fileName);
                 //覆盖或创建文件
                 if (!coverFile(file)) {
                     return;
                 }
+                // 写入文件
                 fileUtils.write(file, content);
             });
         });
@@ -160,10 +235,55 @@ public class VelocityUtils {
         VirtualFileManager.getInstance().syncRefresh();
     }
 
+    /**
+     * 覆盖保存配置信息
+     * @return 覆盖后的表配置信息
+     */
+    private List<TableInfo> coverConfigInfo() {
+        AtomicBoolean isSave = new AtomicBoolean(false);
+        List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+        // 将选中表中的没有保存配置信息的表进行保存
+        tableInfoList.forEach(tableInfo -> {
+            // 只有所有项目都是空的才会进行覆盖保存
+            if (StringUtils.isEmpty(tableInfo.getSaveModelName()) && StringUtils.isEmpty(tableInfo.getSavePath()) && StringUtils.isEmpty(tableInfo.getSavePackageName())) {
+                tableInfo.setSavePath(cacheDataUtils.getSavePath());
+                tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
+                if (cacheDataUtils.getSelectModule()!=null) {
+                    tableInfo.setSaveModelName(cacheDataUtils.getSelectModule().getName());
+                }
+                // 保存信息
+                tableInfoUtils.save(tableInfo);
+                isSave.set(true);
+            }
+        });
+        // 保存完毕后需要重新获取数据
+        if (isSave.get()) {
+            tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+        }
+        // 判断是否进行覆盖，（临时覆盖，不保存）
+        if (cacheDataUtils.isUnifiedConfig()) {
+            tableInfoList.forEach(tableInfo -> {
+                tableInfo.setSavePath(cacheDataUtils.getSavePath());
+                tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
+                if (cacheDataUtils.getSelectModule()!=null) {
+                    tableInfo.setSaveModelName(cacheDataUtils.getSelectModule().getName());
+                }
+            });
+        }
+        return tableInfoList;
+    }
+
+
+    /**
+     * 获取导入列表
+     * @param tableInfo 表信息对象
+     * @return 导入列表
+     */
     private Set<String> getImportList(TableInfo tableInfo) {
+        // 创建一个自带排序的集合
         Set<String> result = new TreeSet<>();
         tableInfo.getFullColumn().forEach(columnInfo -> {
-            if (!columnInfo.getType().startsWith("java.lang")) {
+            if (!columnInfo.getType().startsWith(FILTER_PACKAGENAME)) {
                 result.add(columnInfo.getType());
             }
         });

@@ -6,6 +6,7 @@ import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
 import com.sjhy.plugin.tool.TableInfoUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,25 +16,66 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.*;
 
+/**
+ * 表配置窗口
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class ConfigTableDialog extends JDialog {
+    /**
+     * 主面板
+     */
     private JPanel contentPane;
+    /**
+     * 确认按钮
+     */
     private JButton buttonOK;
+    /**
+     * 取消按钮
+     */
     private JButton buttonCancel;
+    /**
+     * 表展示
+     */
     private JTable table;
+    /**
+     * 添加按钮
+     */
     private JButton addButton;
-
+    /**
+     * 缓存数据工具类
+     */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
-
+    /**
+     * 表信息工具类
+     */
     private TableInfoUtils tableInfoUtils = TableInfoUtils.getInstance();
-
+    /**
+     * 默认的表模型
+     */
     private DefaultTableModel tableModel;
-
+    /**
+     * 列配置
+     */
     private List<ColumnConfig> columnConfigList;
-
+    /**
+     * 表信息对象
+     */
     private TableInfo tableInfo;
-
+    /**
+     * 初始化标记
+     */
     private boolean initFlag;
+    /**
+     * 配置信息对象
+     */
+    private ConfigInfo configInfo = ConfigInfo.getInstance();
 
+    /**
+     * 构造方法
+     */
     public ConfigTableDialog() {
         setContentPane(contentPane);
         setModal(true);
@@ -59,24 +101,33 @@ public class ConfigTableDialog extends JDialog {
         initEvent();
     }
 
+    /**
+     * 取人按钮回调
+     */
     private void onOK() {
         tableInfoUtils.save(tableInfo);
         // add your code here
         dispose();
     }
 
+    /**
+     * 取消按钮回调
+     */
     private void onCancel() {
         // add your code here if necessary
         dispose();
     }
 
 
+    /**
+     * 初始化方法
+     */
     private void init() {
         initFlag = false;
-        ConfigInfo configInfo = ConfigInfo.getInstance();
         ColumnConfigGroup columnConfigGroup = configInfo.getColumnConfigGroupMap().get(configInfo.getCurrColumnConfigGroupName());
+        // 拿到列配置信息
         columnConfigList = getInitColumn(columnConfigGroup.getElementList());
-        //绑定数据
+        //读取表配置信息（一次只能配置一张表）
         tableInfo = tableInfoUtils.handler(Collections.singletonList(cacheDataUtils.getSelectDbTable())).get(0);
 
         refresh();
@@ -84,6 +135,9 @@ public class ConfigTableDialog extends JDialog {
         initFlag = true;
     }
 
+    /**
+     * 刷新界面
+     */
     private void refresh() {
         tableModel = new DefaultTableModel();
         columnConfigList.forEach(columnConfig -> tableModel.addColumn(columnConfig.getTitle()));
@@ -95,6 +149,7 @@ public class ConfigTableDialog extends JDialog {
             dataList.add(columnInfo.getComment());
             //渲染附加数据
             if (columnInfo.getExt() != null && !columnInfo.getExt().isEmpty()) {
+                // 跳过默认的3条数据
                 for (int i = 3; i < tableModel.getColumnCount(); i++) {
                     dataList.add(columnInfo.getExt().get(tableModel.getColumnName(i)));
                 }
@@ -107,6 +162,7 @@ public class ConfigTableDialog extends JDialog {
 
         //添加数据修改事件
         tableModel.addTableModelListener(e -> {
+            // 一键编辑多行时不处理。
             if (e.getFirstRow() != e.getLastRow()) {
                 return;
             }
@@ -134,18 +190,19 @@ public class ConfigTableDialog extends JDialog {
                     columnInfo.setComment((String) val);
                     break;
                 default:
+                    if (columnInfo.getExt() == null) {
+                        columnInfo.setExt(new HashMap<>(10));
+                    }
+                    String title = tableModel.getColumnName(column);
+                    columnInfo.getExt().put(title, val);
                     break;
-            }
-            if (column > 2) {
-                if (columnInfo.getExt() == null) {
-                    columnInfo.setExt(new HashMap<>());
-                }
-                String title = tableModel.getColumnName(column);
-                columnInfo.getExt().put(title, val);
             }
         });
     }
 
+    /**
+     * 初始化事件
+     */
     private void initEvent() {
         //添加元素事件
         addButton.addActionListener(e -> {
@@ -153,10 +210,7 @@ public class ConfigTableDialog extends JDialog {
                 return;
             }
             String value = JOptionPane.showInputDialog(null, "Input Column Name:", "Demo");
-            if (value == null) {
-                return;
-            }
-            if (value.trim().length() == 0) {
+            if (StringUtils.isEmpty(value)) {
                 JOptionPane.showMessageDialog(null, "Column Name Can't Is Empty!");
                 return;
             }
@@ -175,6 +229,10 @@ public class ConfigTableDialog extends JDialog {
         });
     }
 
+    /**
+     * 刷新列编辑器
+     * @param columnConfigList 列配置集合
+     */
     private void refreshColumnEditor(List<ColumnConfig> columnConfigList) {
         columnConfigList.forEach(columnConfig -> {
             TableColumn tableColumn = table.getColumn(columnConfig.getTitle());
@@ -186,6 +244,11 @@ public class ConfigTableDialog extends JDialog {
                     tableColumn.setCellEditor(new ComboBoxCellEditor() {
                         @Override
                         protected List<String> getComboBoxItems() {
+                            String selectValue = columnConfig.getSelectValue();
+                            if (StringUtils.isEmpty(selectValue)) {
+                                //noinspection unchecked
+                                return Collections.EMPTY_LIST;
+                            }
                             return Arrays.asList(columnConfig.getSelectValue().split(","));
                         }
                     });
@@ -205,6 +268,11 @@ public class ConfigTableDialog extends JDialog {
         });
     }
 
+    /**
+     * 获取初始列
+     * @param columnConfigList 列配置集合
+     * @return 初始列信息
+     */
     private List<ColumnConfig> getInitColumn(List<ColumnConfig> columnConfigList) {
         List<ColumnConfig> result = new ArrayList<>();
         result.add(new ColumnConfig("name", ColumnConfigType.TEXT));
@@ -214,6 +282,9 @@ public class ConfigTableDialog extends JDialog {
         return result;
     }
 
+    /**
+     * 打开窗口
+     */
     public void open() {
         setTitle("Config Table " + cacheDataUtils.getSelectDbTable().getName());
         pack();
