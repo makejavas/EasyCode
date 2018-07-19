@@ -153,6 +153,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
     /**
      * 初始化事件
      */
+    @SuppressWarnings("Duplicates")
     private void initEvent() {
         //切换分组事件
         groupComboBox.addActionListener(e -> {
