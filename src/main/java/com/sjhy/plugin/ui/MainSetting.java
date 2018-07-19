@@ -1,7 +1,7 @@
 package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.options.Configurable;
-import com.sjhy.plugin.comm.ServiceComm;
+import com.sjhy.plugin.comm.AbstractService;
 import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +9,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class MainSetting extends ServiceComm implements Configurable, Configurable.Composite {
+/**
+ * 主设置面板
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
+public class MainSetting extends AbstractService implements Configurable, Configurable.Composite {
     /**
      * 主面板
      */
@@ -22,13 +29,11 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
      * 作者编辑框
      */
     private JTextField authorTextField;
-    /**
-     * 全局配置服务
-     */
-    private ConfigInfo configInfo;
 
-    public MainSetting(ConfigInfo configInfo) {
-        this.configInfo = configInfo;
+    /**
+     * 默认构造方法
+     */
+    public MainSetting() {
         init();
     }
 
@@ -41,6 +46,11 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
         encodeComboBox.setSelectedItem(configInfo.getEncode());
     }
 
+    /**
+     * 设置显示名称
+     *
+     * @return 显示名称
+     */
     @Nls
     @Override
     public String getDisplayName() {
@@ -62,17 +72,30 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
         return result;
     }
 
+    /**
+     * 获取主面板信息
+     *
+     * @return 主面板
+     */
     @Nullable
     @Override
     public JComponent createComponent() {
         return mainPanel;
     }
 
+    /**
+     * 判断是否修改
+     *
+     * @return 是否修改
+     */
     @Override
     public boolean isModified() {
         return !configInfo.getEncode().equals(encodeComboBox.getSelectedItem()) || !configInfo.getAuthor().equals(authorTextField.getText());
     }
 
+    /**
+     * 应用修改
+     */
     @Override
     public void apply() {
         //保存数据
@@ -80,6 +103,9 @@ public class MainSetting extends ServiceComm implements Configurable, Configurab
         configInfo.setEncode((String) encodeComboBox.getSelectedItem());
     }
 
+    /**
+     * 重置
+     */
     @Override
     public void reset() {
         init();

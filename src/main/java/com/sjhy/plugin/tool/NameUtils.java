@@ -1,57 +1,89 @@
 package com.sjhy.plugin.tool;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 命名工具类
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
 public class NameUtils {
-    //单例模式
-    private static class Instance {
-        private static final NameUtils ME = new NameUtils();
-    }
+    private volatile static NameUtils nameUtils;
+
+    /**
+     * 单例模式
+     */
     public static NameUtils getInstance() {
-        return Instance.ME;
+        if (nameUtils == null) {
+            synchronized (NameUtils.class) {
+                if (nameUtils == null) {
+                    nameUtils = new NameUtils();
+                }
+            }
+        }
+        return nameUtils;
     }
-    private NameUtils(){}
-    
+
+    /**
+     * 私有构造方法
+     */
+    private NameUtils() {
+    }
+
+    /**
+     * 转驼峰命名正则匹配规则
+     */
+    private final Pattern TO_HUMP_PATTERN = Pattern.compile("[-_]([a-z])");
+
     /**
      * 首字母大写方法
+     *
      * @param name 名称
      * @return 结果
      */
     public String firstUpperCase(String name) {
-        StringBuilder builder = new StringBuilder(name);
-        builder.replace(0, 1, name.substring(0, 1).toUpperCase());
-        return builder.toString();
+        return StringUtils.capitalize(name);
     }
 
     /**
      * 首字母小写方法
+     *
      * @param name 名称
      * @return 结果
      */
     public String firstLowerCase(String name) {
-        StringBuilder builder = new StringBuilder(name);
-        builder.replace(0, 1, name.substring(0, 1).toLowerCase());
-        return builder.toString();
+        return StringUtils.uncapitalize(name);
     }
 
     /**
      * 通过java全名获取类名
+     *
      * @param fullName 全名
      * @return 类名
      */
     public String getClsNameByFullName(String fullName) {
-        return fullName.substring(fullName.lastIndexOf('.')+1, fullName.length());
+        return fullName.substring(fullName.lastIndexOf('.') + 1, fullName.length());
     }
 
     /**
-     * 下划线中横线命名转驼峰命名
+     * 下划线中横线命名转驼峰命名（属性名）
+     *
      * @param name 名称
      * @return 结果
      */
     public String getJavaName(String name) {
-        Pattern pattern = Pattern.compile("[-_]([a-z])");
-        Matcher matcher = pattern.matcher(name.toLowerCase());
+        if (StringUtils.isEmpty(name)) {
+            return name;
+        }
+        // 强转全小写
+        name = name.toLowerCase();
+        Matcher matcher = TO_HUMP_PATTERN.matcher(name.toLowerCase());
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
             matcher.appendReplacement(buffer, matcher.group(1).toUpperCase());
@@ -60,10 +92,30 @@ public class NameUtils {
         return buffer.toString();
     }
 
-    public String append(Object ...objects) {
+    /**
+     * 下划线中横线命名转驼峰命名（类名）
+     *
+     * @param name 名称
+     * @return 结果
+     */
+    public String getClassName(String name) {
+        return firstUpperCase(getJavaName(name));
+    }
+
+    /**
+     * 任意对象合并工具类
+     *
+     * @param objects 任意对象
+     * @return 合并后的字符串结果
+     */
+    public String append(Object... objects) {
+
+        if (ArrayUtils.isEmpty(objects)) {
+            return null;
+        }
         StringBuilder builder = new StringBuilder();
         for (Object s : objects) {
-            if (s!=null) {
+            if (s != null) {
                 builder.append(s);
             }
         }

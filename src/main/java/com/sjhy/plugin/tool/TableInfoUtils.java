@@ -1,21 +1,16 @@
 package com.sjhy.plugin.tool;
 
-import com.intellij.codeInsight.actions.ReformatCodeAction;
-import com.intellij.codeInsight.actions.ReformatCodeProcessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.util.containers.JBIterable;
-import com.sjhy.plugin.comm.ServiceComm;
+import com.sjhy.plugin.comm.AbstractService;
 import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
-import groovy.json.JsonOutput;
-import groovy.json.internal.JsonParserCharArray;
 
 import javax.swing.*;
 import java.io.File;
@@ -23,76 +18,149 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class TableInfoUtils extends ServiceComm {
-    //单例模式
-    private static class Instance {
-        private static final TableInfoUtils ME = new TableInfoUtils();
-    }
+/**
+ * 表信息工具类
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
+public class TableInfoUtils extends AbstractService {
+    private volatile static TableInfoUtils tableInfoUtils;
+
+    /**
+     * 单例模式
+     */
     public static TableInfoUtils getInstance() {
-        return Instance.ME;
+        if (tableInfoUtils == null) {
+            synchronized (TableInfoUtils.class) {
+                if (tableInfoUtils == null) {
+                    tableInfoUtils = new TableInfoUtils();
+                }
+            }
+        }
+        return tableInfoUtils;
     }
-    private TableInfoUtils(){}
-    //注入命名工具类
+
+    /**
+     * 私有构造方法
+     */
+    private TableInfoUtils() {
+    }
+
+    /**
+     * 命名工具类
+     */
     private NameUtils nameUtils = NameUtils.getInstance();
+    /**
+     * 缓存数据工具类
+     */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
-    private JsonParserCharArray jsonParser = new JsonParserCharArray();
+    /**
+     * jackson格式化工具
+     */
+    private ObjectMapper objectMapper = new ObjectMapper();
+    /**
+     * 文件工具类
+     */
     private FileUtils fileUtils = FileUtils.getInstance();
 
+    /**
+     * 保存的相对路径
+     */
+    private static final String SAVE_PATH = "/.idea/EasyCodeConfig";
+
+    /**
+     * 处理方法，默认加载配置
+     *
+     * @param dbTables 数据库表信息
+     * @return 表信息
+     */
     public List<TableInfo> handler(Collection<DbTable> dbTables) {
         return handler(dbTables, true);
     }
 
     /**
      * 数据库表处理器
-     * @param dbTables 数据库表
+     *
+     * @param dbTables   数据库表
+     * @param loadConfig 是否加载配置信息
      * @return 处理结果
      */
     private List<TableInfo> handler(Collection<DbTable> dbTables, boolean loadConfig) {
         List<TableInfo> result = new ArrayList<>();
         dbTables.forEach(dbTable -> {
             TableInfo tableInfo = new TableInfo();
+            // 设置原属对象
             tableInfo.setObj(dbTable);
-            tableInfo.setName(nameUtils.firstUpperCase(nameUtils.getJavaName(dbTable.getName().toLowerCase())));
+            // 设置类名
+            tableInfo.setName(nameUtils.getClassName(dbTable.getName()));
+            // 设置注释
             tableInfo.setComment(dbTable.getComment());
+            // 设置所有列
             tableInfo.setFullColumn(new ArrayList<>());
+            // 设置主键列
             tableInfo.setPkColumn(new ArrayList<>());
+            // 设置其他列
             tableInfo.setOtherColumn(new ArrayList<>());
+            // 处理所有列
             JBIterable<? extends DasColumn> columns = DasUtil.getColumns(dbTable);
             for (DasColumn column : columns) {
                 ColumnInfo columnInfo = new ColumnInfo();
+                // 原始列对象
                 columnInfo.setObj(column);
+                // 列类型
                 columnInfo.setType(getColumnType(column.getDataType().getSpecification()));
-                columnInfo.setName(nameUtils.getJavaName(column.getName().toLowerCase()));
+                // 列名
+                columnInfo.setName(nameUtils.getJavaName(column.getName()));
+                // 列注释
                 columnInfo.setComment(column.getComment());
+                // 添加到全部列
                 tableInfo.getFullColumn().add(columnInfo);
-                if(DasUtil.isPrimary(column)){
+                // 主键列添加到主键列，否则添加到其他列
+                if (DasUtil.isPrimary(column)) {
                     tableInfo.getPkColumn().add(columnInfo);
-                }else{
+                } else {
                     tableInfo.getOtherColumn().add(columnInfo);
                 }
             }
+            // 判断是否加载配置信息
             if (!loadConfig) {
                 result.add(tableInfo);
                 return;
             }
-            //附加数据
+            // 读取附加数据，并进行合并
             TableInfo tableInfoConfig = readConfig(dbTable);
-            if (tableInfoConfig!=null && tableInfoConfig.getFullColumn()!=null) {
-                for (int i=0; i<tableInfoConfig.getFullColumn().size();i++) {
-                    ColumnInfo columnInfo = tableInfoConfig.getFullColumn().get(i);
-                    //自定义附加列
-                    if (i>tableInfo.getFullColumn().size()-1){
-                        tableInfo.getFullColumn().add(columnInfo);
-                        tableInfo.getOtherColumn().add(columnInfo);
-                        continue;
-                    }
-                    if (columnInfo.getType()!=null) {
-                        tableInfo.getFullColumn().get(i).setType(columnInfo.getType());
-                    }
-                    if (columnInfo.getComment()!=null) {
-                        tableInfo.getFullColumn().get(i).setComment(columnInfo.getComment());
-                    }
+            if (tableInfoConfig == null) {
+                result.add(tableInfo);
+                return;
+            }
+            tableInfo.setSaveModelName(tableInfoConfig.getSaveModelName());
+            tableInfo.setSavePackageName(tableInfoConfig.getSavePackageName());
+            tableInfo.setSavePath(tableInfoConfig.getSavePath());
+
+            if (org.fest.util.Collections.isNullOrEmpty(tableInfoConfig.getFullColumn())) {
+                result.add(tableInfo);
+                return;
+            }
+            for (int i = 0; i < tableInfoConfig.getFullColumn().size(); i++) {
+                ColumnInfo columnInfo = tableInfoConfig.getFullColumn().get(i);
+                //自定义附加列
+                if (i > tableInfo.getFullColumn().size() - 1) {
+                    tableInfo.getFullColumn().add(columnInfo);
+                    tableInfo.getOtherColumn().add(columnInfo);
+                    continue;
                 }
+                // 覆盖类型信息
+                if (columnInfo.getType() != null) {
+                    tableInfo.getFullColumn().get(i).setType(columnInfo.getType());
+                }
+                // 覆盖注释信息
+                if (columnInfo.getComment() != null) {
+                    tableInfo.getFullColumn().get(i).setComment(columnInfo.getComment());
+                }
+                // 添加扩展信息
+                tableInfo.getFullColumn().get(i).setExt(columnInfo.getExt());
             }
             result.add(tableInfo);
         });
@@ -101,27 +169,32 @@ public class TableInfoUtils extends ServiceComm {
 
     /**
      * 通过映射获取对应的java类型类型名称
+     *
      * @param typeName 列类型
      * @return java类型
      */
     private String getColumnType(String typeName) {
         for (TypeMapper typeMapper : getCurrMapper().getElementList()) {
+            // 不区分大小写进行类型转换
             if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
                 return typeMapper.getJavaType();
             }
         }
         //弹出消息框
-        JOptionPane.showMessageDialog(null, "未知类型："+typeName, "温馨提示", JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(null, "发现未知类型：" + typeName, "温馨提示", JOptionPane.PLAIN_MESSAGE);
         return "java.lang.Object";
     }
 
 
-    //保存数据
+    /**
+     * 保存数据
+     * @param tableInfo 表信息对象
+     */
     public void save(TableInfo tableInfo) {
-        //排除部分字段
+        //排除部分字段，这些字段不进行保存
         tableInfo.setOtherColumn(null);
         tableInfo.setPkColumn(null);
-        //将对象置空
+        //将原始对象置空
         tableInfo.setObj(null);
         //获取原数据
         TableInfo oldTableInfo = handler(Collections.singletonList(cacheDataUtils.getSelectDbTable()), false).get(0);
@@ -129,87 +202,96 @@ public class TableInfoUtils extends ServiceComm {
         for (int i = 0; i < oldTableInfo.getFullColumn().size(); i++) {
             ColumnInfo columnInfo = oldTableInfo.getFullColumn().get(i);
             ColumnInfo newColumn = tableInfo.getFullColumn().get(i);
-            if (columnInfo.getType()!=null && columnInfo.getType().equals(newColumn.getType())) {
+            // 类型排除
+            if (Objects.equals(columnInfo.getType(), newColumn.getType())) {
                 newColumn.setType(null);
             }
-            if (columnInfo.getComment()!=null && columnInfo.getComment().equals(newColumn.getComment())) {
+            // 注释排除
+            if (Objects.equals(columnInfo.getComment(), newColumn.getComment())) {
                 newColumn.setComment(null);
             }
-            //将对象置空
+            //将原始对象置空
             newColumn.setObj(null);
         }
-        String content = JsonOutput.toJson(tableInfo);
-        ReformatCodeAction.containsAtLeastOneFile(null);
-        String path = cacheDataUtils.getProject().getBasePath()+"/.idea/EasyCodeConfig";
+        // 获取优雅格式的JSON字符串
+        String content = null;
+        try {
+            content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tableInfo);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        if (content == null) {
+            JOptionPane.showMessageDialog(null, "保存失败，JSON序列化错误。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
+            return;
+        }
+        // 获取或创建保存目录
+        String path = cacheDataUtils.getProject().getBasePath() + SAVE_PATH;
         File dir = new File(path);
-        if (!dir.exists()){
-            if(!dir.mkdir()){
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                JOptionPane.showMessageDialog(null, "保存失败，无法创建目录。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
                 return;
             }
         }
+        // 获取保存名称
         String schemaName = DasUtil.getSchema(oldTableInfo.getObj());
-        String fileName = schemaName+"-"+oldTableInfo.getObj().getName()+".json";
+        String fileName = schemaName + "-" + oldTableInfo.getObj().getName() + ".json";
         File file = new File(dir, fileName);
-        if (!file.exists()){
+        if (!file.exists()) {
             try {
-                if (!file.createNewFile()){
+                if (!file.createNewFile()) {
+                    JOptionPane.showMessageDialog(null, "保存失败，无法创建文件。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
                     return;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "保存失败，创建文件异常。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
                 return;
             }
         }
         //写入配置文件
         fileUtils.write(file, content);
-        VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://"+file.getAbsolutePath());
-        if (virtualFile==null){
-            return;
-        }
-        PsiFile psiFile = PsiManager.getInstance(cacheDataUtils.getProject()).findFile(virtualFile);
-        //格式化配置文件
-        new ReformatCodeProcessor(cacheDataUtils.getProject(), psiFile, null, false).run();
+        // 同步刷新
         VirtualFileManager.getInstance().syncRefresh();
     }
 
+    /**
+     * 读取配置文件
+     * @param dbTable 表对象信息
+     * @return 读取到的配置信息
+     */
     private TableInfo readConfig(DbTable dbTable) {
-        String path  = cacheDataUtils.getProject().getBasePath()+"/.idea/EasyCodeConfig";
+        // 获取保存的目录
+        String path = cacheDataUtils.getProject().getBasePath() + SAVE_PATH;
         File dir = new File(path);
-        if (!dir.exists()){
-            if(!dir.mkdir()){
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
                 return null;
             }
         }
+        // 获取保存的文件
         String schemaName = DasUtil.getSchema(dbTable);
-        String fileName = schemaName+"-"+dbTable.getName()+".json";
+        String fileName = schemaName + "-" + dbTable.getName() + ".json";
         File file = new File(dir, fileName);
-        if (!file.exists()){
+        if (!file.exists()) {
             return null;
         }
+        // 读取并解析文件
         return parser(fileUtils.read(file));
     }
 
-    //对象还原
-    @SuppressWarnings("unchecked")
+    /**
+     * 对象还原
+     * @param str 原始JSON字符串
+     * @return 解析结果
+     */
     private TableInfo parser(String str) {
-        Map<String,Object> map = (Map<String, Object>) jsonParser.parse(str);
-        TableInfo tableInfo = new TableInfo();
-        tableInfo.setName((String) map.get("name"));
-        tableInfo.setComment((String) map.get("comment"));
-        List<Map<String, Object>> fullColumn = (List<Map<String, Object>>) map.get("fullColumn");
-        if (fullColumn==null) {
-            return tableInfo;
+        try {
+            return objectMapper.readValue(str, TableInfo.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "读取配置失败，JSON反序列化异常。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
         }
-        List<ColumnInfo> columnInfoList = new ArrayList<>();
-        tableInfo.setFullColumn(columnInfoList);
-        for (Map<String,Object> column : fullColumn) {
-            ColumnInfo columnInfo = new ColumnInfo();
-            columnInfo.setName((String) column.get("name"));
-            columnInfo.setType((String) column.get("type"));
-            columnInfo.setComment((String) column.get("comment"));
-            columnInfo.setExt((Map<String, Object>) column.get("ext"));
-            columnInfoList.add(columnInfo);
-        }
-        return tableInfo;
+        return null;
     }
 }

@@ -1,68 +1,53 @@
 package com.sjhy.plugin.entity;
 
 import com.intellij.database.psi.DbTable;
+import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 表信息
+ *
+ * @author makejava
+ * @version 1.0.0
+ * @since 2018/07/17 13:10
+ */
+@Data
 public class TableInfo {
-    //原对象
+    /**
+     * 原始对象
+     */
     private DbTable obj;
-    //表名
+    /**
+     * 表名（首字母大写）
+     */
     private String name;
-    //注释
+    /**
+     * 注释
+     */
     private String comment;
-    //所有列
+    /**
+     * 所有列
+     */
     private List<ColumnInfo> fullColumn;
-    //主键列
+    /**
+     * 主键列
+     */
     private List<ColumnInfo> pkColumn;
-    //其他列
+    /**
+     * 其他列
+     */
     private List<ColumnInfo> otherColumn;
-
-    public DbTable getObj() {
-        return obj;
-    }
-
-    public void setObj(DbTable obj) {
-        this.obj = obj;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public List<ColumnInfo> getFullColumn() {
-        return fullColumn;
-    }
-
-    public void setFullColumn(List<ColumnInfo> fullColumn) {
-        this.fullColumn = fullColumn;
-    }
-
-    public List<ColumnInfo> getPkColumn() {
-        return pkColumn;
-    }
-
-    public void setPkColumn(List<ColumnInfo> pkColumn) {
-        this.pkColumn = pkColumn;
-    }
-
-    public List<ColumnInfo> getOtherColumn() {
-        return otherColumn;
-    }
-
-    public void setOtherColumn(List<ColumnInfo> otherColumn) {
-        this.otherColumn = otherColumn;
-    }
+    /**
+     * 保存的包名称
+     */
+    private String savePackageName;
+    /**
+     * 保存路径
+     */
+    private String savePath;
+    /**
+     * 保存的model名称
+     */
+    private String saveModelName;
 }
