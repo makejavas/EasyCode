@@ -100,6 +100,9 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         List<Template> templateList = new ArrayList<>();
         templateList.add(new Template("entity", loadTemplate("entity")));
         templateList.add(new Template("dao", loadTemplate("dao")));
+        templateList.add(new Template("service", loadTemplate("service")));
+        templateList.add(new Template("serviceImpl", loadTemplate("serviceImpl")));
+        templateList.add(new Template("controller", loadTemplate("controller")));
         templateGroup.setName(DEFAULT_NAME);
         templateGroup.setElementList(templateList);
         this.templateGroupMap.put(DEFAULT_NAME, templateGroup);
@@ -113,6 +116,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         typeMapperList.add(new TypeMapper("varchar(\\(\\d+\\))?", "java.lang.String"));
         typeMapperList.add(new TypeMapper("decimal(\\(\\d+\\))?", "java.lang.Double"));
         typeMapperList.add(new TypeMapper("integer", "java.lang.Integer"));
+        typeMapperList.add(new TypeMapper("int(\\(\\d+\\))?", "java.lang.Integer"));
         typeMapperList.add(new TypeMapper("int4", "java.lang.Integer"));
         typeMapperList.add(new TypeMapper("int8", "java.lang.Long"));
         typeMapperList.add(new TypeMapper("bigint", "java.lang.Long"));
@@ -130,7 +134,6 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
         List<ColumnConfig> columnConfigList = new ArrayList<>();
         columnConfigList.add(new ColumnConfig("disable", ColumnConfigType.BOOLEAN));
-        columnConfigList.add(new ColumnConfig("type", ColumnConfigType.SELECT, "ENUM,SELECT,RADIO,CHECKBOX"));
         columnConfigGroup.setName(DEFAULT_NAME);
         columnConfigGroup.setElementList(columnConfigList);
         columnConfigGroupMap.put(DEFAULT_NAME, columnConfigGroup);

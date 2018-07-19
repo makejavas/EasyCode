@@ -114,6 +114,7 @@ public class VelocityUtils {
         map.put("author", author);
         //工具类
         map.put("tool", nameUtils);
+        map.put("time", TimeUtils.getInstance());
         //设置的包名
         map.put("packageName", cacheDataUtils.getPackageName());
         if (selectModule != null) {
@@ -240,21 +241,37 @@ public class VelocityUtils {
      * @return 覆盖后的表配置信息
      */
     private List<TableInfo> coverConfigInfo() {
+        // 选择的module名称
+        final String moduleName;
+        if (cacheDataUtils.getSelectModule()!=null) {
+            moduleName = cacheDataUtils.getSelectModule().getName();
+        } else {
+            moduleName = null;
+        }
+
         AtomicBoolean isSave = new AtomicBoolean(false);
         List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
         // 将选中表中的没有保存配置信息的表进行保存
         tableInfoList.forEach(tableInfo -> {
-            // 只有所有项目都是空的才会进行覆盖保存
-            if (StringUtils.isEmpty(tableInfo.getSaveModelName()) && StringUtils.isEmpty(tableInfo.getSavePath()) && StringUtils.isEmpty(tableInfo.getSavePackageName())) {
-                tableInfo.setSavePath(cacheDataUtils.getSavePath());
-                tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
-                if (cacheDataUtils.getSelectModule()!=null) {
-                    tableInfo.setSaveModelName(cacheDataUtils.getSelectModule().getName());
+            // 输入当前表是选中表
+            if (tableInfo.getObj()==cacheDataUtils.getSelectDbTable()) {
+                // 只要所有保存信息都没修改就不进行覆盖保存
+                if (Objects.equals(tableInfo.getSavePath(), cacheDataUtils.getSavePath()) && Objects.equals(moduleName, tableInfo.getSaveModelName()) && Objects.equals(tableInfo.getSavePackageName(), cacheDataUtils.getPackageName())) {
+                    return;
                 }
-                // 保存信息
-                tableInfoUtils.save(tableInfo);
-                isSave.set(true);
+            } else {
+                // 只要存在任意一项保存信息就不进行覆盖保存
+                if (!StringUtils.isEmpty(tableInfo.getSaveModelName()) || !StringUtils.isEmpty(tableInfo.getSavePath()) || !StringUtils.isEmpty(tableInfo.getSavePackageName())) {
+                    return;
+                }
             }
+            // 进行覆盖保存
+            tableInfo.setSavePath(cacheDataUtils.getSavePath());
+            tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
+            tableInfo.setSaveModelName(moduleName);
+            // 保存信息
+            tableInfoUtils.save(tableInfo);
+            isSave.set(true);
         });
         // 保存完毕后需要重新获取数据
         if (isSave.get()) {

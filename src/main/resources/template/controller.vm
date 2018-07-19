@@ -1,0 +1,18 @@
+##定义初始变量
+#set($tableName = $tool.append($tableInfo.name, "Controller"))
+##设置回调
+$!callback.setFileName($tool.append($tableName, ".java"))
+$!callback.setSavePath($tool.append($tableInfo.savePath, "/controller"))
+
+#if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}controller;
+
+
+/**
+ * $!{tableInfo.comment}($!{tableInfo.name})表控制层
+ *
+ * @author $!author
+ * @since $!time.currTime()
+ */
+public class $!{tableName} {
+
+}

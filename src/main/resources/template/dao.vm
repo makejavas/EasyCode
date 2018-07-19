@@ -1,1 +1,18 @@
-这里什么都没有
+##定义初始变量
+#set($tableName = $tool.append($tableInfo.name, "Dao"))
+##设置回调
+$!callback.setFileName($tool.append($tableName, ".java"))
+$!callback.setSavePath($tool.append($tableInfo.savePath, "/dao"))
+
+#if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}dao;
+
+
+/**
+ * $!{tableInfo.comment}($!{tableInfo.name})表数据库访问层
+ *
+ * @author $!author
+ * @since $!time.currTime()
+ */
+public class $!{tableName} {
+
+}
