@@ -1,9 +1,34 @@
 # EasyCode
-### 简介：
-* 这是一款IDEA插件，主要用于代码生成
-* 只适用于IDEA Ultimate版（收费版），因为是基于收费版自带的Database Tool插件开发的，这个插件只有收费版才有。
+
+### EasyCode能做什么？
+
+EasyCode是基于IntelliJ IDEA Ultimate版开发的一个代码生成插件，主要通过自定义模板（基于velocity）来生成各种你想要的代码。通常用于生成Entity、Dao、Service、Controller。如果你动手能力强还可以用于生成HTML、JS、PHP等代码。理论上来说只要是与数据有关的代码都是可以生成的。
+
+### 使用环境
+`IntelliJ IDEA Ultimate版（172+）`
+
+### 支持的数据库类型
+因为是基于Database Tool开发，所有Database Tool支持的数据库都是支持的。
+
+包括如下数据库：
+
+1. MySQL
+2. SQL Server
+3. Oracle
+4. PostgreSQL
+5. Sqlite
+6. Sybase
+7. Derby
+8. DB2
+9. HSQLDB
+10. H2
+
+当然支持的数据库类型也会随着Database Tool插件的更新同步更新。
+
+
 ### 功能说明：
 * 支持多表同时操作
+* 支持同时生成多个模板
 * 支持自定义模板
 * 支持自定义类型映射（支持正则）
 * 支持自定义扩展属性
@@ -12,14 +37,17 @@
 ### 安装方法
 * 该插件正在添加到官网插件仓库中，现在只能手动安装，添加完毕后直接在搜索框搜索安装。
 * 手动安装方法如下：
-1. [点击这里](../../releases)，下载最新的发行版本。
+1. [ **点击这里** ](../../releases)，下载最新的发行版本。
 2. 然后进入到File->Settings->Plugins,点击Install plugin from disk...
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/143320_ac3b91d7_920085.png "安装插件")
 3. 找到你下载好的安装包即可安装
 4. 安装完后重启即可
+
+
 ### 使用方法
-1. 简单生成代码
-在IDEA右边找到数据库工具，并添加好对应的数据源
+1. 简单的生成代码
+
+首先在IDEA右边找到数据库工具，点击加号添加好对应的数据源
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/144138_fe0fe8da_920085.png "使用方法1")
 
@@ -62,6 +90,7 @@ $packageName 选择的包名
 $author 设置中的作者
 $encode 设置的编码
 $modulePath 选中的module路径
+$projectPath 项目路径
 对象
 $tableInfo 表对象
     obj 表原始对象
@@ -99,7 +128,9 @@ $time
 
 ### 高级货在这里
 
-这里的关系都是一一对应的，可以在columnInfo.ext中拿到你设置的值（如:columnInfo.ext.disabled）
+在这里添加自定义属性，这些属性都是可以动态配置的，而且还可以在模板中获取到这个属性。
+
+这里的关系都是一一对应的，例如：如果配置了disabled属性就可以在columnInfo.ext中拿到你设置的值（如:columnInfo.ext.disabled）
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/150458_2dce31fc_920085.png "屏幕截图.png")
 
@@ -108,7 +139,7 @@ $time
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/150557_82a4c528_920085.png "屏幕截图.png")
 
 
-### 配置信息储存位置
+### 配置信息储存在哪里？
 
 使用版本控制的开发人员可加这些信息不要添加至忽略（以便共享配置信息）
 
