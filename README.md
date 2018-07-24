@@ -12,7 +12,7 @@
 ### 安装方法
 * 该插件正在添加到官网插件仓库中，现在只能手动安装，添加完毕后直接在搜索框搜索安装。
 * 手动安装方法如下：
-1. [点击这里](./releases)，下载最新的发行版本。
+1. [点击这里](../../releases)，下载最新的发行版本。
 2. 然后进入到File->Settings->Plugins,点击Install plugin from disk...
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/143320_ac3b91d7_920085.png "安装插件")
 3. 找到你下载好的安装包即可安装
