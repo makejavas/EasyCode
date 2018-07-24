@@ -8,6 +8,12 @@
       Easy Code.<br>
       <em>make code so easy!</em>
       <em>让代码变得简单。</em>
+      <h3>功能简介：</h3>
+      1.支持自定义模板(基于velocity)<br>
+      2.支持定制表信息，以及添加扩展属性<br>
+      3.支持同时生成多张表与多个模板代码<br>
+      4.支持生成与数据库相关的任何代码<br>
+      5.基于Database Tool开发，支持多种数据库<br>
     ]]></description>
 
     <change-notes><![CDATA[
@@ -16,7 +22,8 @@
     ]]>
     </change-notes>
 
-    <idea-version since-build="IU-181.4445.20"/>
+    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="172" until-build="182.*"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
