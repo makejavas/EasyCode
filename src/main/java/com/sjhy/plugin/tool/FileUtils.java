@@ -41,7 +41,7 @@ public class FileUtils {
     public String read(File file) {
         StringBuilder builder = new StringBuilder();
         try {
-            builder.append(FileUtil.loadFileText(file));
+            builder.append(FileUtil.loadFileText(file, "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
