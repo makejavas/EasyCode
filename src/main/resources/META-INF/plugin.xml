@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>Easy Code</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
     <description><![CDATA[
@@ -17,8 +17,9 @@
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      1.修复针对172版本兼容性问题（严重，会导致172版本无法进入设置）<br>
+      2.修复针对Linux版的IDEA路径采用windows路径问题<br>
+      3.优化部分细节<br>
     ]]>
     </change-notes>
 
