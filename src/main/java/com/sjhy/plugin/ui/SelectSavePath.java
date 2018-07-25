@@ -287,9 +287,11 @@ public class SelectSavePath extends JDialog {
         String packageName = packageField.getText();
         // 获取基本路径
         String path = getBasePath();
+        // 兼容Linux路径
+        path = path.replaceAll("\\\\", "/");
         // 如果存在包路径，添加包路径
         if (!StringUtils.isEmpty(packageName)) {
-            path += "\\" + packageName.replaceAll("\\.", "\\\\");
+            path += "/" + packageName.replaceAll("\\.", "/");
         }
         pathField.setText(path);
     }
