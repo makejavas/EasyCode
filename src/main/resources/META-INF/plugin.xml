@@ -4,6 +4,23 @@
     <version>1.0.1</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
+
+    <description><![CDATA[
+      <h3>English:</h3>
+      <ul>
+      <li>The code generation plug-in based on IntelliJ IDEA is developed to support custom templates (Java, HTML, JS, XML).</li>
+      <li>As long as database related code can be generated through custom templates. Support database type and Java type mapping relationship configuration.</li>
+      <li>The code that supports generating multiple tables at the same time. Each table has a separate configuration information. Full personalization definition, the rules are set by you.</li>
+      </ul>
+      <h3>中文：</h3>
+      <ul>
+      <li>基于IntelliJ IDEA开发的代码生成插件，支持自定义任意模板（Java，html，js，xml）。</li>
+      <li>只要是与数据库相关的代码都可以通过自定义模板来生成。支持数据库类型与java类型映射关系配置。</li>
+      <li>支持同时生成生成多张表的代码。每张表有独立的配置信息。完全的个性化定义，规则由你设置。</li>
+      </url>
+    ]]></description>
+
+
     <change-notes><![CDATA[
       <p>1.0.1-SNAPSHOT</p>
       <ul>
@@ -11,15 +28,7 @@
         <li>2.修复针对Linux版的IDEA路径采用windows路径问题</li>
         <li>3.优化部分细节</li>
       </ul>
-    ]]>
-    </change-notes>
-
-    <description><![CDATA[
-      <p>
-        <em>make code so easy!</em><br>
-        <em>让代码变得简单。</em><br>
-      </p>
-      <h3>功能简介：</h3>
+      <p>1.0.0-SNAPSHOT</p>
       <ul>
         <li>1.支持自定义模板(基于velocity)</li>
         <li>2.支持定制表信息，以及添加扩展属性</li>
@@ -28,7 +37,7 @@
         <li>5.基于Database Tool开发，支持多种数据库</li>
       </ul>
       <p>查看完成的 <a href="https://github.com/makejavas/EasyCode">帮助信息</a>.</p>
-    ]]></description>
+    ]]></change-notes>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="172"/>

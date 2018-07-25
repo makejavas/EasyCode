@@ -31,11 +31,6 @@ intellij {
 //    plugins ['com.intellij.database:2018.1.5']
     updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
 }
-patchPluginXml {
-    changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
-}
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
