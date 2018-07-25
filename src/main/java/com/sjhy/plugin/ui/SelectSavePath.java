@@ -5,6 +5,7 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiPackage;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
@@ -48,7 +49,7 @@ public class SelectSavePath extends JDialog {
     /**
      * 模型下拉框
      */
-    private JComboBox moduleComboBox;
+    private JComboBox<String> moduleComboBox;
     /**
      * 包字段
      */
@@ -128,16 +129,18 @@ public class SelectSavePath extends JDialog {
      * @return 模板对象集合
      */
     private List<Template> getSelectTemplate() {
+        // 获取到已选择的复选框
         List<String> selectTemplateNameList = new ArrayList<>();
         checkBoxList.forEach(jCheckBox -> {
             if (jCheckBox.isSelected()) {
                 selectTemplateNameList.add(jCheckBox.getText());
             }
         });
-        List<Template> selectTemplateList = new ArrayList<>();
+        List<Template> selectTemplateList = new ArrayList<>(selectTemplateNameList.size());
         if (selectTemplateNameList.isEmpty()) {
             return selectTemplateList;
         }
+        // 将复选框转换成对应的模板对象
         templateGroup.getElementList().forEach(template -> {
             if (selectTemplateNameList.contains(template.getName())) {
                 selectTemplateList.add(template);
@@ -151,12 +154,13 @@ public class SelectSavePath extends JDialog {
      */
     private void onOK() {
         List<Template> selectTemplateList = getSelectTemplate();
+        // 如果选择的模板是空的
         if (selectTemplateList.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Can't Select Template!");
             return;
         }
         String savePath = pathField.getText();
-        if (savePath.isEmpty()) {
+        if (StringUtils.isEmpty(savePath)) {
             JOptionPane.showMessageDialog(null, "Can't Select Save Path!");
             return;
         }
@@ -168,6 +172,7 @@ public class SelectSavePath extends JDialog {
         cacheDataUtils.setUnifiedConfig(unifiedConfig.isSelected());
         // 生成代码
         VelocityUtils.getInstance().handler();
+        // 关闭窗口
         dispose();
     }
 
@@ -195,9 +200,14 @@ public class SelectSavePath extends JDialog {
 
         //初始化Module选择
         for (Module module : cacheDataUtils.getModules()) {
-            //noinspection unchecked
             moduleComboBox.addItem(module.getName());
         }
+
+        //监听module选择事件
+        moduleComboBox.addActionListener(e -> {
+            // 刷新路径
+            refreshPath();
+        });
 
         //添加包选择事件
         packageChooseButton.addActionListener(e -> {
@@ -219,8 +229,8 @@ public class SelectSavePath extends JDialog {
             //将当前选中的model设置为基础路径
             VirtualFile path = cacheDataUtils.getProject().getBaseDir();
             Module module = getSelectModule();
-            if (module!=null && module.getModuleFile()!=null) {
-                path = module.getModuleFile().getParent();
+            if (module!=null) {
+                path = VirtualFileManager.getInstance().findFileByUrl("file://" + new File(module.getModuleFilePath()).getParent());
             }
             VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), cacheDataUtils.getProject(), path);
             if (virtualFile != null) {
@@ -264,8 +274,8 @@ public class SelectSavePath extends JDialog {
     private String getBasePath() {
         Module module = getSelectModule();
         String baseDir = cacheDataUtils.getProject().getBasePath();
-        if (module!=null && module.getModuleFile()!=null) {
-            baseDir = module.getModuleFile().getParent().getPath();
+        if (module!=null) {
+            baseDir = new File(module.getModuleFilePath()).getParent();
         }
         // 针对Maven项目
         File file = new File(baseDir + "/src/main/java");

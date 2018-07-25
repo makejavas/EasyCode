@@ -119,9 +119,7 @@ public class VelocityUtils {
         map.put("packageName", cacheDataUtils.getPackageName());
         if (selectModule != null) {
             //module绝对路径
-            if (selectModule.getModuleFile()!=null) {
-                map.put("modulePath", selectModule.getModuleFile().getParent().getPath());
-            }
+            map.put("modulePath", new File(selectModule.getModuleFilePath()).getParent());
             map.put("moduleName", selectModule.getName());
         }
         // 项目路径
