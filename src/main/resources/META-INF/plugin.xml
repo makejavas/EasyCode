@@ -4,27 +4,34 @@
     <version>1.0.1</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
-    <description><![CDATA[
-      Easy Code.<br>
-      <em>make code so easy!</em>
-      <em>让代码变得简单。</em>
-      <h3>功能简介：</h3>
-      1.支持自定义模板(基于velocity)<br>
-      2.支持定制表信息，以及添加扩展属性<br>
-      3.支持同时生成多张表与多个模板代码<br>
-      4.支持生成与数据库相关的任何代码<br>
-      5.基于Database Tool开发，支持多种数据库<br>
-    ]]></description>
-
     <change-notes><![CDATA[
-      1.修复针对172版本兼容性问题（严重，会导致172版本无法进入设置）<br>
-      2.修复针对Linux版的IDEA路径采用windows路径问题<br>
-      3.优化部分细节<br>
+      <p>1.0.1-SNAPSHOT</p>
+      <ul>
+        <li>1.修复针对172版本兼容性问题（严重，会导致172版本无法进入设置）</li>
+        <li>2.修复针对Linux版的IDEA路径采用windows路径问题</li>
+        <li>3.优化部分细节</li>
+      </ul>
     ]]>
     </change-notes>
 
+    <description><![CDATA[
+      <p>
+        <em>make code so easy!</em><br>
+        <em>让代码变得简单。</em><br>
+      </p>
+      <h3>功能简介：</h3>
+      <ul>
+        <li>1.支持自定义模板(基于velocity)</li>
+        <li>2.支持定制表信息，以及添加扩展属性</li>
+        <li>3.支持同时生成多张表与多个模板代码</li>
+        <li>4.支持生成与数据库相关的任何代码</li>
+        <li>5.基于Database Tool开发，支持多种数据库</li>
+      </ul>
+      <p>查看完成的 <a href="https://github.com/makejavas/EasyCode">帮助信息</a>.</p>
+    ]]></description>
+
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="172" until-build="182.*"/>
+    <idea-version since-build="172"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
