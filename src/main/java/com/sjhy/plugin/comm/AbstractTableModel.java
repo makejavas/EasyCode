@@ -1,6 +1,6 @@
 package com.sjhy.plugin.comm;
 
-import org.fest.util.Collections;
+import com.sjhy.plugin.tool.CollectionUtil;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
@@ -33,7 +33,7 @@ public abstract class AbstractTableModel<T> extends DefaultTableModel {
      * @param data 数据
      */
     public void init(List<T> data) {
-        if (Collections.isNullOrEmpty(data)) {
+        if (CollectionUtil.isEmpty(data)) {
             return;
         }
         this.data = data;

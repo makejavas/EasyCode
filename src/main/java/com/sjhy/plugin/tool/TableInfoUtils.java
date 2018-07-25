@@ -139,7 +139,8 @@ public class TableInfoUtils extends AbstractService {
             tableInfo.setSavePackageName(tableInfoConfig.getSavePackageName());
             tableInfo.setSavePath(tableInfoConfig.getSavePath());
 
-            if (org.fest.util.Collections.isNullOrEmpty(tableInfoConfig.getFullColumn())) {
+
+            if (CollectionUtil.isEmpty(tableInfoConfig.getFullColumn())) {
                 result.add(tableInfo);
                 return;
             }
