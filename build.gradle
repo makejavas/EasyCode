@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.3.4'
+}
+
+//2.1 插件配置
+// 这两个插件是必备
+apply plugin: 'idea'
+apply plugin: 'org.jetbrains.intellij'
+
+group 'com.sjhy'
+version '1.0.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileClasspath fileTree(dir: 'lib', includes: ['*.jar'])
+    compileOnly "org.projectlombok:lombok:1.18.0"
+}
+
+intellij {
+    pluginName 'EasyCode'
+    version '2018.1.5'
+    type 'IU'
+//    plugins ['com.intellij.database:2018.1.5']
+    updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
+}
+patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+
+//-----------------------------------change xml file encoding---------------------------------------------
+project.patchPluginXml.doLast {
+    loopFileDirectoryChangeFileEncoding((File) project.patchPluginXml.getDestinationDir())
+}
+/**
+ *  Traverse the folder, modifying the file format to utf-8
+ */
+void loopFileDirectoryChangeFileEncoding(File xmlFileDirectory) {
+    //check directory
+    if (xmlFileDirectory != null && xmlFileDirectory.isDirectory()) {
+        File[] files = xmlFileDirectory.listFiles()
+        //loop file
+        for (File tempXmlFile : files) {
+            if (tempXmlFile.isFile()) {
+                String xmlPath = tempXmlFile.getPath()
+                project.changeFileEncodingToUtf8(xmlPath)
+            }
+        }
+    }
+}
+/**
+ * Modifying the xml file to utf - 8
+ */
+void changeFileEncodingToUtf8(String xmlPath) {
+    try {
+        //read xml file
+        BufferedReader bfr = new BufferedReader(new FileReader(xmlPath))
+        String line = bfr.readLine()
+        StringBuilder sb = new StringBuilder()
+        while (line != null) {
+            sb.append(line)
+            sb.append("\n")
+            line = bfr.readLine()
+        }
+        bfr.close()
+        //write xml file
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xmlPath, false), "UTF-8"))
+        writer.write(sb.toString())
+        writer.flush()
+        writer.close()
+    } catch (IOException e) {
+        System.out.println("read err：" + e.toString())
+    }
+}
