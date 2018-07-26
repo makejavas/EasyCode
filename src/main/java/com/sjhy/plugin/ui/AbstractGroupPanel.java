@@ -82,7 +82,8 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
 
     /**
      * 构造方法
-     * @param group 分组映射对象
+     *
+     * @param group           分组映射对象
      * @param selectGroupName 当前选中的分组名称
      */
     public AbstractGroupPanel(Map<String, T> group, String selectGroupName) {
@@ -157,6 +158,10 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             itemGroupPanel.add(button);
         });
         itemGroupPanel.updateUI();
+        // 修复下标越界异常
+        if (selectItemIndex >= elementList.size()) {
+            selectItemIndex = 0;
+        }
         //初始化第一个元素面板
         initItemPanel(itemPanel, elementList.get(selectItemIndex));
         initFlag = true;
@@ -263,7 +268,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             if (result == JOptionPane.YES_OPTION) {
                 itemList.remove(selectItemIndex);
                 // 移步到当前删除元素的前一个元素
-                if (selectItemIndex>0) {
+                if (selectItemIndex > 0) {
                     selectItemIndex--;
                 }
                 initItem();
@@ -301,13 +306,15 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
 
     /**
      * 初始化元素面板
+     *
      * @param itemPanel 父面板
-     * @param item 元素对象
+     * @param item      元素对象
      */
     protected abstract void initItemPanel(JPanel itemPanel, E item);
 
     /**
      * 获取元素名称
+     *
      * @param item 元素对象
      * @return 元素名称
      */
@@ -315,13 +322,15 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
 
     /**
      * 设置元素名称
-     * @param item 元素对象
+     *
+     * @param item     元素对象
      * @param itemName 元素名称
      */
     protected abstract void setItemName(E item, String itemName);
 
     /**
      * 创建元素
+     *
      * @param name 元素名称
      * @return 元素对象
      */
