@@ -27,7 +27,7 @@ public class TypeMapperSetting implements Configurable {
     /**
      * 类型映射分组切换下拉框
      */
-    private JComboBox typeMapperComboBox;
+    private JComboBox<String> typeMapperComboBox;
     /**
      * 分组复制按钮
      */
@@ -166,7 +166,6 @@ public class TypeMapperSetting implements Configurable {
         init = false;
         //初始化下拉框
         this.typeMapperComboBox.removeAllItems();
-        //noinspection unchecked
         typeMapperGroupMap.keySet().forEach(this.typeMapperComboBox::addItem);
         this.typeMapperComboBox.setSelectedItem(this.currGroupName);
         this.typeMapperModel.init(this.typeMapperGroupMap.get(currGroupName).getElementList());

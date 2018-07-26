@@ -36,8 +36,9 @@ public abstract class AbstractTableModel<T> extends DefaultTableModel {
         if (CollectionUtil.isEmpty(data)) {
             return;
         }
-        this.data = data;
+        // 先移除后赋值，修复复制分组后无数据展示问题
         removeAllRow();
+        this.data = data;
         data.forEach(item -> super.addRow(toObj(item)));
     }
 
@@ -49,7 +50,8 @@ public abstract class AbstractTableModel<T> extends DefaultTableModel {
         int rowCount = getRowCount();
         if (rowCount > 0) {
             for (int i = 0; i < rowCount; i++) {
-                removeRow(0);
+                // 只移除行数据，不移除储存数据，修复切换分组数据自动清空BUG
+                super.removeRow(0);
             }
         }
     }
