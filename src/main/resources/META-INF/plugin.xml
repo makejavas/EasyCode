@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>Easy Code</name>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
 
@@ -17,11 +17,18 @@
       <li>基于IntelliJ IDEA开发的代码生成插件，支持自定义任意模板（Java，html，js，xml）。</li>
       <li>只要是与数据库相关的代码都可以通过自定义模板来生成。支持数据库类型与java类型映射关系配置。</li>
       <li>支持同时生成生成多张表的代码。每张表有独立的配置信息。完全的个性化定义，规则由你设置。</li>
-      </url>
     ]]></description>
 
 
     <change-notes><![CDATA[
+      <p>1.0.2-SNAPSHOT</p>
+      <ul>
+        <li>1.Add English documents</li>
+      </ul>
+      <ul>
+        <li>1.添加英文文档</li>
+      </ul>
+
       <p>1.0.1-SNAPSHOT</p>
       <ul>
         <li>1.Fix compatibility problem for version 172 (serious, cause 172 version to be unable to set up).</li>
@@ -33,6 +40,7 @@
         <li>2.修复针对Linux版的IDEA路径采用windows路径问题</li>
         <li>3.优化部分细节</li>
       </ul>
+
       <p>1.0.0-SNAPSHOT</p>
       <ul>
         <li>1.Support custom templates (based on velocity)</li>
