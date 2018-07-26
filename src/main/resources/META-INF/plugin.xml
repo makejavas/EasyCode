@@ -24,11 +24,23 @@
     <change-notes><![CDATA[
       <p>1.0.1-SNAPSHOT</p>
       <ul>
+        <li>1.Fix compatibility problem for version 172 (serious, cause 172 version to be unable to set up).</li>
+        <li>2.Repairing windows path for Linux version of IDEA path</li>
+        <li>3.Optimize part of the details</li>
+      </ul>
+      <ul>
         <li>1.修复针对172版本兼容性问题（严重，会导致172版本无法进入设置）</li>
         <li>2.修复针对Linux版的IDEA路径采用windows路径问题</li>
         <li>3.优化部分细节</li>
       </ul>
       <p>1.0.0-SNAPSHOT</p>
+      <ul>
+        <li>1.Support custom templates (based on velocity)</li>
+        <li>2.Support custom table information and add extension attributes</li>
+        <li>3.Support to generate multiple tables and multiple template codes at the same time</li>
+        <li>4.Support to generate any code related to the database</li>
+        <li>5.Based on Database Tool development, support a varied of databases</li>
+      </ul>
       <ul>
         <li>1.支持自定义模板(基于velocity)</li>
         <li>2.支持定制表信息，以及添加扩展属性</li>
@@ -36,7 +48,7 @@
         <li>4.支持生成与数据库相关的任何代码</li>
         <li>5.基于Database Tool开发，支持多种数据库</li>
       </ul>
-      <p>查看完成的 <a href="https://github.com/makejavas/EasyCode">帮助信息</a>.</p>
+      <p>More <a href="https://github.com/makejavas/EasyCode">Help Info</a>.</p>
     ]]></change-notes>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
