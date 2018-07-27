@@ -10,8 +10,11 @@ $!define
 ##包路径（宏定义）
 #setPackageSuffix("service")
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import $!{tableInfo.savePackageName}.entity.$!tableInfo.name;
+
 ##表注释（宏定义）
 #tableComment("表服务接口")
-public interface $!{tableName} {
+public interface $!{tableName} extends IService<$!tableInfo.name> {
 
 }
