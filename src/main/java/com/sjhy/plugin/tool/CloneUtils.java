@@ -44,7 +44,6 @@ public class CloneUtils {
      * @param entity 实体对象
      * @return 克隆后的实体对象
      */
-    @SuppressWarnings("unchecked")
     public <E> E clone(E entity) {
         if (entity == null) {
             return null;

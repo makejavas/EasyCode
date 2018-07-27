@@ -28,7 +28,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
     /**
      * 分组下拉选择框
      */
-    private JComboBox groupComboBox;
+    private JComboBox<String> groupComboBox;
     /**
      * 表格
      */
@@ -255,7 +255,6 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
         groupComboBox.removeAllItems();
         Set<String> groupNameSet = group.keySet();
         for (String groupName : groupNameSet) {
-            //noinspection unchecked
             groupComboBox.addItem(groupName);
         }
         groupComboBox.setSelectedItem(currGroupName);

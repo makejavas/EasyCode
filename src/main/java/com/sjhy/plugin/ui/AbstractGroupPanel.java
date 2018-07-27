@@ -26,7 +26,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
     /**
      * 分组下拉选择框
      */
-    protected JComboBox groupComboBox;
+    protected JComboBox<String> groupComboBox;
     /**
      * 复制按钮
      */
@@ -116,7 +116,6 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
     private void initGroup() {
         groupComboBox.removeAllItems();
         for (String groupName : group.keySet()) {
-            //noinspection unchecked
             groupComboBox.addItem(groupName);
         }
         // 设置选中默认分组
