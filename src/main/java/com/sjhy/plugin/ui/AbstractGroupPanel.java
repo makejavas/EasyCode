@@ -242,6 +242,10 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
                 return;
             }
             String value = JOptionPane.showInputDialog(null, "Input Item Name:", "Demo");
+            // 取消添加，不需要提示信息
+            if (value == null) {
+                return;
+            }
             if (StringUtils.isEmpty(value)) {
                 JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
                 return;
@@ -292,6 +296,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             E item = itemList.get(selectItemIndex);
             String itemName = getItemName(item);
             String value = JOptionPane.showInputDialog(null, "Input Item Name:", itemName + " Copy");
+            // 取消复制，不需要提示信息
             if (value == null) {
                 return;
             }

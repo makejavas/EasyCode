@@ -220,6 +220,10 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
                 return;
             }
             String value = JOptionPane.showInputDialog(null, "Input Item Name:", "Demo");
+            // 取消添加，不需要提示信息
+            if (value == null) {
+                return;
+            }
             if (StringUtils.isEmpty(value)) {
                 JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
                 return;
