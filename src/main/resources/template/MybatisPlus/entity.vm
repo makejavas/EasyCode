@@ -2,15 +2,16 @@
 $!define
 
 ##保存文件（宏定义）
-$!save($tool.append($tableInfo.savePath, "/entity"), $tool.append($tableInfo.name, ".java"))
+#save("/entity", ".java")
 
 ##包路径（宏定义）
-$!setPackageSuffix("entity")
+#setPackageSuffix("entity")
 
 ##导入包（全局变量）
 $!import
 
-$!tableComment("表实体类")
+##表注释（宏定义）
+#tableComment("表实体类")
 public class $!{tableInfo.name} {
 #foreach($column in $tableInfo.fullColumn)
     #if(${column.comment})//${column.comment}#end
@@ -19,7 +20,7 @@ public class $!{tableInfo.name} {
 #end
 
 #foreach($column in $tableInfo.fullColumn)
-$!getSetMethod($column)
+#getSetMethod($column)
 #end
 
 }

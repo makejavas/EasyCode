@@ -1,0 +1,17 @@
+##导入宏定义
+$!define
+
+##设置表后缀（宏定义）
+#setTableSuffix("Service")
+
+##保存文件（宏定义）
+#save("/service", "Service.java")
+
+##包路径（宏定义）
+#setPackageSuffix("service")
+
+##表注释（宏定义）
+#tableComment("表服务接口")
+public interface $!{tableName} {
+
+}

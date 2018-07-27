@@ -1,0 +1,90 @@
+##导入宏定义
+$!define
+
+##设置表后缀（宏定义）
+#setTableSuffix("Controller")
+
+##保存文件（宏定义）
+#save("/controller", "Controller.java")
+
+##包路径（宏定义）
+#setPackageSuffix("controller")
+
+import org.springframework.web.bind.annotation.*;
+import javax.annotation.Resource;
+import com.alibaba.fastjson.JSON;
+import $!{tableInfo.savePackageName}.entity.$!tableInfo.name;
+import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
+
+##表注释（宏定义）
+#tableComment("表控制层")
+@RestController
+@RequestMapping("$!tool.firstLowerCase($!{tableName})")
+public class $!{tableName} {
+    @Resource
+    private $!{tableInfo.name}Service $!tool.firstLowerCase($!tableInfo.name)Service;
+
+    /**
+     * 分页查询所有数据
+     *
+     * @return 所有数据
+     */
+    @GetMapping
+    public String selectAll() {
+        return success(this.$!tool.firstLowerCase($!tableInfo.name)Service.selectAll());
+    }
+
+    /**
+     * 通过主键查询单条数据
+     *
+     * @param id 主键
+     * @return 单条数据
+     */
+    @GetMapping("{id}")
+    public String selectOne(@PathVariable Long id) {
+        return success(this.$!tool.firstLowerCase($!tableInfo.name)Service.queryById(id));
+    }
+
+    /**
+     * 新增数据
+     *
+     * @param entity 实体对象
+     * @return 新增结果
+     */
+    @PostMapping
+    public String insert(@RequestBody $!tableInfo.name entity) {
+        return success(this.$!tool.firstLowerCase($!tableInfo.name)Service.insert(entity));
+    }
+
+    /**
+     * 修改数据
+     *
+     * @param entity 实体对象
+     * @return 修改结果
+     */
+    @PutMapping
+    public String update(@RequestBody $!tableInfo.name entity) {
+        return success(this.$!tool.firstLowerCase($!tableInfo.name)Service.update(entity));
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param idList 主键结合
+     * @return 删除结果
+     */
+    @DeleteMapping
+    public String delete(@RequestParam("idList") List<Long> idList) {
+        return success(this.$!tool.firstLowerCase($!tableInfo.name)Service.deleteByIdList(idList));
+    }
+
+    /**
+      * 成功返回方法
+      *
+      * @param obj 对象
+      * @return JSON字符串
+      */
+    public String success(Object obj) {
+        return JSON.toJSONString(obj);
+    }
+}

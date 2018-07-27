@@ -29,6 +29,9 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
     @Transient
     public static final String DEFAULT_NAME = "Default";
 
+    /**
+     * 版本号
+     */
     private String version;
     /**
      * 当前类型映射组名
@@ -92,6 +95,8 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
      * 初始化默认设置
      */
     private void initDefault() {
+        // 版本号
+        this.version = "1.1.0";
         // 默认编码
         this.encode = "UTF-8";
         // 作者名称
@@ -105,7 +110,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         if (this.templateGroupMap == null) {
             this.templateGroupMap = new LinkedHashMap<>();
         }
-        for (String groupName : new String[]{DEFAULT_NAME, "Mybatis"}) {
+        for (String groupName : new String[]{DEFAULT_NAME, "MybatisPlus"}) {
             this.templateGroupMap.put(groupName, loadTemplateGroup(groupName));
         }
 
@@ -145,7 +150,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         if (this.globalConfigGroupMap == null) {
             this.globalConfigGroupMap = new LinkedHashMap<>();
         }
-        for (String groupName : new String[]{DEFAULT_NAME, "Mybatis"}) {
+        for (String groupName : new String[]{DEFAULT_NAME}) {
             this.globalConfigGroupMap.put(groupName, loadGlobalConfigGroup(groupName));
         }
     }
@@ -240,6 +245,16 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
 
     @Override
     public void loadState(@NotNull ConfigInfo configInfo) {
+        // 备份初始配置
+        Map<String, TemplateGroup> templateGroupMap = this.getTemplateGroupMap();
+        // 覆盖初始配置
         XmlSerializerUtil.copyBean(configInfo, this);
+        // 合并配置
+        templateGroupMap.forEach((name, templateGroup) -> {
+            if (this.getTemplateGroupMap().containsKey(name)) {
+                return;
+            }
+            this.getTemplateGroupMap().put(name, templateGroup);
+        });
     }
 }

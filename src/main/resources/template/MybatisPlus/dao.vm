@@ -1,0 +1,17 @@
+##导入宏定义
+$!define
+
+##设置表后缀（宏定义）
+#setTableSuffix("Dao")
+
+##保存文件（宏定义）
+#save("/dao", "Dao.java")
+
+##包路径（宏定义）
+#setPackageSuffix("dao")
+
+##表注释（宏定义）
+#tableComment("表数据库访问层")
+public interface $!{tableName} {
+
+}

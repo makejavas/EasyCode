@@ -5,23 +5,23 @@
 *#
 ##定义区域（Velocity宏定义）
 
-##定义设置表名后缀的宏定义，调用方式：$setTableSuffix("Test")
+##定义设置表名后缀的宏定义，调用方式：#setTableSuffix("Test")
 #macro(setTableSuffix $suffix)
     #set($tableName = $!tool.append($tableInfo.name, $suffix))
 #end
 
-##定义设置包名后缀的宏定义，调用方式：$setPackageSuffix("Test")
+##定义设置包名后缀的宏定义，调用方式：#setPackageSuffix("Test")
 #macro(setPackageSuffix $suffix)
 #if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}$suffix;
 #end
 
-##定义直接保存路径与文件名简化的宏定义，调用方式：$save("D:/", "Test.java")
+##定义直接保存路径与文件名简化的宏定义，调用方式：#save("/entity", ".java")
 #macro(save $path $fileName)
-    $!callback.setSavePath($path)
-    $!callback.setFileName($fileName)
+    $!callback.setSavePath($tool.append($tableInfo.savePath, $path))
+    $!callback.setFileName($tool.append($tableInfo.name, $fileName))
 #end
 
-##定义表注释的宏定义，调用方式：$tableComment("注释信息")
+##定义表注释的宏定义，调用方式：#tableComment("注释信息")
 #macro(tableComment $desc)
 /**
  * $!{tableInfo.comment}($!{tableInfo.name})$desc
@@ -31,7 +31,7 @@
  */
 #end
 
-##定义GET，SET方法的宏定义
+##定义GET，SET方法的宏定义，调用方式：#getSetMethod($column)
 #macro(getSetMethod $column)
 
     public $!{tool.getClsNameByFullName($column.type)} get$!{tool.firstUpperCase($column.name)}() {

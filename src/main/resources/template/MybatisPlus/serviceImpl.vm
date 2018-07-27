@@ -1,0 +1,17 @@
+##导入宏定义
+$!define
+
+##设置表后缀（宏定义）
+#setTableSuffix("ServiceImpl")
+
+##保存文件（宏定义）
+#save("/service/impl", "ServiceImpl.java")
+
+##包路径（宏定义）
+#setPackageSuffix("service.impl")
+
+##表注释（宏定义）
+#tableComment("表服务实现类")
+public class $!{tableName} implements $!{tableInfo.name}Service {
+
+}
