@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>Easy Code</name>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
 
@@ -21,6 +21,19 @@
 
 
     <change-notes><![CDATA[
+      <p>1.1.0-SNAPSHOT</p>
+      <ul>
+        <li>1.Add the global configuration module, which can be used to define macro commands, global configuration information, etc.</li>
+        <li>2.Add reset default configuration function, which can be used to restore incorrect changes.</li>
+        <li>3.Add a new template group, name as (Mybatis Plus)</li>
+        <li>4.Optimize a lot of details.</li>
+      </ul>
+      <ul>
+        <li>1.添加全局配置模块，可用于定义宏命令，全局配置信息等</li>
+        <li>2.添加重置默认配置功能，可用于还原误修改。</li>
+        <li>3.添加新的模板组，Mybatis Plus</li>
+        <li>4.优化大量细节。</li>
+      </ul>
       <p>1.0.2-SNAPSHOT</p>
       <ul>
         <li>1.Add English documents</li>

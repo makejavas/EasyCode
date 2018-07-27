@@ -9,7 +9,7 @@ apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
 group 'com.sjhy'
-version '1.0.2-SNAPSHOT'
+version '1.1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
