@@ -196,6 +196,12 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             }
             // 输入分组名称
             String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName + " Copy");
+
+            // 取消复制，不需要提示信息
+            if (value == null) {
+                return;
+            }
+
             if (StringUtils.isEmpty(value)) {
                 JOptionPane.showMessageDialog(null, "Group Name Can't Is Empty!");
                 return;
