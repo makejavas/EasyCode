@@ -5,6 +5,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import com.sjhy.plugin.entity.*;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -247,8 +248,15 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
     public void loadState(@NotNull ConfigInfo configInfo) {
         // 备份初始配置
         Map<String, TemplateGroup> templateGroupMap = this.getTemplateGroupMap();
+        String version = this.getVersion();
         // 覆盖初始配置
         XmlSerializerUtil.copyBean(configInfo, this);
+
+        // 已经合并不再重复合并
+        if (configInfo.getVersion()!=null && configInfo.getVersion().equals(version)) {
+            return;
+        }
+
         // 合并配置
         templateGroupMap.forEach((name, templateGroup) -> {
             if (this.getTemplateGroupMap().containsKey(name)) {
