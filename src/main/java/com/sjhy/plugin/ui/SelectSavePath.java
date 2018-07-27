@@ -247,8 +247,14 @@ public class SelectSavePath extends JDialog {
         if (!StringUtils.isEmpty(tableInfo.getSavePackageName())) {
             packageField.setText(tableInfo.getSavePackageName());
         }
-        if (!StringUtils.isEmpty(tableInfo.getSavePath())) {
-            pathField.setText(tableInfo.getSavePath());
+        String savePath = tableInfo.getSavePath();
+        if (!StringUtils.isEmpty(savePath)) {
+            // 判断是否需要凭借项目路径
+            if (savePath.startsWith("./")) {
+                String projectPath = cacheDataUtils.getProject().getBasePath();
+                savePath = projectPath + savePath.substring(1);
+            }
+            pathField.setText(savePath);
         }
     }
 

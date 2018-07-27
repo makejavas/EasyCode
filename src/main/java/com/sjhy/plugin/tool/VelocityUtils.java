@@ -74,9 +74,10 @@ public class VelocityUtils {
 
     /**
      * 生成代码
+     *
      * @param template 模板对象
-     * @param map 参数集合
-     * @param encode 编码类型
+     * @param map      参数集合
+     * @param encode   编码类型
      * @return 生成结果
      */
     private String generate(String template, Map<String, Object> map, String encode) {
@@ -93,6 +94,7 @@ public class VelocityUtils {
 
     /**
      * 设置全局参数
+     *
      * @return 全局参数
      */
     private Map<String, Object> handlerMap() {
@@ -129,6 +131,7 @@ public class VelocityUtils {
 
     /**
      * 创建目录
+     *
      * @param savePath 路径
      * @return 保存结果
      */
@@ -154,6 +157,7 @@ public class VelocityUtils {
 
     /**
      * 创建或覆盖文件
+     *
      * @param file 文件
      * @return 是否成功
      */
@@ -194,6 +198,8 @@ public class VelocityUtils {
         String encode = configInfo.getEncode();
         // 获取默认的配置信息
         Map<String, Object> map = handlerMap();
+        // 项目路径
+        String projectPath = cacheDataUtils.getProject().getBasePath();
 
         tableInfoList.forEach(tableInfo -> {
             Callback callback = new Callback();
@@ -214,6 +220,10 @@ public class VelocityUtils {
                 String callbackSavePath = callback.getSavePath();
                 //是否使用回调中的保存路径
                 if (!StringUtils.isEmpty(callbackSavePath)) {
+                    // 判断是否需要凭借项目路径
+                    if (callbackSavePath.startsWith("./")) {
+                        callbackSavePath = projectPath + callbackSavePath.substring(1);
+                    }
                     if (!createPath(callbackSavePath)) {
                         return;
                     }
@@ -239,12 +249,13 @@ public class VelocityUtils {
 
     /**
      * 覆盖保存配置信息
+     *
      * @return 覆盖后的表配置信息
      */
     private List<TableInfo> coverConfigInfo() {
         // 选择的module名称
         final String moduleName;
-        if (cacheDataUtils.getSelectModule()!=null) {
+        if (cacheDataUtils.getSelectModule() != null) {
             moduleName = cacheDataUtils.getSelectModule().getName();
         } else {
             moduleName = null;
@@ -252,12 +263,33 @@ public class VelocityUtils {
 
         AtomicBoolean isSave = new AtomicBoolean(false);
         List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+
+
+        // 判断路径是否需要是由相对路径
+        String savePath = cacheDataUtils.getSavePath();
+        // 兼容Linux
+        if (savePath.contains("\\")) {
+            savePath = savePath.replace("\\", "/");
+            cacheDataUtils.setSavePath(savePath);
+        }
+        String projectPath = cacheDataUtils.getProject().getBasePath();
+        if (savePath.indexOf(projectPath) == 0) {
+            savePath = savePath.substring(projectPath.length());
+            if (savePath.startsWith("/")) {
+                savePath = "." + savePath;
+            } else {
+                savePath = "./" + savePath;
+            }
+        }
+
+        final String finalSavePath = savePath;
+
         // 将选中表中的没有保存配置信息的表进行保存
         tableInfoList.forEach(tableInfo -> {
             // 输入当前表是选中表
-            if (tableInfo.getObj()==cacheDataUtils.getSelectDbTable()) {
+            if (tableInfo.getObj() == cacheDataUtils.getSelectDbTable()) {
                 // 只要所有保存信息都没修改就不进行覆盖保存
-                if (Objects.equals(tableInfo.getSavePath(), cacheDataUtils.getSavePath()) && Objects.equals(moduleName, tableInfo.getSaveModelName()) && Objects.equals(tableInfo.getSavePackageName(), cacheDataUtils.getPackageName())) {
+                if (Objects.equals(tableInfo.getSavePath(), finalSavePath) && Objects.equals(moduleName, tableInfo.getSaveModelName()) && Objects.equals(tableInfo.getSavePackageName(), cacheDataUtils.getPackageName())) {
                     return;
                 }
             } else {
@@ -267,7 +299,7 @@ public class VelocityUtils {
                 }
             }
             // 进行覆盖保存
-            tableInfo.setSavePath(cacheDataUtils.getSavePath());
+            tableInfo.setSavePath(finalSavePath);
             tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
             tableInfo.setSaveModelName(moduleName);
             // 保存信息
@@ -283,7 +315,7 @@ public class VelocityUtils {
             tableInfoList.forEach(tableInfo -> {
                 tableInfo.setSavePath(cacheDataUtils.getSavePath());
                 tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
-                if (cacheDataUtils.getSelectModule()!=null) {
+                if (cacheDataUtils.getSelectModule() != null) {
                     tableInfo.setSaveModelName(cacheDataUtils.getSelectModule().getName());
                 }
             });
@@ -294,6 +326,7 @@ public class VelocityUtils {
 
     /**
      * 获取导入列表
+     *
      * @param tableInfo 表信息对象
      * @return 导入列表
      */
