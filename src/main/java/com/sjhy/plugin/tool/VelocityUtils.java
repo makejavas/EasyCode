@@ -3,6 +3,7 @@ package com.sjhy.plugin.tool;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.sjhy.plugin.entity.Callback;
+import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Velocity工具类，主要用于代码生成
@@ -190,10 +193,20 @@ public class VelocityUtils {
         if (!createPath(cacheDataUtils.getSavePath())) {
             return;
         }
+        ConfigInfo configInfo = ConfigInfo.getInstance();
         // 获取覆盖的表配置信息
         List<TableInfo> tableInfoList = coverConfigInfo();
-        List<Template> templateList = cacheDataUtils.getSelectTemplate();
-        ConfigInfo configInfo = ConfigInfo.getInstance();
+        List<Template> templateList = CloneUtils.getInstance().cloneList(cacheDataUtils.getSelectTemplate());
+        // 预处理加入全局变量
+        templateList.forEach(template -> {
+            String templateContent = template.getCode() + "\n";
+            for (GlobalConfig globalConfig : configInfo.getGlobalConfigGroupMap().get(configInfo.getCurrGlobalConfigGroupName()).getElementList()) {
+                // 需要替换两次，防止$在正则中出现问题
+                templateContent = templateContent.replaceAll("\\$!?\\{?" + globalConfig.getName() + "([^a-zA-Z0-9])}?", ":::{" + globalConfig.getName() + "}$1");
+                templateContent = templateContent.replace(":::{" + globalConfig.getName() + "}", globalConfig.getValue());
+            }
+            template.setCode(templateContent);
+        });
         // 获取编码信息
         String encode = configInfo.getEncode();
         // 获取默认的配置信息

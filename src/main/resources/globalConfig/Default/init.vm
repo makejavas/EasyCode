@@ -1,0 +1,5 @@
+##初始化区域
+##去掉表的t_前缀
+#if($tableInfo.obj.name.startsWith("t_"))
+    $!tableInfo.setName($tool.getClassName($tableInfo.obj.name.substring(2)))
+#end

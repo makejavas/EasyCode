@@ -8,10 +8,10 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * 全局配置信息
@@ -55,6 +55,14 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
      */
     private Map<String, ColumnConfigGroup> columnConfigGroupMap;
     /**
+     * 当前全局配置组名
+     */
+    private String currGlobalConfigGroupName;
+    /**
+     * 全局配置组
+     */
+    private Map<String, GlobalConfigGroup> globalConfigGroupMap;
+    /**
      * 默认编码
      */
     private String encode;
@@ -92,23 +100,17 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         this.currTemplateGroupName = DEFAULT_NAME;
         this.currTypeMapperGroupName = DEFAULT_NAME;
         this.currColumnConfigGroupName = DEFAULT_NAME;
+        this.currGlobalConfigGroupName = DEFAULT_NAME;
         //配置默认模板
-        if (this.templateGroupMap==null) {
+        if (this.templateGroupMap == null) {
             this.templateGroupMap = new LinkedHashMap<>();
         }
-        TemplateGroup templateGroup = new TemplateGroup();
-        List<Template> templateList = new ArrayList<>();
-        templateList.add(new Template("entity", loadTemplate("entity")));
-        templateList.add(new Template("dao", loadTemplate("dao")));
-        templateList.add(new Template("service", loadTemplate("service")));
-        templateList.add(new Template("serviceImpl", loadTemplate("serviceImpl")));
-        templateList.add(new Template("controller", loadTemplate("controller")));
-        templateGroup.setName(DEFAULT_NAME);
-        templateGroup.setElementList(templateList);
-        this.templateGroupMap.put(DEFAULT_NAME, templateGroup);
+        for (String groupName : new String[]{DEFAULT_NAME, "Mybatis"}) {
+            this.templateGroupMap.put(groupName, loadTemplateGroup(groupName));
+        }
 
         //配置默认类型映射
-        if (this.typeMapperGroupMap==null) {
+        if (this.typeMapperGroupMap == null) {
             this.typeMapperGroupMap = new LinkedHashMap<>();
         }
         TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
@@ -129,7 +131,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         typeMapperGroupMap.put(DEFAULT_NAME, typeMapperGroup);
 
         //初始化表配置
-        if (this.columnConfigGroupMap==null) {
+        if (this.columnConfigGroupMap == null) {
             this.columnConfigGroupMap = new LinkedHashMap<>();
         }
         ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
@@ -138,15 +140,96 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         columnConfigGroup.setName(DEFAULT_NAME);
         columnConfigGroup.setElementList(columnConfigList);
         columnConfigGroupMap.put(DEFAULT_NAME, columnConfigGroup);
+
+        //初始化全局配置
+        if (this.globalConfigGroupMap == null) {
+            this.globalConfigGroupMap = new LinkedHashMap<>();
+        }
+        for (String groupName : new String[]{DEFAULT_NAME, "Mybatis"}) {
+            this.globalConfigGroupMap.put(groupName, loadGlobalConfigGroup(groupName));
+        }
     }
 
     /**
      * 加载模板文件
-     * @param name 模板名称
+     *
+     * @param filePath 模板路径
      * @return 模板文件内容
      */
-    private static String loadTemplate(String name) {
-        return FileUtils.getInstance().read(ConfigInfo.class.getResourceAsStream("/template/"+name+".vm")).replaceAll("\r", "");
+    private static String loadTemplate(String filePath) {
+        return FileUtils.getInstance().read(ConfigInfo.class.getResourceAsStream(filePath)).replaceAll("\r", "");
+    }
+
+    /**
+     * 加载模板组
+     *
+     * @param groupName 组名
+     * @return 模板组
+     */
+    private static TemplateGroup loadTemplateGroup(String groupName) {
+        TemplateGroup templateGroup = new TemplateGroup();
+        templateGroup.setName(groupName);
+        templateGroup.setElementList(new ArrayList<>());
+        // 获取jar中的文件名
+        String path = ConfigInfo.class.getResource("/template").getPath();
+        String jarFileName = path.substring(6, path.indexOf("!"));
+        try (JarFile jarFile = new JarFile(jarFileName)) {
+            // 遍历JAR文件
+            Enumeration<JarEntry> entries = jarFile.entries();
+            String prefix = "template/" + groupName;
+            while (entries.hasMoreElements()) {
+                JarEntry jarEntry = entries.nextElement();
+                // 目录跳过
+                if (jarEntry.isDirectory()) {
+                    continue;
+                }
+                String name = jarEntry.getName();
+                if (name.startsWith(prefix)) {
+                    String templatePath = "/" + name;
+                    name = name.substring(name.lastIndexOf("/") + 1, name.length() - 3);
+                    templateGroup.getElementList().add(new Template(name, loadTemplate(templatePath)));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return templateGroup;
+    }
+
+    /**
+     * 加载全局配置组
+     *
+     * @param groupName 组名
+     * @return 模板组
+     */
+    private static GlobalConfigGroup loadGlobalConfigGroup(String groupName) {
+        GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
+        globalConfigGroup.setName(groupName);
+        globalConfigGroup.setElementList(new ArrayList<>());
+        // 获取jar中的文件名
+        String path = ConfigInfo.class.getResource("/globalConfig").getPath();
+        String jarFileName = path.substring(6, path.indexOf("!"));
+        try (JarFile jarFile = new JarFile(jarFileName)) {
+            // 遍历JAR文件
+            Enumeration<JarEntry> entries = jarFile.entries();
+            String prefix = "globalConfig/" + groupName;
+            while (entries.hasMoreElements()) {
+                JarEntry jarEntry = entries.nextElement();
+                // 目录跳过
+                if (jarEntry.isDirectory()) {
+                    continue;
+                }
+                String name = jarEntry.getName();
+                if (name.startsWith(prefix)) {
+                    String templatePath = "/" + name;
+                    name = name.substring(name.lastIndexOf("/") + 1, name.length() - 3);
+                    globalConfigGroup.getElementList().add(new GlobalConfig(name, loadTemplate(templatePath)));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return globalConfigGroup;
     }
 
     @Nullable

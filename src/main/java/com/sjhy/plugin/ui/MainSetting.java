@@ -65,10 +65,11 @@ public class MainSetting extends AbstractService implements Configurable, Config
     @NotNull
     @Override
     public Configurable[] getConfigurables() {
-        Configurable[] result = new Configurable[3];
+        Configurable[] result = new Configurable[4];
         result[0] = new TypeMapperSetting(configInfo);
         result[1] = new TemplateSettingPanel();
         result[2] = new TableSettingPanel();
+        result[3] = new GlobalConfigSettingPanel();
         return result;
     }
 

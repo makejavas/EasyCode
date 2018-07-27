@@ -21,8 +21,15 @@ import java.awt.*;
 public class EditTemplatePanel {
     private JPanel mainPanel;
     private JPanel editPanel;
-    private Template template;
     private Editor editor;
+    /**
+     * 初始值
+     */
+    private String value;
+    /**
+     * 回调函数
+     */
+    private Callback callback;
 
     /**
      * 编辑框支持的文件类型
@@ -39,10 +46,13 @@ public class EditTemplatePanel {
 
     /**
      * 默认构造方法
-     * @param template
+     *
+     * @param value 初始值
+     * @param callback 回调函数
      */
-    EditTemplatePanel(Template template) {
-        this.template = template;
+    EditTemplatePanel(String value, Callback callback) {
+        this.value = value;
+        this.callback = callback;
         init();
     }
 
@@ -52,7 +62,7 @@ public class EditTemplatePanel {
     private void init() {
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
-        Document velocityTemplate = factory.createDocument(template.getCode());
+        Document velocityTemplate = factory.createDocument(value);
         //TODO 退出时，会导致无法创建编辑器。
         editor = factory.createEditor(velocityTemplate, null, FILE_TYPE, false);
         editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
@@ -62,11 +72,12 @@ public class EditTemplatePanel {
      * 刷新编辑可内容
      */
     public void refresh() {
-        this.template.setCode(editor.getDocument().getText());
+        this.callback.refreshValue(editor.getDocument().getText());
     }
 
     /**
      * 获取主面板
+     *
      * @return 主面板
      */
     public JPanel getMainPanel() {
@@ -77,8 +88,20 @@ public class EditTemplatePanel {
      * 释放掉编辑框，防止内存占用
      */
     public void disposeEditor() {
-        if (editor!=null && !editor.isDisposed()) {
+        if (editor != null && !editor.isDisposed()) {
             EditorFactory.getInstance().releaseEditor(editor);
         }
+    }
+
+    /**
+     * 回调
+     */
+    public interface Callback {
+        /**
+         * 刷新保存的值
+         *
+         * @param value 值
+         */
+        void refreshValue(String value);
     }
 }

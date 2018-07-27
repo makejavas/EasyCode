@@ -1,0 +1,15 @@
+##导入宏定义
+$!define
+##设置表后缀（宏定义）
+$!setTableSuffix("Dao")
+##设置回调
+$!callback.setFileName($tool.append($tableName, ".java"))
+$!callback.setSavePath($tool.append($tableInfo.savePath, "/dao"))
+
+#if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}dao;
+
+
+$!tableComment("表数据库访问层")
+public interface $!{tableName} {
+
+}

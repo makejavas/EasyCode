@@ -1,0 +1,25 @@
+##导入宏定义
+$!define
+
+##保存文件（宏定义）
+$!save($tool.append($tableInfo.savePath, "/entity"), $tool.append($tableInfo.name, ".java"))
+
+##包路径（宏定义）
+$!setPackageSuffix("entity")
+
+##导入包（全局变量）
+$!import
+
+$!tableComment("表实体类")
+public class $!{tableInfo.name} {
+#foreach($column in $tableInfo.fullColumn)
+    #if(${column.comment})//${column.comment}#end
+
+    private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
+#end
+
+#foreach($column in $tableInfo.fullColumn)
+$!getSetMethod($column)
+#end
+
+}

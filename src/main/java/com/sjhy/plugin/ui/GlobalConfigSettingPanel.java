@@ -1,6 +1,8 @@
 package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.options.Configurable;
+import com.sjhy.plugin.entity.GlobalConfig;
+import com.sjhy.plugin.entity.GlobalConfigGroup;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
@@ -11,13 +13,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 /**
- * 模板编辑主面板
+ * 全局配置主面板
  *
  * @author makejava
  * @version 1.0.0
  * @since 2018/07/18 09:33
  */
-public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Template> implements Configurable {
+public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGroup, GlobalConfig> implements Configurable {
     /**
      * 配置信息
      */
@@ -30,8 +32,8 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     /**
      * 默认构造方法
      */
-    public TemplateSettingPanel() {
-        super(CloneUtils.getInstance().cloneMap(ConfigInfo.getInstance().getTemplateGroupMap()), ConfigInfo.getInstance().getCurrTemplateGroupName());
+    public GlobalConfigSettingPanel() {
+        super(CloneUtils.getInstance().cloneMap(ConfigInfo.getInstance().getGlobalConfigGroupMap()), ConfigInfo.getInstance().getCurrGlobalConfigGroupName());
     }
 
     /**
@@ -41,30 +43,30 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      * @param item      模板对象
      */
     @Override
-    protected void initItemPanel(JPanel itemPanel, Template item) {
+    protected void initItemPanel(JPanel itemPanel, GlobalConfig item) {
         // 如果编辑面板已经实例化，需要选释放后再初始化
         if (editTemplatePanel != null) {
             editTemplatePanel.disposeEditor();
         }
         itemPanel.removeAll();
-        editTemplatePanel = new EditTemplatePanel(item.getCode(), item::setCode);
+        editTemplatePanel = new EditTemplatePanel(item.getValue(), item::setValue);
         itemPanel.add(editTemplatePanel.getMainPanel());
         itemPanel.updateUI();
     }
 
     @Override
-    protected String getItemName(Template item) {
+    protected String getItemName(GlobalConfig item) {
         return item.getName();
     }
 
     @Override
-    protected void setItemName(Template item, String itemName) {
+    protected void setItemName(GlobalConfig item, String itemName) {
         item.setName(itemName);
     }
 
     @Override
-    protected Template createItem(String name) {
-        return new Template(name, "Demo!");
+    protected GlobalConfig createItem(String name) {
+        return new GlobalConfig(name, "Demo!");
     }
 
     /**
@@ -75,7 +77,7 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Nls
     @Override
     public String getDisplayName() {
-        return "Template Setting";
+        return "Global Config";
     }
 
     /**
@@ -105,8 +107,8 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      */
     @Override
     public void apply() {
-        configInfo.setTemplateGroupMap(group);
-        configInfo.setCurrTemplateGroupName(currGroupName);
+        configInfo.setGlobalConfigGroupMap(group);
+        configInfo.setCurrGlobalConfigGroupName(currGroupName);
     }
 
     /**
@@ -115,8 +117,8 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Override
     public void reset() {
         // 防止对象篡改，需要进行克隆
-        super.group = cloneUtils.cloneMap(configInfo.getTemplateGroupMap());
-        super.currGroupName = configInfo.getCurrTemplateGroupName();
+        super.group = cloneUtils.cloneMap(configInfo.getGlobalConfigGroupMap());
+        super.currGroupName = configInfo.getCurrGlobalConfigGroupName();
         super.init();
     }
 

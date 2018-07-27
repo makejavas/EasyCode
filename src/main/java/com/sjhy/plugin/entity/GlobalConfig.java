@@ -5,22 +5,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 模板信息类
+ * 全局配置实体类
  *
  * @author makejava
  * @version 1.0.0
- * @since 2018/07/17 13:10
+ * @since 2018/07/27 13:07
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Template {
+public class GlobalConfig {
     /**
-     * 模板名称
+     * 名称
      */
     private String name;
     /**
-     * 模板代码
+     * 值
      */
-    private String code;
+    private String value;
 }

@@ -5,6 +5,7 @@ $packageName 选择的包名
 $author 设置中的作者
 $encode 设置的编码
 $modulePath 选中的module路径
+$projectPath 项目绝对路径
 对象
 $tableInfo 表对象
     obj 表原始对象
