@@ -95,7 +95,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
     /**
      * 初始化默认设置
      */
-    private void initDefault() {
+    public void initDefault() {
         // 版本号
         this.version = "1.1.0";
         // 默认编码
