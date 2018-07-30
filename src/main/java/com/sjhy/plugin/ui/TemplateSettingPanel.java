@@ -96,7 +96,10 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      */
     @Override
     public boolean isModified() {
-        editTemplatePanel.refresh();
+        // 修复BUG，当初始未完成时，插件进行修改判断
+        if (editTemplatePanel!=null) {
+            editTemplatePanel.refresh();
+        }
         return !configInfo.getTemplateGroupMap().equals(group) || !configInfo.getCurrTemplateGroupName().equals(currGroupName);
     }
 
