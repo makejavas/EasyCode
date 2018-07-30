@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>Easy Code</name>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
 
@@ -21,6 +21,13 @@
 
 
     <change-notes><![CDATA[
+      <p>1.1.1-SNAPSHOT</p>
+      <ul>
+        <li>1.Repairing global config can not save after modification.</li>
+      </ul>
+      <ul>
+        <li>1.修复global config修改后无法正常保存问题</li>
+      </ul>
       <p>1.1.0-SNAPSHOT</p>
       <ul>
         <li>1.Add the global configuration module, which can be used to define macro commands, global configuration information, etc.</li>
