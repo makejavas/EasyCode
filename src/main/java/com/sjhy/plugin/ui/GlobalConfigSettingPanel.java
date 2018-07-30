@@ -98,7 +98,10 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
      */
     @Override
     public boolean isModified() {
-        editTemplatePanel.refresh();
+        // 修复BUG，当初始未完成时，插件进行修改判断
+        if (editTemplatePanel != null) {
+            editTemplatePanel.refresh();
+        }
         return !configInfo.getGlobalConfigGroupMap().equals(group) || !configInfo.getCurrGlobalConfigGroupName().equals(currGroupName);
     }
 
