@@ -11,7 +11,8 @@ apply plugin: 'org.jetbrains.intellij'
 group 'com.sjhy'
 version '1.1.1-SNAPSHOT'
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     jcenter()
@@ -37,50 +38,4 @@ intellij {
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
-}
-
-
-//-----------------------------------change xml file encoding---------------------------------------------
-project.patchPluginXml.doLast {
-    loopFileDirectoryChangeFileEncoding((File) project.patchPluginXml.getDestinationDir())
-}
-/**
- *  Traverse the folder, modifying the file format to utf-8
- */
-void loopFileDirectoryChangeFileEncoding(File xmlFileDirectory) {
-    //check directory
-    if (xmlFileDirectory != null && xmlFileDirectory.isDirectory()) {
-        File[] files = xmlFileDirectory.listFiles()
-        //loop file
-        for (File tempXmlFile : files) {
-            if (tempXmlFile.isFile()) {
-                String xmlPath = tempXmlFile.getPath()
-                project.changeFileEncodingToUtf8(xmlPath)
-            }
-        }
-    }
-}
-/**
- * Modifying the xml file to utf - 8
- */
-void changeFileEncodingToUtf8(String xmlPath) {
-    try {
-        //read xml file
-        BufferedReader bfr = new BufferedReader(new FileReader(xmlPath))
-        String line = bfr.readLine()
-        StringBuilder sb = new StringBuilder()
-        while (line != null) {
-            sb.append(line)
-            sb.append("\n")
-            line = bfr.readLine()
-        }
-        bfr.close()
-        //write xml file
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xmlPath, false), "UTF-8"))
-        writer.write(sb.toString())
-        writer.flush()
-        writer.close()
-    } catch (IOException e) {
-        System.out.println("read err：" + e.toString())
-    }
 }
