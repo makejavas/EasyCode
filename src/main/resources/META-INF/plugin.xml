@@ -90,7 +90,6 @@
     <!--必须运行在企业版-->
     <depends>com.intellij.modules.ultimate</depends>
     <!--必须存在database插件-->
-    <!--suppress PluginXmlValidity -->
     <depends optional="true">com.intellij.database</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -102,10 +101,8 @@
     <actions>
         <!-- Add your actions here -->
         <group id="con.sjhy.easy.code.action" class="com.sjhy.plugin.action.MainActionGroup" text="EasyCode" popup="true">
-            <!--suppress PluginXmlValidity -->
             <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
             <!--后期功能，通过sql查询结果生成代码。-->
-            <!--suppress PluginXmlValidity -->
             <!--<add-to-group group-id="Console.TableResult.PopupGroup" anchor="first"/>-->
         </group>
     </actions>
