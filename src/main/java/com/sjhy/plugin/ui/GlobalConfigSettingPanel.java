@@ -99,7 +99,7 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
     @Override
     public boolean isModified() {
         editTemplatePanel.refresh();
-        return !configInfo.getTemplateGroupMap().equals(group) || !configInfo.getCurrTemplateGroupName().equals(currGroupName);
+        return !configInfo.getGlobalConfigGroupMap().equals(group) || !configInfo.getCurrGlobalConfigGroupName().equals(currGroupName);
     }
 
     /**
