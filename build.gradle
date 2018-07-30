@@ -1,3 +1,11 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+        mavenCentral()
+    }
+}
+
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.3.5'
@@ -16,15 +24,14 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     jcenter()
-    maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
     mavenCentral()
 }
 
 dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compileClasspath fileTree(dir: 'lib', includes: ['*.jar'])
     compileOnly "org.projectlombok:lombok:1.18.0"
+//    compileClasspath fileTree(dir: 'lib', includes: ['*.jar'])
 }
 
 intellij {
@@ -32,7 +39,7 @@ intellij {
     pluginName 'EasyCode'
     version '2018.1.5'
     type 'IU'
-//    plugins ['com.intellij.database:2018.1.5']
+    plugins = ['DatabaseTools']
     updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
 }
 
