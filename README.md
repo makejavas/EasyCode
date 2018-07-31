@@ -93,30 +93,30 @@ EasyCode是基于IntelliJ IDEA Ultimate版开发的一个代码生成插件，�
 
 ```
 属性
-$packageName 选择的包名
-$author 设置中的作者
-$encode 设置的编码
-$modulePath 选中的module路径
-$projectPath 项目路径
+$packageName 选择的包名(String)
+$author 设置中的作者(String)
+$encode 设置的编码(String)
+$modulePath 选中的module路径(String)
+$projectPath 项目路径(String)
 对象
-$tableInfo 表对象
-    obj 表原始对象
-    name 表名（转换后的首字母大写）
-    comment 表注释
-    fullColumn 所有列
-    pkColumn 主键列
-    otherColumn 其他列
-    savePackageName 保存的包名
-    savePath 保存路径
-    saveModelName 保存的model名称
-columnInfo 列对象
-    obj 列原始对象
-    name 列名（首字母小写）
-    comment 列注释
-    type 列类型（类型全名）
-    ext 附加字段（Map类型）
-$tableInfoList 所有选中的表
-$importList 所有需要导入的包集合
+$tableInfo 表对象(TableInfo)
+    obj 表原始对象(DasColumn,下面有贴图)
+    name 表名（转换后的首字母大写）(String)
+    comment 表注释(String)
+    fullColumn 所有列(List<ColumnInfo>)
+    pkColumn 主键列(List<ColumnInfo>)
+    otherColumn 其他列(List<ColumnInfo>)
+    savePackageName 保存的包名(String)
+    savePath 保存路径(String)
+    saveModelName 保存的model名称(String)
+columnInfo 列对象(ColumnInfo)
+    obj 列原始对象(DbTable,下面有贴图)
+    name 列名（首字母小写）(String)
+    comment 列注释(String)
+    type 列类型（类型全名）(String)
+    ext 附加字段（Map类型）(Map<String,Object>)
+$tableInfoList 所有选中的表(List<TableInfo>)
+$importList 所有需要导入的包集合(Set<String>)
 回调
 &callback
     setFileName(String) 设置文件储存名字
@@ -132,6 +132,10 @@ $tool
 $time
     currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）
 ```
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0731/091559_94caf1b3_920085.png "屏幕截图.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0731/091758_3a8d8994_920085.png "屏幕截图.png")
 
 ### 高级货在这里
 
