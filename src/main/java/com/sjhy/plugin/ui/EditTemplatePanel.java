@@ -1,12 +1,13 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.uiDesigner.core.GridConstraints;
-import com.sjhy.plugin.entity.Template;
+import com.sjhy.plugin.tool.CacheDataUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,7 +48,7 @@ public class EditTemplatePanel {
     /**
      * 默认构造方法
      *
-     * @param value 初始值
+     * @param value    初始值
      * @param callback 回调函数
      */
     EditTemplatePanel(String value, Callback callback) {
@@ -63,8 +64,11 @@ public class EditTemplatePanel {
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
         Document velocityTemplate = factory.createDocument(value);
-        //TODO 退出时，会导致无法创建编辑器。
-        editor = factory.createEditor(velocityTemplate, null, FILE_TYPE, false);
+        // 非调度线程不创建编辑器
+        if(!ApplicationManager.getApplication().isDispatchThread()){
+            return;
+        }
+        editor = factory.createEditor(velocityTemplate, CacheDataUtils.getInstance().getProject(), FILE_TYPE, false);
         editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
     }
 
