@@ -286,12 +286,18 @@ public class VelocityUtils {
             cacheDataUtils.setSavePath(savePath);
         }
         String projectPath = cacheDataUtils.getProject().getBasePath();
-        if (savePath.indexOf(projectPath) == 0) {
-            savePath = savePath.substring(projectPath.length());
-            if (savePath.startsWith("/")) {
-                savePath = "." + savePath;
-            } else {
-                savePath = "./" + savePath;
+        if (projectPath!=null) {
+            // 兼容Linux路径
+            if (projectPath.contains("\\")) {
+                projectPath = projectPath.replace("\\", "/");
+            }
+            if (savePath.indexOf(projectPath) == 0) {
+                savePath = savePath.substring(projectPath.length());
+                if (savePath.startsWith("/")) {
+                    savePath = "." + savePath;
+                } else {
+                    savePath = "./" + savePath;
+                }
             }
         }
 
