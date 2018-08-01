@@ -44,6 +44,10 @@ public class EditTemplatePanel {
             GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED,
             null, new Dimension(600, 400), null,
             0, true);
+    /**
+     * 初始化标记
+     */
+    private boolean initFlag;
 
     /**
      * 默认构造方法
@@ -54,20 +58,19 @@ public class EditTemplatePanel {
     EditTemplatePanel(String value, Callback callback) {
         this.value = value;
         this.callback = callback;
-        init();
     }
 
     /**
      * 初始化编辑框
      */
-    private void init() {
+    public void init() {
+        if (initFlag) {
+            return;
+        }
+        initFlag = true;
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
         Document velocityTemplate = factory.createDocument(value);
-        // 非调度线程不创建编辑器
-        if(!ApplicationManager.getApplication().isDispatchThread()){
-            return;
-        }
         editor = factory.createEditor(velocityTemplate, CacheDataUtils.getInstance().getProject(), FILE_TYPE, false);
         editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
     }
@@ -76,6 +79,9 @@ public class EditTemplatePanel {
      * 刷新编辑可内容
      */
     public void refresh() {
+        if (editor == null) {
+            return;
+        }
         this.callback.refreshValue(editor.getDocument().getText());
     }
 

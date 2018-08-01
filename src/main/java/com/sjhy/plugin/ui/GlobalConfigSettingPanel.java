@@ -30,6 +30,11 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
     private EditTemplatePanel editTemplatePanel;
 
     /**
+     * 初始化面板标记
+     */
+    private boolean initPanel;
+
+    /**
      * 默认构造方法
      */
     public GlobalConfigSettingPanel() {
@@ -50,6 +55,10 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
         }
         itemPanel.removeAll();
         editTemplatePanel = new EditTemplatePanel(item.getValue(), item::setValue);
+        // 初始化了才初始化编辑框
+        if (initPanel) {
+            editTemplatePanel.init();
+        }
         itemPanel.add(editTemplatePanel.getMainPanel());
         itemPanel.updateUI();
     }
@@ -88,6 +97,10 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
     @Nullable
     @Override
     public JComponent createComponent() {
+        if (!initPanel) {
+            editTemplatePanel.init();
+            initPanel = true;
+        }
         return super.mainPanel;
     }
 
@@ -130,6 +143,9 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
      */
     @Override
     public void disposeUIResources() {
-        editTemplatePanel.disposeEditor();
+        // 修复兼容性问题
+        if (editTemplatePanel != null) {
+            editTemplatePanel.disposeEditor();
+        }
     }
 }
