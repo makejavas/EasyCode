@@ -156,4 +156,4 @@ $time
 
 ###  :sunglasses: 更多玩法就需要自己摸索了，By makejava。
 
-QQ群：373603580
+#### QQ群：[373603580](https://shang.qq.com/wpa/qunwpa?idkey=4d495321e527ec2ce459c0d0d6320414cd9677d92d5287df831d4e1c4ec09740)
