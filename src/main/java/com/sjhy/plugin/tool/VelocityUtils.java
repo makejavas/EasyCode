@@ -13,6 +13,7 @@ import com.sjhy.plugin.entity.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +50,9 @@ public class VelocityUtils {
      */
     private VelocityUtils() {
         velocityEngine = new VelocityEngine();
+        // 修复部分用户的velocity日志记录无权访问velocity.log文件问题
+        velocityEngine.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        velocityEngine.setProperty("runtime.log.logsystem.log4j.logger", "velocity");
     }
 
     /**
