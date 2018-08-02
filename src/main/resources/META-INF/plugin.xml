@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>Easy Code</name>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
 
@@ -21,6 +21,15 @@
 
 
     <change-notes><![CDATA[
+      <p>1.1.2-SNAPSHOT</p>
+      <ul>
+        <li>1.This update focuses on optimizing MacOS devices.</li>
+        <li>1.Repair a part of the user to generate code when the card is dead.</li>
+      </ul>
+      <ul>
+        <li>1.本次更新注意针对Mac设备做了大量优化</li>
+        <li>2.修复部分用户生成代码时卡死的BUG</li>
+      </ul>
       <p>1.1.1-SNAPSHOT</p>
       <ul>
         <li>1.Repairing global config can not save after modification.</li>
