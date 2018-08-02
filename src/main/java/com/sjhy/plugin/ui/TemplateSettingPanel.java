@@ -97,7 +97,7 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Override
     public boolean isModified() {
         // 修复BUG，当初始未完成时，插件进行修改判断
-        if (editTemplatePanel!=null) {
+        if (editTemplatePanel != null) {
             editTemplatePanel.refresh();
         }
         return !configInfo.getTemplateGroupMap().equals(group) || !configInfo.getCurrTemplateGroupName().equals(currGroupName);
@@ -128,6 +128,9 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      */
     @Override
     public void disposeUIResources() {
-        editTemplatePanel.disposeEditor();
+        // 修复兼容性问题
+        if (editTemplatePanel != null) {
+            editTemplatePanel.disposeEditor();
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sjhy.plugin.entity.AbstractGroup;
+import com.intellij.util.ExceptionUtil;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,7 +52,7 @@ public class CloneUtils {
             //noinspection unchecked
             return objectMapper.readValue(objectMapper.writeValueAsString(entity), (Class<E>) entity.getClass());
         } catch (IOException e) {
-            e.printStackTrace();
+            ExceptionUtil.rethrow(e);
         }
         return null;
     }

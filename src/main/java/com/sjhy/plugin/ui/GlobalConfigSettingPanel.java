@@ -3,8 +3,6 @@ package com.sjhy.plugin.ui;
 import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.GlobalConfigGroup;
-import com.sjhy.plugin.entity.Template;
-import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
@@ -130,6 +128,9 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
      */
     @Override
     public void disposeUIResources() {
-        editTemplatePanel.disposeEditor();
+        // 修复兼容性问题
+        if (editTemplatePanel != null) {
+            editTemplatePanel.disposeEditor();
+        }
     }
 }

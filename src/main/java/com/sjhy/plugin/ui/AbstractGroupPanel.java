@@ -1,6 +1,10 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.ui.InputValidator;
+import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.VerticalFlowLayout;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
@@ -195,21 +199,24 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
                 return;
             }
             // 输入分组名称
-            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName + " Copy");
+            String value = Messages.showInputDialog("Group Name:", "Input Group Name", Messages.getQuestionIcon(), currGroupName + "Copy", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    // 要求非空并且不存在
+                    return !StringUtils.isEmpty(inputString) && !group.containsKey(inputString);
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
 
             // 取消复制，不需要提示信息
             if (value == null) {
                 return;
             }
 
-            if (StringUtils.isEmpty(value)) {
-                JOptionPane.showMessageDialog(null, "Group Name Can't Is Empty!");
-                return;
-            }
-            if (group.containsKey(value)) {
-                JOptionPane.showMessageDialog(null, "Group Name Already exist!");
-                return;
-            }
             // 克隆对象
             T groupItem = cloneUtils.clone(group.get(currGroupName));
             groupItem.setName(value);
@@ -223,11 +230,10 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             if (!initFlag) {
                 return;
             }
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group " + currGroupName + "?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
             // 点击YES选项时
-            if (JOptionPane.YES_OPTION == result) {
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Group " + currGroupName + "?").isYes()) {
                 if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
-                    JOptionPane.showMessageDialog(null, "Can't Delete Default Group!");
+                    Messages.showWarningDialog("Can't Delete Default Group!", MsgValue.TITLE_INFO);
                     return;
                 }
                 group.remove(currGroupName);
@@ -241,21 +247,31 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             if (!initFlag) {
                 return;
             }
-            String value = JOptionPane.showInputDialog(null, "Input Item Name:", "Demo");
+            List<E> itemList = group.get(currGroupName).getElementList();
+            String value = Messages.showInputDialog("Item Name:", "Input Item Name", Messages.getQuestionIcon(), "Demo", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    //输入空字符串
+                    if (StringUtils.isEmpty(inputString)) {
+                        return false;
+                    }
+                    //已经存在
+                    for (E item : itemList) {
+                        if (getItemName(item).equals(inputString)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
             // 取消添加，不需要提示信息
             if (value == null) {
                 return;
-            }
-            if (StringUtils.isEmpty(value)) {
-                JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
-                return;
-            }
-            List<E> itemList = group.get(currGroupName).getElementList();
-            for (E item : itemList) {
-                if (getItemName(item).equals(value)) {
-                    JOptionPane.showMessageDialog(null, "Item Name Already exist!");
-                    return;
-                }
             }
             itemList.add(createItem(value));
             // 选中最后一个元素，即当前添加的元素
@@ -273,8 +289,7 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
                 return;
             }
             String itemName = getItemName(itemList.get(selectItemIndex));
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Item " + itemName + "?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Item " + itemName + "?").isYes()) {
                 itemList.remove(selectItemIndex);
                 // 移步到当前删除元素的前一个元素
                 if (selectItemIndex > 0) {
@@ -295,13 +310,29 @@ public abstract class AbstractGroupPanel<T extends AbstractGroup<E>, E> {
             }
             E item = itemList.get(selectItemIndex);
             String itemName = getItemName(item);
-            String value = JOptionPane.showInputDialog(null, "Input Item Name:", itemName + " Copy");
+            String value = Messages.showInputDialog("Item Name:", "Input Item Name", Messages.getQuestionIcon(), itemName + "Copy", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    //输入空字符串
+                    if (StringUtils.isEmpty(inputString)) {
+                        return false;
+                    }
+                    //已经存在
+                    for (E item : itemList) {
+                        if (getItemName(item).equals(inputString)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
             // 取消复制，不需要提示信息
             if (value == null) {
-                return;
-            }
-            if (value.trim().length() == 0) {
-                JOptionPane.showMessageDialog(null, "Item Name Can't Is Empty!");
                 return;
             }
             item = cloneUtils.clone(item);

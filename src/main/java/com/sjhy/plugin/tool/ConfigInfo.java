@@ -1,18 +1,20 @@
 package com.sjhy.plugin.tool;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import com.sjhy.plugin.entity.*;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 全局配置信息
@@ -111,9 +113,8 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         if (this.templateGroupMap == null) {
             this.templateGroupMap = new LinkedHashMap<>();
         }
-        for (String groupName : new String[]{DEFAULT_NAME, "MybatisPlus"}) {
-            this.templateGroupMap.put(groupName, loadTemplateGroup(groupName));
-        }
+        this.templateGroupMap.put(DEFAULT_NAME, loadTemplateGroup(DEFAULT_NAME, "entity", "dao", "service", "serviceImpl", "controller"));
+        this.templateGroupMap.put("MybatisPlus", loadTemplateGroup(DEFAULT_NAME, "entity", "dao", "service", "serviceImpl", "controller"));
 
         //配置默认类型映射
         if (this.typeMapperGroupMap == null) {
@@ -151,9 +152,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         if (this.globalConfigGroupMap == null) {
             this.globalConfigGroupMap = new LinkedHashMap<>();
         }
-        for (String groupName : new String[]{DEFAULT_NAME}) {
-            this.globalConfigGroupMap.put(groupName, loadGlobalConfigGroup(groupName));
-        }
+        this.globalConfigGroupMap.put(DEFAULT_NAME, loadGlobalConfigGroup(DEFAULT_NAME, "init", "define", "autoImport"));
     }
 
     /**
@@ -169,35 +168,17 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
     /**
      * 加载模板组
      *
-     * @param groupName 组名
+     * @param groupName     组名
+     * @param templateNames 模板名称
      * @return 模板组
      */
-    private static TemplateGroup loadTemplateGroup(String groupName) {
+    private static TemplateGroup loadTemplateGroup(String groupName, String... templateNames) {
         TemplateGroup templateGroup = new TemplateGroup();
         templateGroup.setName(groupName);
         templateGroup.setElementList(new ArrayList<>());
-        // 获取jar中的文件名
-        String path = ConfigInfo.class.getResource("/template").getPath();
-        String jarFileName = path.substring(6, path.indexOf("!"));
-        try (JarFile jarFile = new JarFile(jarFileName)) {
-            // 遍历JAR文件
-            Enumeration<JarEntry> entries = jarFile.entries();
-            String prefix = "template/" + groupName;
-            while (entries.hasMoreElements()) {
-                JarEntry jarEntry = entries.nextElement();
-                // 目录跳过
-                if (jarEntry.isDirectory()) {
-                    continue;
-                }
-                String name = jarEntry.getName();
-                if (name.startsWith(prefix)) {
-                    String templatePath = "/" + name;
-                    name = name.substring(name.lastIndexOf("/") + 1, name.length() - 3);
-                    templateGroup.getElementList().add(new Template(name, loadTemplate(templatePath)));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String templateName : templateNames) {
+            String path = "/template/" + groupName + "/" + templateName + ".vm";
+            templateGroup.getElementList().add(new Template(templateName, loadTemplate(path)));
         }
         return templateGroup;
     }
@@ -205,35 +186,17 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
     /**
      * 加载全局配置组
      *
-     * @param groupName 组名
+     * @param groupName     组名
+     * @param templateNames 模板名称
      * @return 模板组
      */
-    private static GlobalConfigGroup loadGlobalConfigGroup(String groupName) {
+    private static GlobalConfigGroup loadGlobalConfigGroup(String groupName, String... templateNames) {
         GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
         globalConfigGroup.setName(groupName);
         globalConfigGroup.setElementList(new ArrayList<>());
-        // 获取jar中的文件名
-        String path = ConfigInfo.class.getResource("/globalConfig").getPath();
-        String jarFileName = path.substring(6, path.indexOf("!"));
-        try (JarFile jarFile = new JarFile(jarFileName)) {
-            // 遍历JAR文件
-            Enumeration<JarEntry> entries = jarFile.entries();
-            String prefix = "globalConfig/" + groupName;
-            while (entries.hasMoreElements()) {
-                JarEntry jarEntry = entries.nextElement();
-                // 目录跳过
-                if (jarEntry.isDirectory()) {
-                    continue;
-                }
-                String name = jarEntry.getName();
-                if (name.startsWith(prefix)) {
-                    String templatePath = "/" + name;
-                    name = name.substring(name.lastIndexOf("/") + 1, name.length() - 3);
-                    globalConfigGroup.getElementList().add(new GlobalConfig(name, loadTemplate(templatePath)));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String templateName : templateNames) {
+            String path = "/globalConfig/" + groupName + "/" + templateName + ".vm";
+            globalConfigGroup.getElementList().add(new GlobalConfig(templateName, loadTemplate(path)));
         }
         return globalConfigGroup;
     }
@@ -253,7 +216,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
         XmlSerializerUtil.copyBean(configInfo, this);
 
         // 已经合并不再重复合并
-        if (configInfo.getVersion()!=null && configInfo.getVersion().equals(version)) {
+        if (configInfo.getVersion() != null && configInfo.getVersion().equals(version)) {
             return;
         }
 

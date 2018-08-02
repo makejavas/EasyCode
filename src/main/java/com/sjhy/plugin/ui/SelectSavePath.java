@@ -4,9 +4,11 @@ import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiPackage;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
@@ -156,12 +158,12 @@ public class SelectSavePath extends JDialog {
         List<Template> selectTemplateList = getSelectTemplate();
         // 如果选择的模板是空的
         if (selectTemplateList.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Can't Select Template!");
+            Messages.showWarningDialog("Can't Select Template!", MsgValue.TITLE_INFO);
             return;
         }
         String savePath = pathField.getText();
         if (StringUtils.isEmpty(savePath)) {
-            JOptionPane.showMessageDialog(null, "Can't Select Save Path!");
+            Messages.showWarningDialog("Can't Select Save Path!", MsgValue.TITLE_INFO);
             return;
         }
         // 设置好配置信息
@@ -229,7 +231,7 @@ public class SelectSavePath extends JDialog {
             //将当前选中的model设置为基础路径
             VirtualFile path = cacheDataUtils.getProject().getBaseDir();
             Module module = getSelectModule();
-            if (module!=null) {
+            if (module != null) {
                 path = VirtualFileManager.getInstance().findFileByUrl("file://" + new File(module.getModuleFilePath()).getParent());
             }
             VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), cacheDataUtils.getProject(), path);
@@ -275,13 +277,18 @@ public class SelectSavePath extends JDialog {
 
     /**
      * 获取基本路径
+     *
      * @return 基本路径
      */
     private String getBasePath() {
         Module module = getSelectModule();
         String baseDir = cacheDataUtils.getProject().getBasePath();
-        if (module!=null) {
+        if (module != null) {
             baseDir = new File(module.getModuleFilePath()).getParent();
+        }
+        // 针对Mac版路径做优化
+        if (baseDir != null && baseDir.contains("/.idea")) {
+            baseDir = baseDir.substring(0, baseDir.indexOf("/.idea"));
         }
         // 针对Maven项目
         File file = new File(baseDir + "/src/main/java");
@@ -304,10 +311,10 @@ public class SelectSavePath extends JDialog {
         // 获取基本路径
         String path = getBasePath();
         // 兼容Linux路径
-        path = path.replaceAll("\\\\", "/");
+        path = path.replace("\\", "/");
         // 如果存在包路径，添加包路径
         if (!StringUtils.isEmpty(packageName)) {
-            path += "/" + packageName.replaceAll("\\.", "/");
+            path += "/" + packageName.replace(".", "/");
         }
         pathField.setText(path);
     }

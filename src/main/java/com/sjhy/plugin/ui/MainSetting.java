@@ -3,7 +3,9 @@ package com.sjhy.plugin.ui;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
+import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.sjhy.plugin.comm.AbstractService;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
@@ -59,8 +61,7 @@ public class MainSetting extends AbstractService implements Configurable, Config
         ConfigInfo configInfo = ConfigInfo.getInstance();
         //重置配置信息
         resetBtn.addActionListener(e -> {
-            int result = JOptionPane.showConfirmDialog(null, "确认重置默认配置?\n重置默认配置只会还原插件自带分组配置信息，不会删除用户新增分组信息。", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (JOptionPane.YES_OPTION == result) {
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "确认重置默认配置?\n重置默认配置只会还原插件自带分组配置信息，不会删除用户新增分组信息。").isYes()) {
                 if (CollectionUtil.isEmpty(resetList)) {
                     return;
                 }

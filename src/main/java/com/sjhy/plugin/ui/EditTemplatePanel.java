@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -54,7 +55,7 @@ public class EditTemplatePanel {
     EditTemplatePanel(String value, Callback callback) {
         this.value = value;
         this.callback = callback;
-        init();
+        this.init();
     }
 
     /**
@@ -64,8 +65,14 @@ public class EditTemplatePanel {
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
         Document velocityTemplate = factory.createDocument(value);
-        // 非调度线程不创建编辑器
-        if(!ApplicationManager.getApplication().isDispatchThread()){
+
+        Application application = ApplicationManager.getApplication();
+        //如果非调度线程，则稍后创建编辑框
+        if (!application.isDispatchThread()) {
+            application.invokeLater(() -> {
+                editor = factory.createEditor(velocityTemplate, CacheDataUtils.getInstance().getProject(), FILE_TYPE, false);
+                editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
+            });
             return;
         }
         editor = factory.createEditor(velocityTemplate, CacheDataUtils.getInstance().getProject(), FILE_TYPE, false);
@@ -76,6 +83,9 @@ public class EditTemplatePanel {
      * 刷新编辑可内容
      */
     public void refresh() {
+        if (editor == null) {
+            return;
+        }
         this.callback.refreshValue(editor.getDocument().getText());
     }
 
