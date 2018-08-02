@@ -35,7 +35,7 @@ EasyCode是基于IntelliJ IDEA Ultimate版开发的一个代码生成插件，�
 * 支持对表属性进行手动配置
 * 所有配置项目支持分组模式，在不同项目（或选择不同数据库时），只需要切换对应的分组，所有配置统一变化。
 ### 安装方法
-* 该插件正在添加到官网插件仓库中，现在只能手动安装，添加完毕后直接在搜索框搜索安装。
+* 该插件已成功添加到官网插件仓库中，现在可以直接在搜索框搜索安装。
 * 手动安装方法如下：
 1. [ **点击这里** ](../../releases)，下载最新的发行版本。
 2. 然后进入到File->Settings->Plugins,点击Install plugin from disk...
@@ -93,30 +93,30 @@ EasyCode是基于IntelliJ IDEA Ultimate版开发的一个代码生成插件，�
 
 ```
 属性
-$packageName 选择的包名
-$author 设置中的作者
-$encode 设置的编码
-$modulePath 选中的module路径
-$projectPath 项目路径
+$packageName 选择的包名(String)
+$author 设置中的作者(String)
+$encode 设置的编码(String)
+$modulePath 选中的module路径(String)
+$projectPath 项目路径(String)
 对象
-$tableInfo 表对象
-    obj 表原始对象
-    name 表名（转换后的首字母大写）
-    comment 表注释
-    fullColumn 所有列
-    pkColumn 主键列
-    otherColumn 其他列
-    savePackageName 保存的包名
-    savePath 保存路径
-    saveModelName 保存的model名称
-columnInfo 列对象
-    obj 列原始对象
-    name 列名（首字母小写）
-    comment 列注释
-    type 列类型（类型全名）
-    ext 附加字段（Map类型）
-$tableInfoList 所有选中的表
-$importList 所有需要导入的包集合
+$tableInfo 表对象(TableInfo)
+    obj 表原始对象(DasColumn,下面有贴图)
+    name 表名（转换后的首字母大写）(String)
+    comment 表注释(String)
+    fullColumn 所有列(List<ColumnInfo>)
+    pkColumn 主键列(List<ColumnInfo>)
+    otherColumn 其他列(List<ColumnInfo>)
+    savePackageName 保存的包名(String)
+    savePath 保存路径(String)
+    saveModelName 保存的model名称(String)
+columnInfo 列对象(ColumnInfo)
+    obj 列原始对象(DbTable,下面有贴图)
+    name 列名（首字母小写）(String)
+    comment 列注释(String)
+    type 列类型（类型全名）(String)
+    ext 附加字段（Map类型）(Map<String,Object>)
+$tableInfoList 所有选中的表(List<TableInfo>)
+$importList 所有需要导入的包集合(Set<String>)
 回调
 &callback
     setFileName(String) 设置文件储存名字
@@ -133,6 +133,10 @@ $time
     currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）
 ```
 
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0731/091559_94caf1b3_920085.png "屏幕截图.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0731/091758_3a8d8994_920085.png "屏幕截图.png")
+
 ### 高级货在这里
 
 在这里添加自定义属性，这些属性都是可以动态配置的，而且还可以在模板中获取到这个属性。
@@ -146,8 +150,10 @@ $time
 
 使用版本控制的开发人员可加这些信息不要添加至忽略（以便共享配置信息）
 
-软件处于1.0版难免会出现问题，手动修改这里可能可以解决一些问题，请谅解。
+软件处于1.1.1版难免会出现问题，手动修改这里可能可以解决一些问题，请谅解。
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/150823_ffc482f0_920085.png "屏幕截图.png")
 
 ###  :sunglasses: 更多玩法就需要自己摸索了，By makejava。
+
+QQ群：373603580
