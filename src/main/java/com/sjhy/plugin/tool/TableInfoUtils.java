@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.ExceptionUtil;
 import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.comm.AbstractService;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
@@ -182,7 +185,7 @@ public class TableInfoUtils extends AbstractService {
             }
         }
         //弹出消息框
-        JOptionPane.showMessageDialog(null, "发现未知类型：" + typeName, "温馨提示", JOptionPane.PLAIN_MESSAGE);
+        Messages.showWarningDialog("发现未知类型：" + typeName, MsgValue.TITLE_INFO);
         return "java.lang.Object";
     }
 
@@ -219,10 +222,10 @@ public class TableInfoUtils extends AbstractService {
         try {
             content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tableInfo);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            ExceptionUtil.rethrow(e);
         }
         if (content == null) {
-            JOptionPane.showMessageDialog(null, "保存失败，JSON序列化错误。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
+            Messages.showWarningDialog("保存失败，JSON序列化错误。", MsgValue.TITLE_INFO);
             return;
         }
         // 获取或创建保存目录
@@ -230,7 +233,7 @@ public class TableInfoUtils extends AbstractService {
         File dir = new File(path);
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                JOptionPane.showMessageDialog(null, "保存失败，无法创建目录。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
+                Messages.showWarningDialog("保存失败，无法创建目录。", MsgValue.TITLE_INFO);
                 return;
             }
         }
@@ -241,12 +244,12 @@ public class TableInfoUtils extends AbstractService {
         if (!file.exists()) {
             try {
                 if (!file.createNewFile()) {
-                    JOptionPane.showMessageDialog(null, "保存失败，无法创建文件。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
+                    Messages.showWarningDialog("保存失败，无法创建文件。", MsgValue.TITLE_INFO);
                     return;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "保存失败，创建文件异常。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
+                ExceptionUtil.rethrow(e);
+                Messages.showWarningDialog("保存失败，创建文件异常。", MsgValue.TITLE_INFO);
                 return;
             }
         }
@@ -290,8 +293,8 @@ public class TableInfoUtils extends AbstractService {
         try {
             return objectMapper.readValue(str, TableInfo.class);
         } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "读取配置失败，JSON反序列化异常。", "温馨提示", JOptionPane.PLAIN_MESSAGE);
+            ExceptionUtil.rethrow(e);
+            Messages.showWarningDialog("读取配置失败，JSON反序列化异常。", MsgValue.TITLE_INFO);
         }
         return null;
     }

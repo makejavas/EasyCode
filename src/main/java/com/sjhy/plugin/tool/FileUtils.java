@@ -1,6 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.ExceptionUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class FileUtils {
         try {
             builder.append(FileUtil.loadFileText(file, "UTF-8"));
         } catch (IOException e) {
-            e.printStackTrace();
+            ExceptionUtil.rethrow(e);
         }
         return builder.toString();
     }
@@ -58,13 +59,13 @@ public class FileUtils {
             byte[] temp = FileUtil.loadBytes(in);
             return new String(temp, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            ExceptionUtil.rethrow(e);
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    ExceptionUtil.rethrow(e);
                 }
             }
         }
@@ -90,7 +91,7 @@ public class FileUtils {
         try {
             FileUtil.writeToFile(file, content, append);
         } catch (IOException e) {
-            e.printStackTrace();
+            ExceptionUtil.rethrow(e);
         }
     }
 }

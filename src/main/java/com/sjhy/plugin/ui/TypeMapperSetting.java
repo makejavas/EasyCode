@@ -1,11 +1,16 @@
 package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.ui.InputValidator;
+import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.entity.TypeMapperModel;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,6 +91,12 @@ public class TypeMapperSetting implements Configurable {
         //移除类型
         removeButton.addActionListener(e -> {
             int[] selectRows = typeMapperTable.getSelectedRows();
+            if (selectRows == null || selectRows.length == 0) {
+                return;
+            }
+            if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Selected Item?").isYes()) {
+                return;
+            }
             // 从后面往前面移除，防止下标错位问题。
             for (int i = selectRows.length - 1; i >= 0; i--) {
                 typeMapperModel.removeRow(selectRows[i]);
@@ -110,16 +121,18 @@ public class TypeMapperSetting implements Configurable {
 
         //复制分组按钮
         typeMapperCopyButton.addActionListener(e -> {
-            String value = JOptionPane.showInputDialog(null, "Input Group Name:", currGroupName + " Copy");
+            String value = Messages.showInputDialog("Group Name:", "Input Group Name:", Messages.getQuestionIcon(), currGroupName + " Copy", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    return !StringUtils.isEmpty(inputString) && !typeMapperGroupMap.containsKey(inputString);
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
             if (value == null) {
-                return;
-            }
-            if (value.trim().length() == 0) {
-                JOptionPane.showMessageDialog(null, "Group Name Can't Is Empty!");
-                return;
-            }
-            if (typeMapperGroupMap.containsKey(value)) {
-                JOptionPane.showMessageDialog(null, "Group Name Already exist!");
                 return;
             }
             // 克隆对象
@@ -132,10 +145,9 @@ public class TypeMapperSetting implements Configurable {
 
         //删除分组
         deleteButton.addActionListener(e -> {
-            int result = JOptionPane.showConfirmDialog(null, "Confirm Delete Group " + typeMapperComboBox.getSelectedItem() + "?", "温馨提示", JOptionPane.OK_CANCEL_OPTION);
-            if (result == 0) {
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Group " + typeMapperComboBox.getSelectedItem() + "?").isYes()) {
                 if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
-                    JOptionPane.showMessageDialog(null, "Can't Delete Default Group!");
+                    Messages.showWarningDialog("Can't Delete Default Group!", MsgValue.TITLE_INFO);
                     return;
                 }
                 typeMapperGroupMap.remove(currGroupName);
@@ -197,6 +209,8 @@ public class TypeMapperSetting implements Configurable {
 
     @Override
     public void reset() {
+        this.typeMapperGroupMap = cloneUtils.cloneMap(configInfo.getTypeMapperGroupMap());
+        this.currGroupName = configInfo.getCurrTypeMapperGroupName();
         init();
     }
 }

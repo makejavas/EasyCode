@@ -1,7 +1,11 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.TableInfo;
@@ -10,14 +14,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Velocity工具类，主要用于代码生成
@@ -124,7 +125,17 @@ public class VelocityUtils {
         map.put("packageName", cacheDataUtils.getPackageName());
         if (selectModule != null) {
             //module绝对路径
-            map.put("modulePath", new File(selectModule.getModuleFilePath()).getParent());
+            String modulePath = new File(selectModule.getModuleFilePath()).getParent();
+            if (modulePath != null) {
+                // 兼容Linux
+                modulePath = modulePath.replace("\\", "/");
+
+                // 针对Mac版路径做优化
+                if (modulePath.contains("/.idea")) {
+                    modulePath = modulePath.substring(0, modulePath.indexOf("/.idea"));
+                }
+            }
+            map.put("modulePath", modulePath);
             map.put("moduleName", selectModule.getName());
         }
         // 项目路径
@@ -142,8 +153,7 @@ public class VelocityUtils {
     private boolean createPath(String savePath) {
         File path = new File(savePath);
         if (!new File(savePath).exists()) {
-            int result = JOptionPane.showConfirmDialog(null, "Save Path Is Not Exists, Confirm Create?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            if (result == 0) {
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Save Path Is Not Exists, Confirm Create?").isYes()) {
                 if (!path.mkdirs()) {
                     return false;
                 }
@@ -152,7 +162,7 @@ public class VelocityUtils {
             }
         }
         if (path.isFile()) {
-            JOptionPane.showMessageDialog(null, "Error,Save Path Is File!");
+            Messages.showMessageDialog("Error,Save Path Is File!", MsgValue.TITLE_INFO, Messages.getErrorIcon());
             return false;
         }
         return true;
@@ -167,19 +177,19 @@ public class VelocityUtils {
     private boolean coverFile(File file) {
         if (file.exists()) {
             if (file.isDirectory()) {
-                JOptionPane.showMessageDialog(null, "Error,Save File Is Path!");
+                Messages.showMessageDialog("Error,Save File Is Path!", MsgValue.TITLE_INFO, Messages.getErrorIcon());
                 return false;
             }
             // 是否覆盖
-            int result = JOptionPane.showConfirmDialog(null, "File " + file.getName() + " Exists, Confirm Continue?", "Title Info", JOptionPane.OK_CANCEL_OPTION);
-            return result == 0;
+            return MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "File " + file.getName() + " Exists, Confirm Continue?").isYes();
         } else {
             try {
                 if (!file.createNewFile()) {
                     return false;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                // 直接抛出异常
+                ExceptionUtil.rethrow(e);
                 return false;
             }
         }
@@ -255,7 +265,7 @@ public class VelocityUtils {
                 fileUtils.write(file, content);
             });
         });
-        JOptionPane.showMessageDialog(null, "Code Generate Success!");
+        Messages.showMessageDialog("Code Generate Successful!", MsgValue.TITLE_INFO, Messages.getInformationIcon());
         //刷新整个项目
         VirtualFileManager.getInstance().syncRefresh();
     }

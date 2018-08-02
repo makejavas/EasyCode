@@ -1,7 +1,10 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.ui.InputValidator;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
@@ -173,7 +176,8 @@ public class ConfigTableDialog extends JDialog {
             if (column == 0) {
                 for (ColumnInfo info : tableInfo.getFullColumn()) {
                     if (info.getName().equals(val) && !info.getName().equals(columnInfo.getName())) {
-                        JOptionPane.showMessageDialog(null, "Column Name Already exist!");
+                        Messages.showWarningDialog("Column Name Already exist!", MsgValue.TITLE_INFO);
+                        // 输入的名称已经存在时，直接还原
                         tableModel.setValueAt(columnInfo.getName(), row, column);
                         return;
                     }
@@ -209,18 +213,31 @@ public class ConfigTableDialog extends JDialog {
             if (!initFlag) {
                 return;
             }
-            String value = JOptionPane.showInputDialog(null, "Input Column Name:", "Demo");
-            if (StringUtils.isEmpty(value)) {
-                JOptionPane.showMessageDialog(null, "Column Name Can't Is Empty!");
+            //输入列名
+            String value = Messages.showInputDialog("Column Name:", "Input Column Name:", Messages.getQuestionIcon(), "Demo", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    if (StringUtils.isEmpty(inputString)) {
+                        return false;
+                    }
+                    for (ColumnInfo columnInfo : tableInfo.getFullColumn()) {
+                        if (columnInfo.getName().equals(inputString)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
+            //取消输入
+            if (value == null) {
                 return;
             }
 
-            for (ColumnInfo columnInfo : tableInfo.getFullColumn()) {
-                if (columnInfo.getName().equals(value)) {
-                    JOptionPane.showMessageDialog(null, "Column Name Already exist!");
-                    return;
-                }
-            }
             ColumnInfo columnInfo = new ColumnInfo();
             columnInfo.setName(value);
             columnInfo.setType("java.lang.String");
@@ -231,6 +248,7 @@ public class ConfigTableDialog extends JDialog {
 
     /**
      * 刷新列编辑器
+     *
      * @param columnConfigList 列配置集合
      */
     private void refreshColumnEditor(List<ColumnConfig> columnConfigList) {
@@ -270,6 +288,7 @@ public class ConfigTableDialog extends JDialog {
 
     /**
      * 获取初始列
+     *
      * @param columnConfigList 列配置集合
      * @return 初始列信息
      */
