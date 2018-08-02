@@ -28,11 +28,6 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     private EditTemplatePanel editTemplatePanel;
 
     /**
-     * 初始化面板标记
-     */
-    private boolean initPanel;
-
-    /**
      * 默认构造方法
      */
     public TemplateSettingPanel() {
@@ -53,10 +48,6 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
         }
         itemPanel.removeAll();
         editTemplatePanel = new EditTemplatePanel(item.getCode(), item::setCode);
-        // 初始化了才初始化编辑框
-        if (initPanel) {
-            editTemplatePanel.init();
-        }
         itemPanel.add(editTemplatePanel.getMainPanel());
         itemPanel.updateUI();
     }
@@ -95,10 +86,6 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Nullable
     @Override
     public JComponent createComponent() {
-        if (!initPanel) {
-            editTemplatePanel.init();
-            initPanel = true;
-        }
         return super.mainPanel;
     }
 

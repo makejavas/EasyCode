@@ -3,8 +3,6 @@ package com.sjhy.plugin.ui;
 import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.GlobalConfigGroup;
-import com.sjhy.plugin.entity.Template;
-import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
 import org.jetbrains.annotations.Nls;
@@ -30,11 +28,6 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
     private EditTemplatePanel editTemplatePanel;
 
     /**
-     * 初始化面板标记
-     */
-    private boolean initPanel;
-
-    /**
      * 默认构造方法
      */
     public GlobalConfigSettingPanel() {
@@ -55,10 +48,6 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
         }
         itemPanel.removeAll();
         editTemplatePanel = new EditTemplatePanel(item.getValue(), item::setValue);
-        // 初始化了才初始化编辑框
-        if (initPanel) {
-            editTemplatePanel.init();
-        }
         itemPanel.add(editTemplatePanel.getMainPanel());
         itemPanel.updateUI();
     }
@@ -97,10 +86,6 @@ public class GlobalConfigSettingPanel extends AbstractGroupPanel<GlobalConfigGro
     @Nullable
     @Override
     public JComponent createComponent() {
-        if (!initPanel) {
-            editTemplatePanel.init();
-            initPanel = true;
-        }
         return super.mainPanel;
     }
 

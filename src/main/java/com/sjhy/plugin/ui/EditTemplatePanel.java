@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -44,10 +45,6 @@ public class EditTemplatePanel {
             GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED,
             null, new Dimension(600, 400), null,
             0, true);
-    /**
-     * 初始化标记
-     */
-    private boolean initFlag;
 
     /**
      * 默认构造方法
@@ -58,19 +55,26 @@ public class EditTemplatePanel {
     EditTemplatePanel(String value, Callback callback) {
         this.value = value;
         this.callback = callback;
+        this.init();
     }
 
     /**
      * 初始化编辑框
      */
-    public void init() {
-        if (initFlag) {
-            return;
-        }
-        initFlag = true;
+    private void init() {
         //初始化系统编辑器
         EditorFactory factory = EditorFactory.getInstance();
         Document velocityTemplate = factory.createDocument(value);
+
+        Application application = ApplicationManager.getApplication();
+        //如果非调度线程，则稍后创建编辑框
+        if (!application.isDispatchThread()) {
+            application.invokeLater(() -> {
+                editor = factory.createEditor(velocityTemplate, CacheDataUtils.getInstance().getProject(), FILE_TYPE, false);
+                editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
+            });
+            return;
+        }
         editor = factory.createEditor(velocityTemplate, CacheDataUtils.getInstance().getProject(), FILE_TYPE, false);
         editPanel.add(editor.getComponent(), GRID_CONSTRAINTS);
     }
