@@ -114,7 +114,7 @@ public class ConfigInfo implements PersistentStateComponent<ConfigInfo> {
             this.templateGroupMap = new LinkedHashMap<>();
         }
         this.templateGroupMap.put(DEFAULT_NAME, loadTemplateGroup(DEFAULT_NAME, "entity", "dao", "service", "serviceImpl", "controller"));
-        this.templateGroupMap.put("MybatisPlus", loadTemplateGroup(DEFAULT_NAME, "entity", "dao", "service", "serviceImpl", "controller"));
+        this.templateGroupMap.put("MybatisPlus", loadTemplateGroup("MybatisPlus", "entity", "dao", "service", "serviceImpl", "controller"));
 
         //配置默认类型映射
         if (this.typeMapperGroupMap == null) {
