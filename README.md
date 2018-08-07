@@ -84,7 +84,7 @@ EasyCode是基于IntelliJ IDEA Ultimate版开发的一个代码生成插件，�
 
 ### 模板配置说明
 
-采用velocit语法编写
+采用velocity语法编写
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0719/150307_7f96fb68_920085.png "屏幕截图.png")
 
