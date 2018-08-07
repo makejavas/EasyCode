@@ -1,7 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.sjhy.plugin.tool.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

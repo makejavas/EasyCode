@@ -8,7 +8,7 @@ import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
-import org.apache.commons.lang3.StringUtils;
+import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;

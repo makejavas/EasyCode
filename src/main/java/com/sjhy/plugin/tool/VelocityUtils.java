@@ -10,7 +10,7 @@ import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
-import org.apache.commons.lang3.StringUtils;
+import com.sjhy.plugin.tool.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;

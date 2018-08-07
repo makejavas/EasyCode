@@ -16,7 +16,7 @@ import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.tool.ConfigInfo;
 import com.sjhy.plugin.tool.TableInfoUtils;
 import com.sjhy.plugin.tool.VelocityUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
