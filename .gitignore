@@ -6,5 +6,5 @@
 
 ##忽略输出文件夹
 out/
-target/
 build/
+idea-sandbox

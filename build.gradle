@@ -29,19 +29,22 @@ repositories {
 
 dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
-//    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compileOnly "org.projectlombok:lombok:1.18.0"
-//    compileClasspath fileTree(dir: 'lib', includes: ['*.jar'])
 }
 
 intellij {
 //    插件名称
     pluginName 'EasyCode'
+    // 沙箱目录位置，用于保存IDEA的设置，默认在build文件下面，防止clean，放在根目录下。
+    sandboxDirectory = "${rootProject.rootDir}/idea-sandbox"
+    // 开发环境运行时使用的版本
     version '2018.1.5'
     type 'IU'
+    // 依赖的插件
     plugins = ['DatabaseTools']
-    updateSinceUntilBuild false //Disables updating since-build attribute in plugin.xml
+    //Disables updating since-build attribute in plugin.xml
+    updateSinceUntilBuild false
 }
 
 tasks.withType(JavaCompile) {

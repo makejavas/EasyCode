@@ -96,11 +96,10 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
-    <!--必须运行在企业版-->
-    <depends>com.intellij.modules.ultimate</depends>
     <!--必须存在database插件-->
-    <depends optional="true">com.intellij.database</depends>
+    <depends>com.intellij.database</depends>
 
+    <!--扩展点-->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationService serviceImplementation="com.sjhy.plugin.tool.ConfigInfo"/>
