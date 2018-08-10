@@ -102,16 +102,17 @@
     <!--扩展点-->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <!--实例化配置信息服务-->
         <applicationService serviceImplementation="com.sjhy.plugin.tool.ConfigInfo"/>
+        <!--系统设置面板-->
         <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSetting"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <group id="con.sjhy.easy.code.action" class="com.sjhy.plugin.action.MainActionGroup" text="EasyCode" popup="true">
+        <group id="con.sjhy.easy.code.action" class="com.sjhy.plugin.actions.MainActionGroup" text="EasyCode" popup="true">
+            <!--生成代码菜单-->
             <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
-            <!--后期功能，通过sql查询结果生成代码。-->
-            <!--<add-to-group group-id="Console.TableResult.PopupGroup" anchor="first"/>-->
         </group>
     </actions>
 

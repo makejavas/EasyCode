@@ -1,4 +1,4 @@
-package com.sjhy.plugin.action;
+package com.sjhy.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

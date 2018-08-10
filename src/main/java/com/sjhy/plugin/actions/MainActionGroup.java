@@ -1,4 +1,4 @@
-package com.sjhy.plugin.action;
+package com.sjhy.plugin.actions;
 
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.actionSystem.*;
@@ -54,27 +54,24 @@ public class MainActionGroup extends ActionGroup {
         // 获取当前项目
         Project project = getEventProject(event);
         if (project == null) {
-            this.notExistsChildren = true;
-            return AnAction.EMPTY_ARRAY;
+            return getEmptyAnAction();
         }
-        //获取模型
+        //获取模块列表
         Module[] modules = ModuleManager.getInstance(project).getModules();
 
-        //获取选中的单个表
+        //获取选中的PSI元素
         PsiElement psiElement = event.getData(LangDataKeys.PSI_ELEMENT);
         DbTable selectDbTable = null;
         if (psiElement instanceof DbTable) {
             selectDbTable = (DbTable) psiElement;
         }
         if (selectDbTable == null) {
-            this.notExistsChildren = true;
-            return AnAction.EMPTY_ARRAY;
+            return getEmptyAnAction();
         }
         //获取选中的所有表
         PsiElement[] psiElements = event.getData(LangDataKeys.PSI_ELEMENT_ARRAY);
         if (psiElements == null || psiElements.length == 0) {
-            this.notExistsChildren = true;
-            return AnAction.EMPTY_ARRAY;
+            return getEmptyAnAction();
         }
         List<DbTable> dbTableList = new ArrayList<>();
         for (PsiElement element : psiElements) {
@@ -85,8 +82,7 @@ public class MainActionGroup extends ActionGroup {
             dbTableList.add(dbTable);
         }
         if (dbTableList.isEmpty()) {
-            this.notExistsChildren = true;
-            return AnAction.EMPTY_ARRAY;
+            return getEmptyAnAction();
         }
 
         //保存数据到缓存
@@ -121,5 +117,16 @@ public class MainActionGroup extends ActionGroup {
         }
         // 返回所有菜单
         return new AnAction[]{mainAction, configAction};
+    }
+
+
+    /**
+     * 获取空菜单组
+     *
+     * @return 空菜单组
+     */
+    private AnAction[] getEmptyAnAction() {
+        this.notExistsChildren = true;
+        return AnAction.EMPTY_ARRAY;
     }
 }
