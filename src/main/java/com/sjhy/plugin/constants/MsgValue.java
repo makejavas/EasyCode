@@ -12,4 +12,14 @@ public class MsgValue {
      * 提示信息
      */
     public static final String TITLE_INFO = "EasyCode Title Info";
+
+    /**
+     * 删除分组二次确认信息
+     */
+    public static final String CONFIRM_DELETE_GROUP = "确认删除%s分组？";
+
+    /**
+     * 删除二次确认信息
+     */
+    public static final String CONFIRM_DELETE_MESSAGE = "确认删除%s？";
 }

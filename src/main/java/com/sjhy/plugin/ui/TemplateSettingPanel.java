@@ -1,6 +1,12 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.project.ProjectManager;
+import com.sjhy.plugin.core.BaseGroupPanel;
+import com.sjhy.plugin.core.BaseItemSelectPanel;
+import com.sjhy.plugin.core.TemplateEditor;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
@@ -9,6 +15,9 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 模板编辑主面板
@@ -25,7 +34,7 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     /**
      * 编辑框面板
      */
-    private EditTemplatePanel editTemplatePanel;
+    private TemplateEditor templateEditor;
 
     /**
      * 默认构造方法
@@ -33,6 +42,8 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     public TemplateSettingPanel() {
         super(CloneUtils.getInstance().cloneMap(ConfigInfo.getInstance().getTemplateGroupMap()), ConfigInfo.getInstance().getCurrTemplateGroupName());
     }
+
+    private Template item;
 
     /**
      * 切换模板编辑时
@@ -43,13 +54,7 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Override
     protected void initItemPanel(JPanel itemPanel, Template item) {
         // 如果编辑面板已经实例化，需要选释放后再初始化
-        if (editTemplatePanel != null) {
-            editTemplatePanel.disposeEditor();
-        }
-        itemPanel.removeAll();
-        editTemplatePanel = new EditTemplatePanel(item.getCode(), item::setCode);
-        itemPanel.add(editTemplatePanel.getMainPanel());
-        itemPanel.updateUI();
+        this.item = item;
     }
 
     @Override
@@ -86,7 +91,58 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Nullable
     @Override
     public JComponent createComponent() {
-        return super.mainPanel;
+        // 如果编辑面板已经实例化，需要选释放后再初始化
+        if (templateEditor == null) {
+            FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
+            templateEditor = new TemplateEditor(ProjectManager.getInstance().getDefaultProject(), item.getName() + ".vm", item.getCode(), "描述", velocityFileType);
+        }
+//        com.sjhy.plugin.core.AbstractGroupPanel groupPanel = new com.sjhy.plugin.core.AbstractGroupPanel();
+//        return groupPanel.createComponent(templateEditor.createComponent());
+        BaseItemSelectPanel<String> baseItemSelectPanel = new BaseItemSelectPanel<String>(Arrays.asList("item1", "item2", "item3")) {
+
+            @Override
+            protected void addItem(String name) {
+
+            }
+
+            @Override
+            protected void copyItem(String item) {
+
+            }
+
+            @Override
+            protected void deleteItem(List<String> itemList) {
+
+            }
+        };
+        baseItemSelectPanel.getRightPanel().add(templateEditor.createComponent(), BorderLayout.CENTER);
+
+        BaseGroupPanel groupPanel = new BaseGroupPanel(Arrays.asList("Default", "Mybatis Plus")) {
+            @Override
+            protected void createGroup(String name) {
+
+            }
+
+            @Override
+            protected void deleteGroup(String name) {
+
+            }
+
+            @Override
+            protected void copyGroup(String name) {
+
+            }
+
+            @Override
+            protected void chageGroup(String name) {
+
+            }
+        };
+
+        JPanel result = new JPanel(new BorderLayout());
+        result.add(groupPanel, BorderLayout.NORTH);
+        result.add(baseItemSelectPanel, BorderLayout.CENTER);
+        return result;
     }
 
     /**
@@ -96,10 +152,6 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
      */
     @Override
     public boolean isModified() {
-        // 修复BUG，当初始未完成时，插件进行修改判断
-        if (editTemplatePanel != null) {
-            editTemplatePanel.refresh();
-        }
         return !configInfo.getTemplateGroupMap().equals(group) || !configInfo.getCurrTemplateGroupName().equals(currGroupName);
     }
 
@@ -129,8 +181,8 @@ public class TemplateSettingPanel extends AbstractGroupPanel<TemplateGroup, Temp
     @Override
     public void disposeUIResources() {
         // 修复兼容性问题
-        if (editTemplatePanel != null) {
-            editTemplatePanel.disposeEditor();
+        if (templateEditor != null) {
+            templateEditor.onClose();
         }
     }
 }
