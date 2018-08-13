@@ -2,12 +2,16 @@ package com.sjhy.plugin.ui.base;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.Splitter;
+import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.JBUI;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.tool.StringUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -91,41 +95,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
         JPanel headToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         // 添加事件按钮
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        // 新增事件
-        actionGroup.add(new AnAction(AllIcons.General.Add) {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
-                System.out.println("OK");
-            }
-        });
-        // 复制事件
-        actionGroup.add(new AnAction(AllIcons.Actions.Copy) {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
-                copyItem(getSelectedItem());
-            }
-
-            @Override
-            public void update(AnActionEvent e) {
-                e.getPresentation().setEnabled(getSelectedItem() != null);
-            }
-        });
-        // 删除事件
-        actionGroup.add(new AnAction(AllIcons.General.Remove) {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
-                // 确认删除？
-                if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format(MsgValue.CONFIRM_DELETE_MESSAGE, "")).isYes()) {
-                    deleteItem(getSelectedItem());
-                }
-            }
-
-            @Override
-            public void update(AnActionEvent e) {
-                e.getPresentation().setEnabled(getSelectedItem() != null);
-            }
-        });
+        DefaultActionGroup actionGroup = createActionGroup();
 
         ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("Item Toolbar", actionGroup, true);
 
@@ -176,6 +146,108 @@ public abstract class BaseItemSelectPanel<T extends Item> {
     }
 
     /**
+     * 输入元素名称
+     *
+     * @param initValue 初始值
+     * @return 获得的名称，为null表示取消输入
+     */
+    private String inputItemName(String initValue) {
+        return Messages.showInputDialog(MsgValue.GROUP_NAME_LABEL, MsgValue.TITLE_INFO, Messages.getQuestionIcon(), initValue, new InputValidator() {
+            @Override
+            public boolean checkInput(String inputString) {
+                // 非空校验
+                if (StringUtils.isEmpty(inputString)) {
+                    return false;
+                }
+                // 不能出现同名
+                for (T item : itemList) {
+                    if (Objects.equals(item.getName(), inputString)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            @Override
+            public boolean canClose(String inputString) {
+                return this.checkInput(inputString);
+            }
+        });
+    }
+
+    /**
+     * 创建动作组
+     *
+     * @return 动作组
+     */
+    private DefaultActionGroup createActionGroup() {
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        // 新增事件
+        actionGroup.add(new AnAction(AllIcons.General.Add) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                //输入元素名称名称
+                String itemName = inputItemName("");
+                if (itemName == null) {
+                    return;
+                }
+                addItem(itemName);
+            }
+        });
+        // 复制事件
+        actionGroup.add(new AnAction(AllIcons.Actions.Copy) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                T selectedItem = getSelectedItem();
+                //输入元素名称名称
+                String itemName = inputItemName(selectedItem.getName() + "Copy");
+                if (itemName == null) {
+                    return;
+                }
+                copyItem(selectedItem);
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+                e.getPresentation().setEnabled(getSelectedItem() != null);
+            }
+        });
+        // 删除事件
+        actionGroup.add(new AnAction(AllIcons.General.Remove) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                T selectedItem = getSelectedItem();
+                // 确认删除？
+                if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format(MsgValue.CONFIRM_DELETE_MESSAGE, selectedItem.getName())).isYes()) {
+                    deleteItem(selectedItem);
+                }
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+                e.getPresentation().setEnabled(getSelectedItem() != null);
+            }
+        });
+
+        return actionGroup;
+    }
+
+    /**
+     * 重置方法
+     *
+     * @param itemList 元素列表
+     */
+    public void reset(@NotNull List<T> itemList) {
+        this.itemList = itemList;
+        listPanel.setModel(new CollectionListModel<>(dataConvert()));
+
+        // 存在元素时，默认选中第一个元素
+        if (!itemList.isEmpty()) {
+            listPanel.setSelectedIndex(0);
+        }
+    }
+
+    /**
      * 数据转换
      *
      * @return 转换结果
@@ -191,7 +263,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
      *
      * @return 选中元素
      */
-    private T getSelectedItem() {
+    public T getSelectedItem() {
         String selectedName = listPanel.getSelectedValue();
         if (selectedName == null) {
             return null;

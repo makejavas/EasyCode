@@ -1,24 +1,30 @@
 package com.sjhy.plugin.ui.base;
 
 import com.intellij.ide.IdeBundle;
+import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SeparatorFactory;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -32,7 +38,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 2018/08/11 10:20
  */
-@Data
+@Getter
 public class TemplateEditor {
     /**
      * 项目对象
@@ -67,6 +73,7 @@ public class TemplateEditor {
     /**
      * 回调结构
      */
+    @Setter
     private Callback callback;
 
     /**
@@ -102,7 +109,7 @@ public class TemplateEditor {
         Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
         assert document != null;
         // 创建编辑框
-        editor = editorFactory.createEditor(document, project, fileType, false);
+        editor = editorFactory.createEditor(document, project);
 
         // 添加修改事件
         editor.getDocument().addDocumentListener(new DocumentListener() {
@@ -130,8 +137,10 @@ public class TemplateEditor {
         // 附加行，附加列（提高视野）
         editorSettings.setAdditionalColumnsCount(3);
         editorSettings.setAdditionalLinesCount(3);
-        // 显示光标
-        editorSettings.setCaretRowShown(true);
+        // 不显示换行符号
+        editorSettings.setCaretRowShown(false);
+
+        ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, new LightVirtualFile(name + ".ft")));
 
         // 描述信息
         JEditorPane editorPane = new JEditorPane();
@@ -162,6 +171,16 @@ public class TemplateEditor {
         panel.add(splitter, BorderLayout.CENTER);
         panel.setPreferredSize(JBUI.size(400, 300));
         return panel;
+    }
+
+    /**
+     * 重置
+     * @param content 文本内容
+     */
+    public void reset(String content) {
+        if (content != null && this.editor != null) {
+            WriteCommandAction.runWriteCommandAction(project, () -> this.editor.getDocument().setText(content));
+        }
     }
 
     /**

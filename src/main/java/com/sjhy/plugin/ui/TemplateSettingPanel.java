@@ -140,14 +140,14 @@ public class TemplateSettingPanel implements Configurable {
                 // 如果编辑面板已经实例化，需要选释放后再初始化
                 if (templateEditor == null) {
                     FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
-                    templateEditor = new TemplateEditor(ProjectManager.getInstance().getDefaultProject(), item.getName() + ".vm", item.getCode(), "描述", velocityFileType);
+                    templateEditor = new TemplateEditor(ProjectManager.getInstance().getDefaultProject(), item.getName() + ".vm", item.getCode(), TEMPLATE_DESCRIPTION_INFO, velocityFileType);
                     // 代码修改回调
                     templateEditor.setCallback(() -> onUpdate());
                     baseItemSelectPanel.getRightPanel().add(templateEditor.createComponent(), BorderLayout.CENTER);
                 } else {
                     // 代码修改回调
                     templateEditor.setCallback(() -> onUpdate());
-                    WriteAction.run(() -> templateEditor.getEditor().getDocument().setText(item.getCode()));
+                    templateEditor.reset(item.getCode());
                 }
             }
         };
@@ -161,7 +161,8 @@ public class TemplateSettingPanel implements Configurable {
      * 数据发生修改时调用
      */
     private void onUpdate() {
-
+        // 同步修改的代码
+        baseItemSelectPanel.getSelectedItem().setCode(templateEditor.getEditor().getDocument().getText());
     }
 
     /**
@@ -194,6 +195,8 @@ public class TemplateSettingPanel implements Configurable {
         // 防止对象篡改，需要进行克隆
         this.group = cloneUtils.cloneMap(configInfo.getTemplateGroupMap());
         this.currGroupName = configInfo.getCurrTemplateGroupName();
+        // 重置元素选择面板
+        baseItemSelectPanel.reset(this.group.get(this.currGroupName).getElementList());
     }
 
     /**
@@ -206,4 +209,51 @@ public class TemplateSettingPanel implements Configurable {
             templateEditor.onClose();
         }
     }
+
+
+    /**
+     * 模板描述信息，说明文档
+     */
+    private static final String TEMPLATE_DESCRIPTION_INFO = "<pre>\n" +
+            "说明文档：\n" +
+            "属性\n" +
+            "$packageName 选择的包名\n" +
+            "$author 设置中的作者\n" +
+            "$encode 设置的编码\n" +
+            "$modulePath 选中的module路径\n" +
+            "$projectPath 项目绝对路径\n" +
+            "对象\n" +
+            "$tableInfo 表对象\n" +
+            "    obj 表原始对象\n" +
+            "    name 表名（转换后的首字母大写）\n" +
+            "    comment 表注释\n" +
+            "    fullColumn 所有列\n" +
+            "    pkColumn 主键列\n" +
+            "    otherColumn 其他列\n" +
+            "    savePackageName 保存的包名\n" +
+            "    savePath 保存路径\n" +
+            "    saveModelName 保存的model名称\n" +
+            "columnInfo 列对象\n" +
+            "    obj 列原始对象\n" +
+            "    name 列名（首字母小写）\n" +
+            "    comment 列注释\n" +
+            "    type 列类型（类型全名）\n" +
+            "    ext 附加字段（Map类型）\n" +
+            "$tableInfoList 所有选中的表\n" +
+            "$importList 所有需要导入的包集合\n" +
+            "回调\n" +
+            "&callback\n" +
+            "    setFileName(String) 设置文件储存名字\n" +
+            "    setSavePath(String) 设置文件储存路径，默认使用选中路径\n" +
+            "工具\n" +
+            "$tool\n" +
+            "    firstUpperCase(String) 首字母大写方法\n" +
+            "    firstLowerCase(String) 首字母小写方法\n" +
+            "    getClsNameByFullName(String) 通过包全名获取类名\n" +
+            "    getJavaName(String) 将下划线分割字符串转驼峰命名(属性名)\n" +
+            "    getClassName(String) 将下划线分割字符串转驼峰命名(类名)\n" +
+            "    append(... Object) 多个数据进行拼接\n" +
+            "$time\n" +
+            "    currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）\n" +
+            "</pre>";
 }

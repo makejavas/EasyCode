@@ -22,4 +22,9 @@ public class MsgValue {
      * 删除二次确认信息
      */
     public static final String CONFIRM_DELETE_MESSAGE = "确认删除%s？";
+
+    /**
+     * 分组名称标题
+     */
+    public static final String GROUP_NAME_LABEL = "分组名称：";
 }
