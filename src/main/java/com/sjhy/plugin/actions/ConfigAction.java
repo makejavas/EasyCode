@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.sjhy.plugin.core.TemplateEditor;
+import com.sjhy.plugin.ui.base.TemplateEditor;
 import org.jetbrains.annotations.Nullable;
 
 /**

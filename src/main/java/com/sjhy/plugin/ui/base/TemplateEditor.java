@@ -1,4 +1,4 @@
-package com.sjhy.plugin.core;
+package com.sjhy.plugin.ui.base;
 
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.editor.Document;
@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * 模板编辑
@@ -107,9 +108,10 @@ public class TemplateEditor {
         editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(DocumentEvent event) {
+                String text = editor.getDocument().getText();
                 // 回调事件
-                if (callback != null) {
-                    callback.call(editor.getDocument().getText());
+                if (callback != null && !Objects.equals(text, content)) {
+                    callback.call();
                 }
             }
         });
@@ -175,12 +177,10 @@ public class TemplateEditor {
     /**
      * 回调接口
      */
-    interface Callback {
+    public interface Callback {
         /**
          * 文档修改回调
-         *
-         * @param text 修改后的内容
          */
-        void call(String text);
+        void call();
     }
 }

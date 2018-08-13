@@ -1,8 +1,7 @@
-package com.sjhy.plugin.core;
+package com.sjhy.plugin.ui.base;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.diff.impl.GenericDataProvider;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.border.CustomLineBorder;
@@ -10,10 +9,13 @@ import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.JBUI;
 import com.sjhy.plugin.constants.MsgValue;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 元素选择面板
@@ -23,7 +25,7 @@ import java.util.List;
  * @since 2018/08/12 22:26
  */
 @Getter
-public abstract class BaseItemSelectPanel<T> extends JPanel {
+public abstract class BaseItemSelectPanel<T extends Item> {
     /**
      * 可选面板集合
      */
@@ -42,36 +44,46 @@ public abstract class BaseItemSelectPanel<T> extends JPanel {
     /**
      * 列表面板
      */
-    private JBList<T> listPanel;
+    private JBList<String> listPanel;
 
-    public BaseItemSelectPanel(List<T> itemList) {
-        super(new BorderLayout());
+    public BaseItemSelectPanel(@NotNull List<T> itemList) {
         this.itemList = itemList;
-        this.init();
     }
 
     /**
      * 新增元素
+     *
      * @param name 元素名称
      */
     protected abstract void addItem(String name);
 
     /**
      * 复制元素
+     *
      * @param item 元素对象
      */
     protected abstract void copyItem(T item);
 
     /**
      * 删除多个元素
-     * @param itemList 元素对象列表
+     *
+     * @param item 元素对象
      */
-    protected abstract void deleteItem(List<T> itemList);
+    protected abstract void deleteItem(T item);
 
     /**
-     * 初始化操作
+     * 选中元素
+     *
+     * @param item 元素对象
      */
-    private void init() {
+    protected abstract void selectedItem(T item);
+
+    /**
+     * 获取面板
+     */
+    public JComponent getComponent() {
+        // 创建主面板
+        JPanel mainPanel = new JPanel(new BorderLayout());
         // 左边的选择列表
         this.leftPanel = new JPanel(new BorderLayout());
 
@@ -91,7 +103,12 @@ public abstract class BaseItemSelectPanel<T> extends JPanel {
         actionGroup.add(new AnAction(AllIcons.Actions.Copy) {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                copyItem(null);
+                copyItem(getSelectedItem());
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+                e.getPresentation().setEnabled(getSelectedItem() != null);
             }
         });
         // 删除事件
@@ -100,13 +117,13 @@ public abstract class BaseItemSelectPanel<T> extends JPanel {
             public void actionPerformed(AnActionEvent e) {
                 // 确认删除？
                 if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format(MsgValue.CONFIRM_DELETE_MESSAGE, "")).isYes()) {
-                    deleteItem(null);
+                    deleteItem(getSelectedItem());
                 }
             }
 
             @Override
             public void update(AnActionEvent e) {
-                e.getPresentation().setEnabled(!listPanel.getSelectedValuesList().isEmpty());
+                e.getPresentation().setEnabled(getSelectedItem() != null);
             }
         });
 
@@ -120,9 +137,17 @@ public abstract class BaseItemSelectPanel<T> extends JPanel {
         leftPanel.add(actionToolbar.getComponent(), BorderLayout.NORTH);
 
         // 元素列表
-        listPanel = new JBList<>(itemList);
+        listPanel = new JBList<>(dataConvert());
         // 只能单选
         listPanel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // 添加元素选中事件
+        listPanel.addListSelectionListener(e -> {
+            T item = getSelectedItem();
+            if (item == null) {
+                return;
+            }
+            selectedItem(item);
+        });
         // 添加边框
         listPanel.setBorder(new CustomLineBorder(0, 1, 1, 1));
 
@@ -133,13 +158,49 @@ public abstract class BaseItemSelectPanel<T> extends JPanel {
         this.rightPanel = new JPanel(new BorderLayout());
 
         // 左右分割面板并添加至主面板
-        Splitter splitter = new Splitter(false, 0.3F);
+        Splitter splitter = new Splitter(false, 0.2F);
 
         splitter.setFirstComponent(leftPanel);
         splitter.setSecondComponent(rightPanel);
 
-        this.add(splitter, BorderLayout.CENTER);
+        mainPanel.add(splitter, BorderLayout.CENTER);
 
-        this.setPreferredSize(JBUI.size(400, 300));
+        mainPanel.setPreferredSize(JBUI.size(400, 300));
+
+        // 存在元素时，默认选中第一个元素
+        if (!itemList.isEmpty()) {
+            listPanel.setSelectedIndex(0);
+        }
+
+        return mainPanel;
+    }
+
+    /**
+     * 数据转换
+     *
+     * @return 转换结果
+     */
+    private List<String> dataConvert() {
+        List<String> data = new ArrayList<>();
+        itemList.forEach(item -> data.add(item.getName()));
+        return data;
+    }
+
+    /**
+     * 获取选中元素
+     *
+     * @return 选中元素
+     */
+    private T getSelectedItem() {
+        String selectedName = listPanel.getSelectedValue();
+        if (selectedName == null) {
+            return null;
+        }
+        for (T t : itemList) {
+            if (Objects.equals(t.getName(), selectedName)) {
+                return t;
+            }
+        }
+        return null;
     }
 }

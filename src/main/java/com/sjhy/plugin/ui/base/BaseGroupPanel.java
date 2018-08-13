@@ -1,4 +1,4 @@
-package com.sjhy.plugin.core;
+package com.sjhy.plugin.ui.base;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
@@ -76,9 +76,10 @@ public abstract class BaseGroupPanel extends JPanel {
 
     /**
      * 切换分组
+     *
      * @param name 分组名称
      */
-    protected abstract void chageGroup(String name);
+    protected abstract void changeGroup(String name);
 
     /**
      * 初始化方法

@@ -1,5 +1,6 @@
 package com.sjhy.plugin.entity;
 
+import com.sjhy.plugin.ui.base.Item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Template {
+public class Template implements Item {
     /**
      * 模板名称
      */
