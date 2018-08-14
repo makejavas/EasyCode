@@ -42,7 +42,7 @@ intellij {
     version '2018.1.5'
     type 'IU'
     // 依赖的插件
-    plugins = ['DatabaseTools']
+    plugins = ['DatabaseTools', 'Velocity']
     //Disables updating since-build attribute in plugin.xml
     updateSinceUntilBuild false
 }

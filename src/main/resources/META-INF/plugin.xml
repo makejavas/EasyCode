@@ -96,8 +96,10 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
-    <!--必须存在database插件-->
+    <!--必须依赖Database Tool插件-->
     <depends>com.intellij.database</depends>
+    <!--必须依赖Velocity插件-->
+    <depends>com.intellij.velocity</depends>
 
     <!--扩展点-->
     <extensions defaultExtensionNs="com.intellij">
@@ -106,6 +108,8 @@
         <applicationService serviceImplementation="com.sjhy.plugin.tool.ConfigInfo"/>
         <!--系统设置面板-->
         <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSetting"/>
+
+        <velocity.globalVariableProvider implementation="com.sjhy.plugin.provider.EasyCodeGlobalVariableProvider"/>
     </extensions>
 
     <actions>

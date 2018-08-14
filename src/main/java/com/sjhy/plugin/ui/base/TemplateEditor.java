@@ -1,7 +1,7 @@
 package com.sjhy.plugin.ui.base;
 
 import com.intellij.ide.IdeBundle;
-import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -40,6 +40,10 @@ import java.util.Objects;
  */
 @Getter
 public class TemplateEditor {
+    /**
+     * EASY CODE 模板
+     */
+    public static final String EASY_CODE_TEMPLATE = "EasyCodeTemplate.vm.ft";
     /**
      * 项目对象
      */
@@ -104,7 +108,9 @@ public class TemplateEditor {
             editorFactory.releaseEditor(editor);
         }
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
-        PsiFile psiFile = psiFileFactory.createFileFromText(name, fileType, content, 0, true);
+        PsiFile psiFile = psiFileFactory.createFileFromText(EASY_CODE_TEMPLATE, fileType, content, 0, true);
+        // 标识为模板，让velocity跳过语法校验
+        psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(project).getDefaultProperties());
         // 创建文档对象
         Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
         assert document != null;
