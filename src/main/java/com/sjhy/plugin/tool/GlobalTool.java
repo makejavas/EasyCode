@@ -1,11 +1,12 @@
 package com.sjhy.plugin.tool;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -40,6 +41,7 @@ public class GlobalTool extends NameUtils {
         }
         return globalTool;
     }
+
     /**
      * jackson格式化工具
      */
@@ -99,17 +101,61 @@ public class GlobalTool extends NameUtils {
     }
 
     /**
+     * 获取某个类的所有字段
+     *
+     * @param cls 类
+     * @return 所有字段
+     */
+    private List<Field> getAllFieldByClass(Class<?> cls) {
+        List<Field> result = new ArrayList<>();
+        do {
+            result.addAll(Arrays.asList(cls.getDeclaredFields()));
+            cls = cls.getSuperclass();
+        } while (!cls.equals(Object.class));
+        return result;
+    }
+
+    /**
      * 调式对象
      *
      * @param obj 对象
      * @return 调式JSON结果
      */
     public String debug(Object obj) {
-        try {
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            ExceptionUtil.rethrow(e);
+        if (obj == null) {
+            return "null";
         }
-        return null;
+        StringBuilder builder = new StringBuilder("\n/*调试信息：\nField Item List:\n");
+        Class<?> cls = obj.getClass();
+        List<Field> fieldList = getAllFieldByClass(cls);
+        fieldList.forEach(field -> {
+            field.setAccessible(true);
+            builder.append("field=");
+            builder.append(field.getName());
+            builder.append(",\t\ttype=");
+            builder.append(field.getType());
+            builder.append(",\t\tvalue=");
+            try {
+                builder.append(field.get(obj));
+            } catch (IllegalAccessException e) {
+                ExceptionUtil.rethrow(e);
+            }
+            builder.append("\n");
+        });
+        // 方法列表
+        builder.append("\nMethod List:\n");
+        // 排除方法
+        List<String> fillterMethodName = Arrays.asList("hashCode", "toString", "equals");
+        for (Method method : cls.getDeclaredMethods()) {
+            if (fillterMethodName.contains(method.getName())) {
+                continue;
+            }
+            builder.append(method.getName());
+            builder.append("=");
+            builder.append(method.toGenericString());
+            builder.append("\n");
+        }
+        builder.append("*/\n");
+        return builder.toString();
     }
 }

@@ -34,7 +34,7 @@ public class EasyCodeGlobalVariableProvider extends VtlGlobalVariableProvider {
         result.add(new VtlLightVariable("modulePath", file, CommonClassNames.JAVA_LANG_STRING));
         result.add(new VtlLightVariable("importList", file, "java.util.Set<java.lang.String>"));
         result.add(new VtlLightVariable("callback", file, "com.sjhy.plugin.entity.Callback"));
-        result.add(new VtlLightVariable("tool", file, "com.sjhy.plugin.tool.NameUtils"));
+        result.add(new VtlLightVariable("tool", file, "com.sjhy.plugin.tool.GlobalTool"));
         result.add(new VtlLightVariable("time", file, "com.sjhy.plugin.tool.TimeUtils"));
         result.add(new VtlLightVariable("tableInfo", file, "com.sjhy.plugin.entity.TableInfo"));
         result.add(new VtlLightVariable("tableInfoList", file, "java.util.List<com.sjhy.plugin.entity.TableInfo>"));
