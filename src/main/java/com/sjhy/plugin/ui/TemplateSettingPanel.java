@@ -1,10 +1,12 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -28,6 +31,21 @@ import java.util.Map;
  * @since 2018/07/18 09:33
  */
 public class TemplateSettingPanel implements Configurable {
+    /**
+     * 模板描述信息，说明文档
+     */
+    private static final String TEMPLATE_DESCRIPTION_INFO;
+
+    static {
+        String descriptionInfo = "";
+        try {
+            descriptionInfo = UrlUtil.loadText(TemplateSettingPanel.class.getResource("/description/templateDescription.html"));
+        } catch (IOException e) {
+            ExceptionUtil.rethrow(e);
+        } finally {
+            TEMPLATE_DESCRIPTION_INFO = descriptionInfo;
+        }
+    }
     /**
      * 配置信息
      */
@@ -219,51 +237,4 @@ public class TemplateSettingPanel implements Configurable {
             templateEditor.onClose();
         }
     }
-
-
-    /**
-     * 模板描述信息，说明文档
-     */
-    private static final String TEMPLATE_DESCRIPTION_INFO = "<pre>\n" +
-            "说明文档：\n" +
-            "属性\n" +
-            "$packageName 选择的包名\n" +
-            "$author 设置中的作者\n" +
-            "$encode 设置的编码\n" +
-            "$modulePath 选中的module路径\n" +
-            "$projectPath 项目绝对路径\n" +
-            "对象\n" +
-            "$tableInfo 表对象\n" +
-            "    obj 表原始对象\n" +
-            "    name 表名（转换后的首字母大写）\n" +
-            "    comment 表注释\n" +
-            "    fullColumn 所有列\n" +
-            "    pkColumn 主键列\n" +
-            "    otherColumn 其他列\n" +
-            "    savePackageName 保存的包名\n" +
-            "    savePath 保存路径\n" +
-            "    saveModelName 保存的model名称\n" +
-            "columnInfo 列对象\n" +
-            "    obj 列原始对象\n" +
-            "    name 列名（首字母小写）\n" +
-            "    comment 列注释\n" +
-            "    type 列类型（类型全名）\n" +
-            "    ext 附加字段（Map类型）\n" +
-            "$tableInfoList 所有选中的表\n" +
-            "$importList 所有需要导入的包集合\n" +
-            "回调\n" +
-            "&callback\n" +
-            "    setFileName(String) 设置文件储存名字\n" +
-            "    setSavePath(String) 设置文件储存路径，默认使用选中路径\n" +
-            "工具\n" +
-            "$tool\n" +
-            "    firstUpperCase(String) 首字母大写方法\n" +
-            "    firstLowerCase(String) 首字母小写方法\n" +
-            "    getClsNameByFullName(String) 通过包全名获取类名\n" +
-            "    getJavaName(String) 将下划线分割字符串转驼峰命名(属性名)\n" +
-            "    getClassName(String) 将下划线分割字符串转驼峰命名(类名)\n" +
-            "    append(... Object) 多个数据进行拼接\n" +
-            "$time\n" +
-            "    currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）\n" +
-            "</pre>";
 }
