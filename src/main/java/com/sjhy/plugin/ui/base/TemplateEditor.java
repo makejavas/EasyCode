@@ -175,10 +175,15 @@ public class TemplateEditor {
 
     /**
      * 重置
+     *
+     * @param name    模板名称
      * @param content 文本内容
      */
-    public void reset(String content) {
+    public void reset(String name, String content) {
         if (content != null && this.editor != null) {
+            // 重置语法高亮
+            ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, new LightVirtualFile(name + ".ft")));
+            // 重置文本内容
             WriteCommandAction.runWriteCommandAction(project, () -> this.editor.getDocument().setText(content));
         }
     }

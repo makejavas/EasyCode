@@ -5,8 +5,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.sjhy.plugin.ui.AbstractGroupPanel;
+import com.sjhy.plugin.ui.TemplateSettingPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * 表配置菜单
@@ -44,23 +50,23 @@ public class ConfigAction extends AnAction {
         FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("ft");
         TemplateEditor templateEditor = new TemplateEditor(project, "test.ft", "内容", "<html><body><span style='color:red'>Test</span></body></html>", velocityFileType);
 
-//        AbstractGroupPanel groupPanel = new AbstractGroupPanel();
-//
-//        JFrame frame = new JFrame();
-//        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//        frame.addWindowListener(new WindowAdapter() {
-//            @Override
-//            public void windowClosed(WindowEvent e) {
-//                templateEditor.onClose();
-//            }
-//        });
-//
-//        frame.setContentPane(groupPanel.createComponent(new JPanel()));
-//
-//        frame.setSize(600, 400);
-//        frame.setLocationRelativeTo(null);
-//        frame.setVisible(true);
-//        frame.toFront();
+        TemplateSettingPanel templateSettingPanel = new TemplateSettingPanel();
+
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                templateSettingPanel.disposeUIResources();
+            }
+        });
+
+        frame.getContentPane().add(templateSettingPanel.createComponent());
+
+        frame.setSize(600, 400);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        frame.toFront();
 
         System.out.println("OK");
     }

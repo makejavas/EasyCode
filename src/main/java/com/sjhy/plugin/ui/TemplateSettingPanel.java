@@ -1,9 +1,9 @@
 package com.sjhy.plugin.ui;
 
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
@@ -63,7 +63,17 @@ public class TemplateSettingPanel implements Configurable {
      */
     private CloneUtils cloneUtils;
 
+    /**
+     * 项目对象
+     */
+    private Project project;
+
     public TemplateSettingPanel() {
+        // 存在打开的项目则使用打开的项目，否则使用默认项目
+        ProjectManager projectManager = ProjectManager.getInstance();
+        Project[] openProjects = projectManager.getOpenProjects();
+        // 项目对象
+        this.project = openProjects.length>0?openProjects[0] : projectManager.getDefaultProject();
         // 配置服务实例化
         this.configInfo = ConfigInfo.getInstance();
         // 克隆工具实例化
@@ -140,14 +150,14 @@ public class TemplateSettingPanel implements Configurable {
                 // 如果编辑面板已经实例化，需要选释放后再初始化
                 if (templateEditor == null) {
                     FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
-                    templateEditor = new TemplateEditor(ProjectManager.getInstance().getDefaultProject(), item.getName() + ".vm", item.getCode(), TEMPLATE_DESCRIPTION_INFO, velocityFileType);
+                    templateEditor = new TemplateEditor(project, item.getName() + ".vm", item.getCode(), TEMPLATE_DESCRIPTION_INFO, velocityFileType);
                     // 代码修改回调
                     templateEditor.setCallback(() -> onUpdate());
                     baseItemSelectPanel.getRightPanel().add(templateEditor.createComponent(), BorderLayout.CENTER);
                 } else {
                     // 代码修改回调
                     templateEditor.setCallback(() -> onUpdate());
-                    templateEditor.reset(item.getCode());
+                    templateEditor.reset(item.getName(), item.getCode());
                 }
             }
         };
