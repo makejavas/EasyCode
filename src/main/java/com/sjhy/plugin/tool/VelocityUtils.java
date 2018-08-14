@@ -10,7 +10,6 @@ import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
-import com.sjhy.plugin.tool.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -68,9 +67,9 @@ public class VelocityUtils {
      */
     private TableInfoUtils tableInfoUtils = TableInfoUtils.getInstance();
     /**
-     * 命名工具类
+     * 全局工具类
      */
-    private NameUtils nameUtils = NameUtils.getInstance();
+    private GlobalTool globalTool = GlobalTool.getInstance();
     /**
      * 文件工具类
      */
@@ -123,7 +122,7 @@ public class VelocityUtils {
         //作者
         map.put("author", author);
         //工具类
-        map.put("tool", nameUtils);
+        map.put("tool", globalTool);
         map.put("time", TimeUtils.getInstance());
         //设置的包名
         map.put("packageName", cacheDataUtils.getPackageName());

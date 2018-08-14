@@ -33,7 +33,7 @@ public class NameUtils {
     /**
      * 私有构造方法
      */
-    private NameUtils() {
+    NameUtils() {
     }
 
     /**
