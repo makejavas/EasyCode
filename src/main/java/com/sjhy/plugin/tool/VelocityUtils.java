@@ -215,8 +215,9 @@ public class VelocityUtils {
         templateList.forEach(template -> {
             String templateContent = template.getCode() + "\n";
             for (GlobalConfig globalConfig : settings.getGlobalConfigGroupMap().get(settings.getCurrGlobalConfigGroupName()).getElementList()) {
-                // 需要替换两次，防止$在正则中出现问题
-                templateContent = templateContent.replaceAll("\\$!?\\{?" + globalConfig.getName() + "([^a-zA-Z0-9])}?", ":::{" + globalConfig.getName() + "}$1");
+                // 防止全局变量中存在全局变量名，导致死循环问题，需要介入临时变量:::{name}
+                templateContent = templateContent.replaceAll("\\$!?" + globalConfig.getName() + "([^a-zA-Z0-9])?", ":::{" + globalConfig.getName() + "}$1");
+                templateContent = templateContent.replaceAll("\\$!?\\{" + globalConfig.getName() + "}?", ":::{" + globalConfig.getName() + "}");
                 templateContent = templateContent.replace(":::{" + globalConfig.getName() + "}", globalConfig.getValue());
             }
             template.setCode(templateContent);
