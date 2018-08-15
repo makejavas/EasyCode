@@ -105,7 +105,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <!--实例化配置信息服务-->
-        <applicationService serviceImplementation="com.sjhy.plugin.tool.ConfigInfo"/>
+        <applicationService serviceImplementation="com.sjhy.plugin.config.Settings"/>
         <!--系统设置面板-->
         <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSetting"/>
 

@@ -9,7 +9,7 @@ import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.entity.ColumnConfig;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
@@ -211,12 +211,12 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
                 return;
             }
             if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Group " + currGroupName + "?").isYes()) {
-                if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
+                if (Settings.DEFAULT_NAME.equals(currGroupName)) {
                     Messages.showWarningDialog("Can't Delete Default Group!", MsgValue.TITLE_INFO);
                     return;
                 }
                 group.remove(currGroupName);
-                currGroupName = ConfigInfo.DEFAULT_NAME;
+                currGroupName = Settings.DEFAULT_NAME;
                 init();
             }
         });

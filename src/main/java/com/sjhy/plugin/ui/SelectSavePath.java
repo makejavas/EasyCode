@@ -13,7 +13,7 @@ import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CacheDataUtils;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.tool.TableInfoUtils;
 import com.sjhy.plugin.tool.VelocityUtils;
 import com.sjhy.plugin.tool.StringUtils;
@@ -101,8 +101,8 @@ public class SelectSavePath extends JDialog {
      * 构造方法
      */
     public SelectSavePath() {
-        ConfigInfo configInfo = ConfigInfo.getInstance();
-        this.templateGroup = configInfo.getTemplateGroupMap().get(configInfo.getCurrTemplateGroupName());
+        Settings settings = Settings.getInstance();
+        this.templateGroup = settings.getTemplateGroupMap().get(settings.getCurrTemplateGroupName());
         init();
         setContentPane(contentPane);
         setModal(true);

@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.GlobalConfig;
@@ -105,12 +106,12 @@ public class VelocityUtils {
      * @return 全局参数
      */
     private Map<String, Object> handlerMap() {
-        ConfigInfo configInfo = ConfigInfo.getInstance();
+        Settings settings = Settings.getInstance();
         Map<String, Object> map = new HashMap<>(16);
         // 编码类型
-        String encode = configInfo.getEncode();
+        String encode = settings.getEncode();
         // 坐着名称
-        String author = configInfo.getAuthor();
+        String author = settings.getAuthor();
         // 表信息集合
         List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
         // 选中的module
@@ -206,14 +207,14 @@ public class VelocityUtils {
         if (!createPath(cacheDataUtils.getSavePath())) {
             return;
         }
-        ConfigInfo configInfo = ConfigInfo.getInstance();
+        Settings settings = Settings.getInstance();
         // 获取覆盖的表配置信息
         List<TableInfo> tableInfoList = coverConfigInfo();
         List<Template> templateList = CloneUtils.getInstance().cloneList(cacheDataUtils.getSelectTemplate());
         // 预处理加入全局变量
         templateList.forEach(template -> {
             String templateContent = template.getCode() + "\n";
-            for (GlobalConfig globalConfig : configInfo.getGlobalConfigGroupMap().get(configInfo.getCurrGlobalConfigGroupName()).getElementList()) {
+            for (GlobalConfig globalConfig : settings.getGlobalConfigGroupMap().get(settings.getCurrGlobalConfigGroupName()).getElementList()) {
                 // 需要替换两次，防止$在正则中出现问题
                 templateContent = templateContent.replaceAll("\\$!?\\{?" + globalConfig.getName() + "([^a-zA-Z0-9])}?", ":::{" + globalConfig.getName() + "}$1");
                 templateContent = templateContent.replace(":::{" + globalConfig.getName() + "}", globalConfig.getValue());
@@ -221,7 +222,7 @@ public class VelocityUtils {
             template.setCode(templateContent);
         });
         // 获取编码信息
-        String encode = configInfo.getEncode();
+        String encode = settings.getEncode();
         // 获取默认的配置信息
         Map<String, Object> map = handlerMap();
         // 项目路径

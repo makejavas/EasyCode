@@ -7,7 +7,7 @@ import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.sjhy.plugin.comm.AbstractService;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +58,7 @@ public class MainSetting extends AbstractService implements Configurable, Config
         init();
 
         //初始化事件
-        ConfigInfo configInfo = ConfigInfo.getInstance();
+        Settings settings = Settings.getInstance();
         //重置配置信息
         resetBtn.addActionListener(e -> {
             if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "确认重置默认配置?\n重置默认配置只会还原插件自带分组配置信息，不会删除用户新增分组信息。").isYes()) {
@@ -66,7 +66,7 @@ public class MainSetting extends AbstractService implements Configurable, Config
                     return;
                 }
                 // 初始化默认配置
-                configInfo.initDefault();
+                settings.initDefault();
                 resetList.forEach(UnnamedConfigurable::reset);
                 if (CollectionUtil.isEmpty(saveList)) {
                     return;
@@ -87,8 +87,8 @@ public class MainSetting extends AbstractService implements Configurable, Config
      */
     private void init() {
         //初始化数据
-        authorTextField.setText(configInfo.getAuthor());
-        encodeComboBox.setSelectedItem(configInfo.getEncode());
+        authorTextField.setText(settings.getAuthor());
+        encodeComboBox.setSelectedItem(settings.getEncode());
     }
 
     /**
@@ -111,7 +111,7 @@ public class MainSetting extends AbstractService implements Configurable, Config
     @Override
     public Configurable[] getConfigurables() {
         Configurable[] result = new Configurable[4];
-        result[0] = new TypeMapperSetting(configInfo);
+        result[0] = new TypeMapperSetting(settings);
         result[1] = new TemplateSettingPanel();
         result[2] = new TableSettingPanel();
         result[3] = new GlobalConfigSettingPanel();
@@ -145,7 +145,7 @@ public class MainSetting extends AbstractService implements Configurable, Config
      */
     @Override
     public boolean isModified() {
-        return !configInfo.getEncode().equals(encodeComboBox.getSelectedItem()) || !configInfo.getAuthor().equals(authorTextField.getText());
+        return !settings.getEncode().equals(encodeComboBox.getSelectedItem()) || !settings.getAuthor().equals(authorTextField.getText());
     }
 
     /**
@@ -154,8 +154,8 @@ public class MainSetting extends AbstractService implements Configurable, Config
     @Override
     public void apply() {
         //保存数据
-        configInfo.setAuthor(authorTextField.getText());
-        configInfo.setEncode((String) encodeComboBox.getSelectedItem());
+        settings.setAuthor(authorTextField.getText());
+        settings.setEncode((String) encodeComboBox.getSelectedItem());
     }
 
     /**

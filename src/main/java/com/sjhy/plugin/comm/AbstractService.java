@@ -1,7 +1,7 @@
 package com.sjhy.plugin.comm;
 
 import com.sjhy.plugin.entity.TypeMapperGroup;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 
 /**
  * 抽象的服务
@@ -14,7 +14,7 @@ public abstract class AbstractService {
     /**
      * 配置信息对象
      */
-    protected ConfigInfo configInfo = ConfigInfo.getInstance();
+    protected Settings settings = Settings.getInstance();
 
     /**
      * 获取当前的类型映射Mapper
@@ -22,7 +22,7 @@ public abstract class AbstractService {
      * @return 类型映射Mapper
      */
     protected TypeMapperGroup getCurrMapper() {
-        return configInfo.getTypeMapperGroupMap().get(configInfo.getCurrTypeMapperGroupName());
+        return settings.getTypeMapperGroupMap().get(settings.getCurrTypeMapperGroupName());
     }
 
     /**
@@ -31,6 +31,6 @@ public abstract class AbstractService {
      * @param typeMapper 类型映射Mapper
      */
     protected void setCurrMapper(TypeMapperGroup typeMapper) {
-        configInfo.getTypeMapperGroupMap().put(configInfo.getCurrTypeMapperGroupName(), typeMapper);
+        settings.getTypeMapperGroupMap().put(settings.getCurrTypeMapperGroupName(), typeMapper);
     }
 }

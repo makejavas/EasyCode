@@ -10,7 +10,7 @@ import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.GlobalConfigGroup;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
 import com.sjhy.plugin.ui.base.BaseItemSelectPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
@@ -40,7 +40,7 @@ public class GlobalConfigSettingPanel implements Configurable {
     static {
         String descriptionInfo = "";
         try {
-            descriptionInfo = UrlUtil.loadText(TemplateSettingPanel.class.getResource("/description/templateDescription.html"));
+            descriptionInfo = UrlUtil.loadText(TemplateSettingPanel.class.getResource("/description/globalConfigDescription.html"));
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         } finally {
@@ -51,7 +51,7 @@ public class GlobalConfigSettingPanel implements Configurable {
     /**
      * 配置信息
      */
-    private ConfigInfo configInfo;
+    private Settings settings;
 
     /**
      * 编辑框面板
@@ -98,12 +98,12 @@ public class GlobalConfigSettingPanel implements Configurable {
         // 项目对象
         this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
         // 配置服务实例化
-        this.configInfo = ConfigInfo.getInstance();
+        this.settings = Settings.getInstance();
         // 克隆工具实例化
         this.cloneUtils = CloneUtils.getInstance();
         // 克隆对象
-        this.currGroupName = this.configInfo.getCurrGlobalConfigGroupName();
-        this.group = this.cloneUtils.cloneMap(this.configInfo.getGlobalConfigGroupMap());
+        this.currGroupName = this.settings.getCurrGlobalConfigGroupName();
+        this.group = this.cloneUtils.cloneMap(this.settings.getGlobalConfigGroupMap());
     }
 
     /**
@@ -147,7 +147,7 @@ public class GlobalConfigSettingPanel implements Configurable {
             protected void deleteGroup(String name) {
                 // 删除分组
                 group.remove(name);
-                currGroupName = ConfigInfo.DEFAULT_NAME;
+                currGroupName = Settings.DEFAULT_NAME;
                 baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
             }
 
@@ -246,7 +246,7 @@ public class GlobalConfigSettingPanel implements Configurable {
      */
     @Override
     public boolean isModified() {
-        return !configInfo.getGlobalConfigGroupMap().equals(group) || !configInfo.getCurrGlobalConfigGroupName().equals(currGroupName);
+        return !settings.getGlobalConfigGroupMap().equals(group) || !settings.getCurrGlobalConfigGroupName().equals(currGroupName);
     }
 
     /**
@@ -254,8 +254,8 @@ public class GlobalConfigSettingPanel implements Configurable {
      */
     @Override
     public void apply() {
-        configInfo.setGlobalConfigGroupMap(group);
-        configInfo.setCurrGlobalConfigGroupName(currGroupName);
+        settings.setGlobalConfigGroupMap(group);
+        settings.setCurrGlobalConfigGroupName(currGroupName);
     }
 
     /**
@@ -268,8 +268,8 @@ public class GlobalConfigSettingPanel implements Configurable {
             return;
         }
         // 防止对象篡改，需要进行克隆
-        this.group = cloneUtils.cloneMap(configInfo.getGlobalConfigGroupMap());
-        this.currGroupName = configInfo.getCurrGlobalConfigGroupName();
+        this.group = cloneUtils.cloneMap(settings.getGlobalConfigGroupMap());
+        this.currGroupName = settings.getCurrGlobalConfigGroupName();
         // 重置元素选择面板
         baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
     }

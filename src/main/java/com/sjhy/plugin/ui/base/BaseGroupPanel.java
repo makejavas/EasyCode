@@ -9,7 +9,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ui.JBUI;
 import com.sjhy.plugin.constants.MsgValue;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.tool.StringUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -191,7 +191,7 @@ public abstract class BaseGroupPanel extends JPanel {
             public void actionPerformed(AnActionEvent e) {
                 String groupName = (String) comboBox.getSelectedItem();
                 // 默认分组不允许删除
-                if (Objects.equals(groupName, ConfigInfo.DEFAULT_NAME)) {
+                if (Objects.equals(groupName, Settings.DEFAULT_NAME)) {
                     return;
                 }
                 // 确认删除？
@@ -202,7 +202,7 @@ public abstract class BaseGroupPanel extends JPanel {
 
             @Override
             public void update(AnActionEvent e) {
-                e.getPresentation().setEnabled(!Objects.equals(comboBox.getSelectedItem(), ConfigInfo.DEFAULT_NAME));
+                e.getPresentation().setEnabled(!Objects.equals(comboBox.getSelectedItem(), Settings.DEFAULT_NAME));
             }
         });
 

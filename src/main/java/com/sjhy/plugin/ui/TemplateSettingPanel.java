@@ -10,7 +10,7 @@ import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
 import com.sjhy.plugin.ui.base.BaseItemSelectPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
@@ -51,7 +51,7 @@ public class TemplateSettingPanel implements Configurable {
     /**
      * 配置信息
      */
-    private ConfigInfo configInfo;
+    private Settings settings;
 
     /**
      * 编辑框面板
@@ -95,12 +95,12 @@ public class TemplateSettingPanel implements Configurable {
         // 项目对象
         this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
         // 配置服务实例化
-        this.configInfo = ConfigInfo.getInstance();
+        this.settings = Settings.getInstance();
         // 克隆工具实例化
         this.cloneUtils = CloneUtils.getInstance();
         // 克隆对象
-        this.currGroupName = this.configInfo.getCurrTemplateGroupName();
-        this.group = this.cloneUtils.cloneMap(this.configInfo.getTemplateGroupMap());
+        this.currGroupName = this.settings.getCurrTemplateGroupName();
+        this.group = this.cloneUtils.cloneMap(this.settings.getTemplateGroupMap());
     }
 
     /**
@@ -144,7 +144,7 @@ public class TemplateSettingPanel implements Configurable {
             protected void deleteGroup(String name) {
                 // 删除分组
                 group.remove(name);
-                currGroupName = ConfigInfo.DEFAULT_NAME;
+                currGroupName = Settings.DEFAULT_NAME;
                 baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
             }
 
@@ -243,7 +243,7 @@ public class TemplateSettingPanel implements Configurable {
      */
     @Override
     public boolean isModified() {
-        return !configInfo.getTemplateGroupMap().equals(group) || !configInfo.getCurrTemplateGroupName().equals(currGroupName);
+        return !settings.getTemplateGroupMap().equals(group) || !settings.getCurrTemplateGroupName().equals(currGroupName);
     }
 
     /**
@@ -251,8 +251,8 @@ public class TemplateSettingPanel implements Configurable {
      */
     @Override
     public void apply() {
-        configInfo.setTemplateGroupMap(group);
-        configInfo.setCurrTemplateGroupName(currGroupName);
+        settings.setTemplateGroupMap(group);
+        settings.setCurrTemplateGroupName(currGroupName);
     }
 
     /**
@@ -265,8 +265,8 @@ public class TemplateSettingPanel implements Configurable {
             return;
         }
         // 防止对象篡改，需要进行克隆
-        this.group = cloneUtils.cloneMap(configInfo.getTemplateGroupMap());
-        this.currGroupName = configInfo.getCurrTemplateGroupName();
+        this.group = cloneUtils.cloneMap(settings.getTemplateGroupMap());
+        this.currGroupName = settings.getCurrTemplateGroupName();
         // 重置元素选择面板
         baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
     }

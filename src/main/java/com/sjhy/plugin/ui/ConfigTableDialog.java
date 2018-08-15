@@ -7,7 +7,7 @@ import com.intellij.util.ui.ComboBoxCellEditor;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.CacheDataUtils;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.tool.TableInfoUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
@@ -74,7 +74,7 @@ public class ConfigTableDialog extends JDialog {
     /**
      * 配置信息对象
      */
-    private ConfigInfo configInfo = ConfigInfo.getInstance();
+    private Settings settings = Settings.getInstance();
 
     /**
      * 构造方法
@@ -127,7 +127,7 @@ public class ConfigTableDialog extends JDialog {
      */
     private void init() {
         initFlag = false;
-        ColumnConfigGroup columnConfigGroup = configInfo.getColumnConfigGroupMap().get(configInfo.getCurrColumnConfigGroupName());
+        ColumnConfigGroup columnConfigGroup = settings.getColumnConfigGroupMap().get(settings.getCurrColumnConfigGroupName());
         // 拿到列配置信息
         columnConfigList = getInitColumn(columnConfigGroup.getElementList());
         //读取表配置信息（一次只能配置一张表）

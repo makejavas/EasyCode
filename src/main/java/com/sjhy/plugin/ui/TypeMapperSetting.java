@@ -9,7 +9,7 @@ import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.entity.TypeMapperModel;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.ConfigInfo;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.tool.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
@@ -74,17 +74,17 @@ public class TypeMapperSetting implements Configurable {
     /**
      * 全局配置服务
      */
-    private ConfigInfo configInfo;
+    private Settings settings;
     /**
      * 克隆工具类
      */
     private CloneUtils cloneUtils = CloneUtils.getInstance();
 
 
-    public TypeMapperSetting(ConfigInfo configInfo) {
-        this.configInfo = configInfo;
-        this.typeMapperGroupMap = cloneUtils.cloneMap(configInfo.getTypeMapperGroupMap());
-        this.currGroupName = configInfo.getCurrTypeMapperGroupName();
+    public TypeMapperSetting(Settings settings) {
+        this.settings = settings;
+        this.typeMapperGroupMap = cloneUtils.cloneMap(settings.getTypeMapperGroupMap());
+        this.currGroupName = settings.getCurrTypeMapperGroupName();
         //添加类型
         addButton.addActionListener(e -> typeMapperModel.addRow(new TypeMapper("demoColumn", "java.lang.Object")));
 
@@ -146,12 +146,12 @@ public class TypeMapperSetting implements Configurable {
         //删除分组
         deleteButton.addActionListener(e -> {
             if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Group " + typeMapperComboBox.getSelectedItem() + "?").isYes()) {
-                if (ConfigInfo.DEFAULT_NAME.equals(currGroupName)) {
+                if (Settings.DEFAULT_NAME.equals(currGroupName)) {
                     Messages.showWarningDialog("Can't Delete Default Group!", MsgValue.TITLE_INFO);
                     return;
                 }
                 typeMapperGroupMap.remove(currGroupName);
-                currGroupName = ConfigInfo.DEFAULT_NAME;
+                currGroupName = Settings.DEFAULT_NAME;
                 refresh();
             }
         });
@@ -198,19 +198,19 @@ public class TypeMapperSetting implements Configurable {
 
     @Override
     public boolean isModified() {
-        return !typeMapperGroupMap.equals(configInfo.getTypeMapperGroupMap()) || !currGroupName.equals(configInfo.getCurrTypeMapperGroupName());
+        return !typeMapperGroupMap.equals(settings.getTypeMapperGroupMap()) || !currGroupName.equals(settings.getCurrTypeMapperGroupName());
     }
 
     @Override
     public void apply() {
-        configInfo.setCurrTypeMapperGroupName(currGroupName);
-        configInfo.setTypeMapperGroupMap(typeMapperGroupMap);
+        settings.setCurrTypeMapperGroupName(currGroupName);
+        settings.setTypeMapperGroupMap(typeMapperGroupMap);
     }
 
     @Override
     public void reset() {
-        this.typeMapperGroupMap = cloneUtils.cloneMap(configInfo.getTypeMapperGroupMap());
-        this.currGroupName = configInfo.getCurrTypeMapperGroupName();
+        this.typeMapperGroupMap = cloneUtils.cloneMap(settings.getTypeMapperGroupMap());
+        this.currGroupName = settings.getCurrTypeMapperGroupName();
         init();
     }
 }
