@@ -1,16 +1,27 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.database.psi.DbDataSource;
+import com.intellij.database.psi.DbPsiFacade;
+import com.intellij.database.util.DasUtil;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.config.Settings;
+import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.VelocityUtils;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
 import com.sjhy.plugin.ui.base.BaseItemSelectPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
@@ -180,7 +191,7 @@ public class TemplateSettingPanel implements Configurable {
                 List<Template> templateList = group.get(currGroupName).getElementList();
                 // 新增模板
                 templateList.add(new Template(name, ""));
-                baseItemSelectPanel.reset(templateList, templateList.size()-1);
+                baseItemSelectPanel.reset(templateList, templateList.size() - 1);
             }
 
             @Override
@@ -190,7 +201,7 @@ public class TemplateSettingPanel implements Configurable {
                 template.setName(newName);
                 List<Template> templateList = group.get(currGroupName).getElementList();
                 templateList.add(template);
-                baseItemSelectPanel.reset(templateList, templateList.size()-1);
+                baseItemSelectPanel.reset(templateList, templateList.size() - 1);
             }
 
             @Override
@@ -220,9 +231,47 @@ public class TemplateSettingPanel implements Configurable {
             }
         };
 
+        // 添加调试面板
+        this.addDebugPanel();
+
         mainPanel.add(baseGroupPanel, BorderLayout.NORTH);
         mainPanel.add(baseItemSelectPanel.getComponent(), BorderLayout.CENTER);
         return mainPanel;
+    }
+
+    /**
+     * 添加调试面板
+     */
+    private void addDebugPanel() {
+        // 主面板
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panel.add(new JLabel("实时调试"));
+
+        // 创建下拉框
+        List<String> tableList = new ArrayList<>();
+        List<DbDataSource> dataSourceList = DbPsiFacade.getInstance(project).getDataSources();
+        if (!CollectionUtil.isEmpty(dataSourceList)) {
+            dataSourceList.forEach(dbDataSource -> DasUtil.getTables(dbDataSource).forEach(table -> tableList.add(table.toString())));
+        }
+        ComboBoxModel<String> comboBoxModel = new CollectionComboBoxModel<>(tableList);
+        ComboBox<String> comboBox = new ComboBox<>(comboBoxModel);
+        panel.add(comboBox);
+
+        // 调试动作按钮
+        DefaultActionGroup actionGroup = new DefaultActionGroup(new AnAction(AllIcons.Debugger.ToolConsole) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                Messages.showInfoMessage("实时调试功能正在开发中。。。", MsgValue.TITLE_INFO);
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+                e.getPresentation().setEnabled(comboBox.getSelectedItem() != null);
+            }
+        });
+        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("Template Debug", actionGroup, true);
+        panel.add(actionToolbar.getComponent());
+        baseGroupPanel.add(panel, BorderLayout.EAST);
     }
 
     /**

@@ -2,7 +2,7 @@
 $!mybatisSupport
 
 ##设置保存名称与保存位置
-$!callback.setFileName($tool.append($tableName, "Dao.xml"))
+$!callback.setFileName($tool.append($!{tableInfo.name}, "Dao.xml"))
 $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -18,17 +18,33 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
 
     <!--查询单个-->
     <select id="selectById" resultMap="UserInfoMap">
-        select #allSqlColumn() from $!tableInfo.obj.name
+        select
+          #allSqlColumn()
+
+        from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         <where>
-#addIf($!tableInfo.pkColumn, "and $!column.obj.name = $!column.name,")
+#foreach($column in $tableInfo.pkColumn)
+
+            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
+                and $!column.obj.name = #{$!column.name},
+            </if>
+#end
         </where>
     </select>
 
     <!--查询所有-->
     <select id="selectById" resultMap="UserInfoMap">
-        select #allSqlColumn() from $!tableInfo.obj.name
+        select
+          #allSqlColumn()
+
+        from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         <where>
-#addIf($!tableInfo.fullColumn, "and $!column.obj.name = $!column.name,")
+#foreach($column in $tableInfo.fullColumn)
+
+            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
+                and $!column.obj.name = #{$!column.name},
+            </if>
+#end
         </where>
     </select>
 </mapper>

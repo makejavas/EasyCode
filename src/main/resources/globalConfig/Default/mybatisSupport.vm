@@ -23,13 +23,5 @@
     $tool.call($column.ext.put("jdbcType", $tool.getField($column.obj.dataType, $jdbcType)))
 #end
 
+##定义宏，查询所有列
 #macro(allSqlColumn)#foreach($column in $tableInfo.fullColumn)$column.obj.name#if($velocityHasNext), #end#end#end
-
-##定义宏，mybatis xml条件
-#macro(addIf $columnList, $value)
-    #foreach($column in $columnList)
-            <if test="$column.name != null#if($column.ext.jdbcType=="VARCHAR") and $column.name != ''#end ">
-                #evaluate($value)
-            </if>
-    #end
-#end
