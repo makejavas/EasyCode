@@ -91,6 +91,15 @@ public class GlobalTool extends NameUtils {
     }
 
     /**
+     * 无返回执行，用于消除返回值
+     *
+     * @param obj 接收执行返回值
+     */
+    public void call(Object... obj) {
+
+    }
+
+    /**
      * 获取某个类的所有字段
      *
      * @param cls 类

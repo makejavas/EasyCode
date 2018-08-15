@@ -153,7 +153,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
      * @return 获得的名称，为null表示取消输入
      */
     private String inputItemName(String initValue) {
-        return Messages.showInputDialog(MsgValue.TEMPLATE_NAME_LABEL, MsgValue.TITLE_INFO, Messages.getQuestionIcon(), initValue, new InputValidator() {
+        return Messages.showInputDialog(MsgValue.ITEM_NAME_LABEL, MsgValue.TITLE_INFO, Messages.getQuestionIcon(), initValue, new InputValidator() {
             @Override
             public boolean checkInput(String inputString) {
                 // 非空校验

@@ -3,3 +3,27 @@
 #if($tableInfo.obj.name.startsWith("t_"))
     $!tableInfo.setName($tool.getClassName($tableInfo.obj.name.substring(2)))
 #end
+
+##实现列进行排除
+#set($temp = $tool.newHashSet("testCreateTime", "otherColumn"))
+#foreach($item in $temp)
+    #set($newList = $tool.newArrayList())
+    #foreach($column in $tableInfo.fullColumn)
+        #if($column.name!=$item)
+            ##带有反回值的方法调用时使用$tool.call来消除返回值
+            $tool.call($newList.add($column))
+        #end
+    #end
+    ##重新保存
+    $tableInfo.setFullColumn($newList)
+#end
+
+##对importList进行篡改
+#set($temp = $tool.newHashSet())
+#foreach($column in $tableInfo.fullColumn)
+    #if(!$column.type.startsWith("java.lang."))
+        $temp.add($column.type)
+    #end
+#end
+##覆盖
+#set($importList = $temp)

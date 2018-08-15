@@ -1,0 +1,34 @@
+##引入mybatis支持
+$!mybatisSupport
+
+##设置保存名称与保存位置
+$!callback.setFileName($tool.append($tableName, "Dao.xml"))
+$!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="$!{tableInfo.savePackageName}.dao.$!{tableInfo.name}Dao">
+
+    <resultMap type="$!{tableInfo.savePackageName}.entity.$!{tableInfo.name}" id="$!{tableInfo.name}Map">
+#foreach($column in $tableInfo.fullColumn)
+
+        <result property="$!column.name" column="$!column.obj.name" jdbcType="$!column.ext.jdbcType"/>
+#end
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="selectById" resultMap="UserInfoMap">
+        select #allSqlColumn() from $!tableInfo.obj.name
+        <where>
+#addIf($!tableInfo.pkColumn, "and $!column.obj.name = $!column.name,")
+        </where>
+    </select>
+
+    <!--查询所有-->
+    <select id="selectById" resultMap="UserInfoMap">
+        select #allSqlColumn() from $!tableInfo.obj.name
+        <where>
+#addIf($!tableInfo.fullColumn, "and $!column.obj.name = $!column.name,")
+        </where>
+    </select>
+</mapper>

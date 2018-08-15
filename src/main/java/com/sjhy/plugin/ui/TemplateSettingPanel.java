@@ -267,6 +267,9 @@ public class TemplateSettingPanel implements Configurable {
         // 防止对象篡改，需要进行克隆
         this.group = cloneUtils.cloneMap(settings.getTemplateGroupMap());
         this.currGroupName = settings.getCurrTemplateGroupName();
+        if (baseGroupPanel == null) {
+            return;
+        }
         // 重置元素选择面板
         baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
     }

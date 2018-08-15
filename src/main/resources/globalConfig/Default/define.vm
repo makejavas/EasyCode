@@ -7,7 +7,7 @@
 
 ##定义设置包名后缀的宏定义，调用方式：#setPackageSuffix("Test")
 #macro(setPackageSuffix $suffix)
-#if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}$suffix;
+#if($suffix!="")package #end#if($tableInfo.savePackageName!="")$!{tableInfo.savePackageName}.#{end}$!suffix;
 #end
 
 ##定义直接保存路径与文件名简化的宏定义，调用方式：#save("/entity", ".java")

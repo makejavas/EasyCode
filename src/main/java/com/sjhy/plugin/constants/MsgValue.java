@@ -31,5 +31,5 @@ public class MsgValue {
     /**
      * 模板名称标题
      */
-    public static final String TEMPLATE_NAME_LABEL = "模板名称：";
+    public static final String ITEM_NAME_LABEL = "新名称：";
 }

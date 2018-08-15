@@ -163,6 +163,10 @@ public class TableInfoUtils extends AbstractService {
                 if (columnInfo.getComment() != null) {
                     tableInfo.getFullColumn().get(i).setComment(columnInfo.getComment());
                 }
+                // 对空的Ext进行初始化
+                if (columnInfo.getExt() == null) {
+                    columnInfo.setExt(new HashMap<>(6));
+                }
                 // 添加扩展信息
                 tableInfo.getFullColumn().get(i).setExt(columnInfo.getExt());
             }

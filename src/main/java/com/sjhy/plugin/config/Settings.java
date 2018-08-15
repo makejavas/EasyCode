@@ -116,7 +116,7 @@ public class Settings implements PersistentStateComponent<Settings> {
         if (this.templateGroupMap == null) {
             this.templateGroupMap = new LinkedHashMap<>();
         }
-        this.templateGroupMap.put(DEFAULT_NAME, loadTemplateGroup(DEFAULT_NAME, "entity", "dao", "service", "serviceImpl", "controller"));
+        this.templateGroupMap.put(DEFAULT_NAME, loadTemplateGroup(DEFAULT_NAME, "entity.java", "dao.java", "service.java", "serviceImpl.java", "controller.java", "mapper.xml"));
         this.templateGroupMap.put("MybatisPlus", loadTemplateGroup("MybatisPlus", "entity", "dao", "service", "serviceImpl", "controller"));
 
         //配置默认类型映射
@@ -155,7 +155,7 @@ public class Settings implements PersistentStateComponent<Settings> {
         if (this.globalConfigGroupMap == null) {
             this.globalConfigGroupMap = new LinkedHashMap<>();
         }
-        this.globalConfigGroupMap.put(DEFAULT_NAME, loadGlobalConfigGroup(DEFAULT_NAME, "init", "define", "autoImport"));
+        this.globalConfigGroupMap.put(DEFAULT_NAME, loadGlobalConfigGroup(DEFAULT_NAME, "init", "define", "autoImport", "mybatisSupport"));
     }
 
     /**
