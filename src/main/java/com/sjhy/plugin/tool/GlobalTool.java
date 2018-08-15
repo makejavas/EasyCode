@@ -1,7 +1,5 @@
 package com.sjhy.plugin.tool;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 
@@ -23,9 +21,6 @@ public class GlobalTool extends NameUtils {
      * 私有构造方法
      */
     private GlobalTool() {
-        objectMapper = new ObjectMapper();
-        // 设置空对象不要抛异常
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
 
     /**
@@ -41,11 +36,6 @@ public class GlobalTool extends NameUtils {
         }
         return globalTool;
     }
-
-    /**
-     * jackson格式化工具
-     */
-    private ObjectMapper objectMapper;
 
     /**
      * 创建集合
