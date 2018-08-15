@@ -28,7 +28,7 @@
         comment 列注释 java.lang.String
         type 列类型（类型全名） java.lang.String
         ext 附加字段（Map类型） java.lang.Map&lt;java.lang.String, java.lang.Object&gt;
-    $tableInfoList 所有选中的表
+    $tableInfoList java.util.List&lt;TableInfo&gt;所有选中的表
     $importList 所有需要导入的包集合 java.util.Set&lt;java.lang.String&gt;
     回调
     &callback
@@ -36,14 +36,21 @@
     setSavePath(String) 设置文件储存路径，默认使用选中路径
     工具
     $tool
-    firstUpperCase(String) 首字母大写方法
-    firstLowerCase(String) 首字母小写方法
-    getClsNameByFullName(String) 通过包全名获取类名
-    getJavaName(String) 将下划线分割字符串转驼峰命名(属性名)
-    getClassName(String) 将下划线分割字符串转驼峰命名(类名)
-    append(... Object) 多个数据进行拼接
+        firstUpperCase(String) 首字母大写方法
+        firstLowerCase(String) 首字母小写方法
+        getClsNameByFullName(String) 通过包全名获取类名
+        getJavaName(String) 将下划线分割字符串转驼峰命名(属性名)
+        getClassName(String) 将下划线分割字符串转驼峰命名(类名)
+        append(... Object) 多个数据进行拼接
+        newHashSet(... Object) 创建一个HashSet对象
+        newArrayList(... Object) 创建一个ArrayList对象
+        newLinkedHashMap() 创建一个LinkedHashMap()对象
+        newHashMap() 创建一个HashMap()对象
+        getField(Object, String) 获取对象的属性值,可以访问任意修饰符修饰的属性.配合debug方法使用.
+        call(... Object) 空白执行方法,用于调用某些方法时消除返回值
+        debug(Object) 调式方法,用于查询对象结构.可查看对象所有属性与public方法
     $time
-    currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）
+        currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）
 </pre>
 </body>
 </html>
