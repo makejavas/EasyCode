@@ -173,6 +173,9 @@ public abstract class BaseGroupPanel extends JPanel {
                 String groupName = (String) comboBox.getSelectedItem();
                 //输入新分组名称
                 String newGroupName = inputItemName(groupName + "Copy");
+                if (newGroupName == null) {
+                    return;
+                }
                 copyGroup(newGroupName);
             }
         });
@@ -182,6 +185,9 @@ public abstract class BaseGroupPanel extends JPanel {
             public void actionPerformed(AnActionEvent e) {
                 //输入新分组名称
                 String newGroupName = inputItemName("");
+                if (newGroupName == null) {
+                    return;
+                }
                 createGroup(newGroupName);
             }
         });

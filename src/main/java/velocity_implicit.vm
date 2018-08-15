@@ -5,7 +5,7 @@
 #* @vtlvariable name="modulePath" type="java.lang.String" *#
 #* @vtlvariable name="importList" type="java.util.List<java.lang.String>" *#
 #* @vtlvariable name="callback" type="com.sjhy.plugin.entity.Callback" *#
-#* @vtlvariable name="tool" type="com.sjhy.plugin.tool.NameUtils" *#
+#* @vtlvariable name="tool" type="com.sjhy.plugin.tool.GlobalTool" *#
 #* @vtlvariable name="time" type="com.sjhy.plugin.tool.TimeUtils" *#
 #* @vtlvariable name="tableInfo" type="com.sjhy.plugin.entity.TableInfo" *#
 #* @vtlvariable name="tableInfoList" type="java.util.List<com.sjhy.plugin.entity.TableInfo>" *#
