@@ -50,7 +50,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
      */
     private JBList<String> listPanel;
 
-    public BaseItemSelectPanel(@NotNull List<T> itemList) {
+    protected BaseItemSelectPanel(@NotNull List<T> itemList) {
         this.itemList = itemList;
     }
 

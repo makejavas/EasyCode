@@ -88,7 +88,7 @@ public class TemplateSettingPanel implements Configurable {
      */
     private Project project;
 
-    public TemplateSettingPanel() {
+    TemplateSettingPanel() {
         // 存在打开的项目则使用打开的项目，否则使用默认项目
         ProjectManager projectManager = ProjectManager.getInstance();
         Project[] openProjects = projectManager.getOpenProjects();
@@ -276,7 +276,7 @@ public class TemplateSettingPanel implements Configurable {
      */
     @Override
     public void disposeUIResources() {
-        // 关闭编辑框
+        // 释放编辑框
         if (templateEditor != null) {
             templateEditor.onClose();
         }

@@ -1,0 +1,49 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div>说明文档：</div>
+<pre>
+    属性
+    $packageName 选择的包名 java.lang.String
+    $author 设置中的作者 java.lang.String
+    $encode 设置的编码 java.lang.String
+    $modulePath 选中的module路径 java.lang.String
+    $projectPath 项目绝对路径 java.lang.String
+    对象
+    $tableInfo 表对象
+        obj 表原始对象 com.intellij.database.model.DasTable
+        name 表名（转换后的首字母大写）java.lang.String
+        comment 表注释 java.lang.String
+        fullColumn 所有列 java.util.List&lt;ColumnInfo&gt;
+        pkColumn 主键列 java.util.List&lt;ColumnInfo&gt;
+        otherColumn 其他列 java.util.List&lt;ColumnInfo&gt;,除主键以外的列
+        savePackageName 保存的包名 java.lang.String
+        savePath 保存路径 java.lang.String
+        saveModelName 保存的model名称 java.lang.String
+    columnInfo 列对象
+        obj 列原始对象 com.intellij.database.model.DasColumn
+        name 列名（首字母小写） java.lang.String
+        comment 列注释 java.lang.String
+        type 列类型（类型全名） java.lang.String
+        ext 附加字段（Map类型） java.lang.Map&lt;java.lang.String, java.lang.Object&gt;
+    $tableInfoList 所有选中的表
+    $importList 所有需要导入的包集合 java.util.Set&lt;java.lang.String&gt;
+    回调
+    &callback
+    setFileName(String) 设置文件储存名字
+    setSavePath(String) 设置文件储存路径，默认使用选中路径
+    工具
+    $tool
+    firstUpperCase(String) 首字母大写方法
+    firstLowerCase(String) 首字母小写方法
+    getClsNameByFullName(String) 通过包全名获取类名
+    getJavaName(String) 将下划线分割字符串转驼峰命名(属性名)
+    getClassName(String) 将下划线分割字符串转驼峰命名(类名)
+    append(... Object) 多个数据进行拼接
+    $time
+    currTime(String) 获取当前时间，指定时间格式（默认：yyyy-MM-dd HH:mm:ss）
+</pre>
+</body>
+</html>

@@ -44,7 +44,7 @@ public abstract class BaseGroupPanel extends JPanel {
      *
      * @param groupNameList 分组名称
      */
-    public BaseGroupPanel(@NotNull List<String> groupNameList, String defaultGroupName) {
+    protected BaseGroupPanel(@NotNull List<String> groupNameList, String defaultGroupName) {
         // 使用的布局
         super(new BorderLayout());
         this.groupNameList = groupNameList;
