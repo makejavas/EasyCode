@@ -46,6 +46,7 @@ public class TemplateSettingPanel implements Configurable {
             TEMPLATE_DESCRIPTION_INFO = descriptionInfo;
         }
     }
+
     /**
      * 配置信息
      */
@@ -91,7 +92,7 @@ public class TemplateSettingPanel implements Configurable {
         ProjectManager projectManager = ProjectManager.getInstance();
         Project[] openProjects = projectManager.getOpenProjects();
         // 项目对象
-        this.project = openProjects.length>0?openProjects[0] : projectManager.getDefaultProject();
+        this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
         // 配置服务实例化
         this.configInfo = ConfigInfo.getInstance();
         // 克隆工具实例化
@@ -124,25 +125,50 @@ public class TemplateSettingPanel implements Configurable {
         JPanel mainPanel = new JPanel(new BorderLayout());
 
         // 实例化分组面板
-        this.baseGroupPanel = new BaseGroupPanel(new ArrayList<>(group.keySet())) {
+        this.baseGroupPanel = new BaseGroupPanel(new ArrayList<>(group.keySet()), this.currGroupName) {
             @Override
             protected void createGroup(String name) {
-
+                // 创建分组
+                TemplateGroup templateGroup = new TemplateGroup();
+                templateGroup.setName(name);
+                templateGroup.setElementList(new ArrayList<>());
+                group.put(name, templateGroup);
+                currGroupName = name;
+                baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
+                // 创建空白分组，需要清空输入框
+                templateEditor.reset("empty", "");
             }
 
             @Override
             protected void deleteGroup(String name) {
-
+                // 删除分组
+                group.remove(name);
+                currGroupName = ConfigInfo.DEFAULT_NAME;
+                baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
             }
 
             @Override
             protected void copyGroup(String name) {
-
+                // 复制分组
+                TemplateGroup templateGroup = cloneUtils.clone(group.get(currGroupName));
+                templateGroup.setName(name);
+                currGroupName = name;
+                group.put(name, templateGroup);
+                baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
             }
 
             @Override
             protected void changeGroup(String name) {
-
+                currGroupName = name;
+                if (baseItemSelectPanel == null) {
+                    return;
+                }
+                // 重置模板选择
+                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
+                if (group.get(currGroupName).getElementList().isEmpty()) {
+                    // 没有元素时，需要清空编辑框
+                    templateEditor.reset("empty", "");
+                }
             }
         };
 
@@ -150,17 +176,29 @@ public class TemplateSettingPanel implements Configurable {
         this.baseItemSelectPanel = new BaseItemSelectPanel<Template>(group.get(currGroupName).getElementList()) {
             @Override
             protected void addItem(String name) {
-
+                // 新增模板
+                group.get(currGroupName).getElementList().add(new Template(name, ""));
+                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
             }
 
             @Override
-            protected void copyItem(Template item) {
-
+            protected void copyItem(String newName, Template item) {
+                // 复制模板
+                Template template = cloneUtils.clone(item);
+                template.setName(newName);
+                group.get(currGroupName).getElementList().add(template);
+                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
             }
 
             @Override
             protected void deleteItem(Template item) {
-
+                // 删除模板
+                group.get(currGroupName).getElementList().remove(item);
+                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
+                if (group.get(currGroupName).getElementList().isEmpty()) {
+                    // 没有元素时，需要清空编辑框
+                    templateEditor.reset("empty", "");
+                }
             }
 
             @Override
@@ -173,8 +211,7 @@ public class TemplateSettingPanel implements Configurable {
                     templateEditor.setCallback(() -> onUpdate());
                     baseItemSelectPanel.getRightPanel().add(templateEditor.createComponent(), BorderLayout.CENTER);
                 } else {
-                    // 代码修改回调
-                    templateEditor.setCallback(() -> onUpdate());
+                    // 更新代码
                     templateEditor.reset(item.getName(), item.getCode());
                 }
             }
@@ -190,7 +227,10 @@ public class TemplateSettingPanel implements Configurable {
      */
     private void onUpdate() {
         // 同步修改的代码
-        baseItemSelectPanel.getSelectedItem().setCode(templateEditor.getEditor().getDocument().getText());
+        Template template = baseItemSelectPanel.getSelectedItem();
+        if (template != null) {
+            template.setCode(templateEditor.getEditor().getDocument().getText());
+        }
     }
 
     /**
@@ -224,7 +264,7 @@ public class TemplateSettingPanel implements Configurable {
         this.group = cloneUtils.cloneMap(configInfo.getTemplateGroupMap());
         this.currGroupName = configInfo.getCurrTemplateGroupName();
         // 重置元素选择面板
-        baseItemSelectPanel.reset(this.group.get(this.currGroupName).getElementList());
+        baseGroupPanel.reset(new ArrayList<>(group.keySet()), currGroupName);
     }
 
     /**

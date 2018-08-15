@@ -64,9 +64,10 @@ public abstract class BaseItemSelectPanel<T extends Item> {
     /**
      * 复制元素
      *
+     * @param newName 新名称
      * @param item 元素对象
      */
-    protected abstract void copyItem(T item);
+    protected abstract void copyItem(String newName, T item);
 
     /**
      * 删除多个元素
@@ -152,7 +153,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
      * @return 获得的名称，为null表示取消输入
      */
     private String inputItemName(String initValue) {
-        return Messages.showInputDialog(MsgValue.GROUP_NAME_LABEL, MsgValue.TITLE_INFO, Messages.getQuestionIcon(), initValue, new InputValidator() {
+        return Messages.showInputDialog(MsgValue.TEMPLATE_NAME_LABEL, MsgValue.TITLE_INFO, Messages.getQuestionIcon(), initValue, new InputValidator() {
             @Override
             public boolean checkInput(String inputString) {
                 // 非空校验
@@ -199,12 +200,12 @@ public abstract class BaseItemSelectPanel<T extends Item> {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 T selectedItem = getSelectedItem();
-                //输入元素名称名称
+                //输入元素名称
                 String itemName = inputItemName(selectedItem.getName() + "Copy");
                 if (itemName == null) {
                     return;
                 }
-                copyItem(selectedItem);
+                copyItem(itemName, selectedItem);
             }
 
             @Override

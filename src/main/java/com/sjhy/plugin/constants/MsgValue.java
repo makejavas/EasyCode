@@ -27,4 +27,9 @@ public class MsgValue {
      * 分组名称标题
      */
     public static final String GROUP_NAME_LABEL = "分组名称：";
+
+    /**
+     * 模板名称标题
+     */
+    public static final String TEMPLATE_NAME_LABEL = "模板名称：";
 }
