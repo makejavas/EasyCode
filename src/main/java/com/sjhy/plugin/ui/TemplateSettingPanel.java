@@ -21,6 +21,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -164,7 +165,7 @@ public class TemplateSettingPanel implements Configurable {
                     return;
                 }
                 // 重置模板选择
-                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
+                baseItemSelectPanel.reset(group.get(currGroupName).getElementList(), 0);
                 if (group.get(currGroupName).getElementList().isEmpty()) {
                     // 没有元素时，需要清空编辑框
                     templateEditor.reset("empty", "");
@@ -176,9 +177,10 @@ public class TemplateSettingPanel implements Configurable {
         this.baseItemSelectPanel = new BaseItemSelectPanel<Template>(group.get(currGroupName).getElementList()) {
             @Override
             protected void addItem(String name) {
+                List<Template> templateList = group.get(currGroupName).getElementList();
                 // 新增模板
-                group.get(currGroupName).getElementList().add(new Template(name, ""));
-                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
+                templateList.add(new Template(name, ""));
+                baseItemSelectPanel.reset(templateList, templateList.size()-1);
             }
 
             @Override
@@ -186,15 +188,16 @@ public class TemplateSettingPanel implements Configurable {
                 // 复制模板
                 Template template = cloneUtils.clone(item);
                 template.setName(newName);
-                group.get(currGroupName).getElementList().add(template);
-                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
+                List<Template> templateList = group.get(currGroupName).getElementList();
+                templateList.add(template);
+                baseItemSelectPanel.reset(templateList, templateList.size()-1);
             }
 
             @Override
             protected void deleteItem(Template item) {
                 // 删除模板
                 group.get(currGroupName).getElementList().remove(item);
-                baseItemSelectPanel.reset(group.get(currGroupName).getElementList());
+                baseItemSelectPanel.reset(group.get(currGroupName).getElementList(), 0);
                 if (group.get(currGroupName).getElementList().isEmpty()) {
                     // 没有元素时，需要清空编辑框
                     templateEditor.reset("empty", "");
@@ -257,6 +260,7 @@ public class TemplateSettingPanel implements Configurable {
      */
     @Override
     public void reset() {
+        // 没修改过的清空下不需要重置
         if (!isModified()) {
             return;
         }
@@ -272,7 +276,7 @@ public class TemplateSettingPanel implements Configurable {
      */
     @Override
     public void disposeUIResources() {
-        // 修复兼容性问题
+        // 关闭编辑框
         if (templateEditor != null) {
             templateEditor.onClose();
         }

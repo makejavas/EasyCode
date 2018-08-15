@@ -65,7 +65,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
      * 复制元素
      *
      * @param newName 新名称
-     * @param item 元素对象
+     * @param item    元素对象
      */
     protected abstract void copyItem(String newName, T item);
 
@@ -236,15 +236,16 @@ public abstract class BaseItemSelectPanel<T extends Item> {
     /**
      * 重置方法
      *
-     * @param itemList 元素列表
+     * @param itemList     元素列表
+     * @param selectedIndex 选中的元素下标
      */
-    public void reset(@NotNull List<T> itemList) {
+    public void reset(@NotNull List<T> itemList, int selectedIndex) {
         this.itemList = itemList;
         listPanel.setModel(new CollectionListModel<>(dataConvert()));
 
         // 存在元素时，默认选中第一个元素
         if (!itemList.isEmpty()) {
-            listPanel.setSelectedIndex(0);
+            listPanel.setSelectedIndex(selectedIndex);
         }
     }
 
