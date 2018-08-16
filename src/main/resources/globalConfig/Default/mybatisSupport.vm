@@ -20,7 +20,7 @@
         ##其他类型
         #set($jdbcType="OTHER")
     #end
-    $tool.call($column.ext.put("jdbcType", $tool.getField($column.obj.dataType, $jdbcType)))
+    $tool.call($column.ext.put("jdbcType", $jdbcType))
 #end
 
 ##定义宏，查询所有列
