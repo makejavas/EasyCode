@@ -8,7 +8,6 @@ import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Callback;
-import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import org.apache.velocity.VelocityContext;
@@ -94,18 +93,19 @@ public class VelocityUtils {
             map.forEach(velocityContext::put);
         }
         StringWriter stringWriter = new StringWriter();
-        velocityEngine.setProperty("input.encode", encode);
-        velocityEngine.setProperty("output.encode", encode);
+        // 设置编码
+        velocityEngine.setProperty(VelocityEngine.INPUT_ENCODING, encode);
+        velocityEngine.setProperty(VelocityEngine.OUTPUT_ENCODING, encode);
         velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate", template);
         return stringWriter.toString();
     }
 
     /**
-     * 设置全局参数
+     * 模板自定义变量
      *
-     * @return 全局参数
+     * @return 全局自定义变量
      */
-    private Map<String, Object> handlerMap() {
+    private Map<String, Object> templateVar() {
         Settings settings = Settings.getInstance();
         Map<String, Object> map = new HashMap<>(16);
         // 编码类型
@@ -210,22 +210,14 @@ public class VelocityUtils {
         Settings settings = Settings.getInstance();
         // 获取覆盖的表配置信息
         List<TableInfo> tableInfoList = coverConfigInfo();
+        // 获取选中的模板并克隆一份，防止串改
         List<Template> templateList = CloneUtils.getInstance().cloneList(cacheDataUtils.getSelectTemplate());
         // 预处理加入全局变量
-        templateList.forEach(template -> {
-            String templateContent = template.getCode() + "\n";
-            for (GlobalConfig globalConfig : settings.getGlobalConfigGroupMap().get(settings.getCurrGlobalConfigGroupName()).getElementList()) {
-                // 防止全局变量中存在全局变量名，导致死循环问题，需要介入临时变量:::{name}
-                templateContent = templateContent.replaceAll("\\$!?" + globalConfig.getName() + "([^a-zA-Z0-9])?", ":::{" + globalConfig.getName() + "}$1");
-                templateContent = templateContent.replaceAll("\\$!?\\{" + globalConfig.getName() + "}?", ":::{" + globalConfig.getName() + "}");
-                templateContent = templateContent.replace(":::{" + globalConfig.getName() + "}", globalConfig.getValue());
-            }
-            template.setCode(templateContent);
-        });
+        TemplateUtils.addGlobalConfig(templateList);
         // 获取编码信息
         String encode = settings.getEncode();
         // 获取默认的配置信息
-        Map<String, Object> map = handlerMap();
+        Map<String, Object> map = templateVar();
         // 项目路径
         String projectPath = cacheDataUtils.getProject().getBasePath();
 
