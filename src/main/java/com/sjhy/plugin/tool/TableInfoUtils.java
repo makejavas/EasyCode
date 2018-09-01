@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ExceptionUtil;
@@ -15,7 +16,6 @@ import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -74,24 +74,20 @@ public class TableInfoUtils extends AbstractService {
     private static final String SAVE_PATH = "/.idea/EasyCodeConfig";
 
     /**
-     * 处理方法，默认加载配置
+     * 将DbTable转换成TableInfo
      *
-     * @param dbTables 数据库表信息
-     * @return 表信息
+     * @param dbTables 原始数据对象
+     * @param title    是否提示未知类型
+     * @return 处理后的数据
      */
-    public List<TableInfo> handler(Collection<DbTable> dbTables) {
-        return handler(dbTables, true);
-    }
-
-    /**
-     * 数据库表处理器
-     *
-     * @param dbTables   数据库表
-     * @param loadConfig 是否加载配置信息
-     * @return 处理结果
-     */
-    private List<TableInfo> handler(Collection<DbTable> dbTables, boolean loadConfig) {
-        List<TableInfo> result = new ArrayList<>();
+    public List<TableInfo> toTableInfo(Collection<DbTable> dbTables, boolean title) {
+        if (CollectionUtil.isEmpty(dbTables)) {
+            //noinspection unchecked
+            return Collections.EMPTY_LIST;
+        }
+        // 定义结果
+        List<TableInfo> tableInfoList = new ArrayList<>();
+        // 处理
         dbTables.forEach(dbTable -> {
             TableInfo tableInfo = new TableInfo();
             // 设置原属对象
@@ -113,7 +109,7 @@ public class TableInfoUtils extends AbstractService {
                 // 原始列对象
                 columnInfo.setObj(column);
                 // 列类型
-                columnInfo.setType(getColumnType(column.getDataType().getSpecification()));
+                columnInfo.setType(getColumnType(column.getDataType().getSpecification(), title));
                 // 列名
                 columnInfo.setName(nameUtils.getJavaName(column.getName()));
                 // 列注释
@@ -127,99 +123,179 @@ public class TableInfoUtils extends AbstractService {
                     tableInfo.getOtherColumn().add(columnInfo);
                 }
             }
-            // 判断是否加载配置信息
-            if (!loadConfig) {
-                result.add(tableInfo);
-                return;
-            }
+            tableInfoList.add(tableInfo);
+        });
+        return tableInfoList;
+    }
+
+    /**
+     * 加载配置(用户自定义列与扩张选项)
+     *
+     * @param tableInfoList 原始数据对象
+     * @param project       项目对象
+     * @return 处理后的数据
+     */
+    public List<TableInfo> loadConfig(List<TableInfo> tableInfoList, Project project) {
+        if (CollectionUtil.isEmpty(tableInfoList)) {
+            return tableInfoList;
+        }
+        tableInfoList.forEach(tableInfo -> {
             // 读取附加数据，并进行合并
-            TableInfo tableInfoConfig = readConfig(dbTable);
+            TableInfo tableInfoConfig = read(tableInfo, project);
+            // 返回空直接不处理
             if (tableInfoConfig == null) {
-                result.add(tableInfo);
                 return;
             }
+            // 选择模型名称
+            tableInfo.setSaveModelName(tableInfoConfig.getSaveModelName());
+            // 选择的包名
+            tableInfo.setSavePackageName(tableInfoConfig.getSavePackageName());
+            // 选择的保存路径
+            tableInfo.setSavePath(tableInfoConfig.getSavePath());
+
+            // 没有列时不处理
+            if (CollectionUtil.isEmpty(tableInfoConfig.getFullColumn())) {
+                return;
+            }
+
+            int fullSize = tableInfoConfig.getFullColumn().size();
+            // 所有列
+            List<ColumnInfo> fullColumn = new ArrayList<>(fullSize);
+            int pkSize = tableInfo.getPkColumn().size();
+            // 主键列
+            List<ColumnInfo> pkColumn = new ArrayList<>(pkSize);
+            // 其他列
+            List<ColumnInfo> otherColumn = new ArrayList<>(fullSize - pkSize);
+
+            // 列信息合并
+            Iterator<ColumnInfo> configColumnIterator = tableInfoConfig.getFullColumn().iterator();
+            Iterator<ColumnInfo> columnIterator = tableInfo.getFullColumn().iterator();
+            while (configColumnIterator.hasNext()) {
+                ColumnInfo configColumn = configColumnIterator.next();
+                boolean exists = false;
+                while (columnIterator.hasNext()) {
+                    ColumnInfo column = columnIterator.next();
+                    if (!Objects.equals(configColumn.getName(), column.getName())) {
+                        continue;
+                    }
+                    // 覆盖空列
+                    if (configColumn.getType() == null) {
+                        configColumn.setType(column.getType());
+                    }
+                    if (configColumn.getComment() == null) {
+                        configColumn.setComment(column.getComment());
+                    }
+                    // 列对象覆盖
+                    configColumn.setObj(column.getObj());
+
+                    // 添加自定义列
+                    fullColumn.add(configColumn);
+                    // 是否为主键
+                    if (DasUtil.isPrimary(configColumn.getObj())) {
+                        pkColumn.add(configColumn);
+                    } else {
+                        otherColumn.add(configColumn);
+                    }
+                    exists = true;
+                    break;
+                }
+                if (exists) {
+                    continue;
+                }
+                // 添加自定义列
+                fullColumn.add(configColumn);
+            }
+
+            // 基本配置覆盖
             tableInfo.setSaveModelName(tableInfoConfig.getSaveModelName());
             tableInfo.setSavePackageName(tableInfoConfig.getSavePackageName());
             tableInfo.setSavePath(tableInfoConfig.getSavePath());
 
-
-            if (CollectionUtil.isEmpty(tableInfoConfig.getFullColumn())) {
-                result.add(tableInfo);
-                return;
-            }
-            for (int i = 0; i < tableInfoConfig.getFullColumn().size(); i++) {
-                ColumnInfo columnInfo = tableInfoConfig.getFullColumn().get(i);
-                //自定义附加列
-                if (i > tableInfo.getFullColumn().size() - 1) {
-                    tableInfo.getFullColumn().add(columnInfo);
-                    tableInfo.getOtherColumn().add(columnInfo);
-                    continue;
-                }
-                // 覆盖类型信息
-                if (columnInfo.getType() != null) {
-                    tableInfo.getFullColumn().get(i).setType(columnInfo.getType());
-                }
-                // 覆盖注释信息
-                if (columnInfo.getComment() != null) {
-                    tableInfo.getFullColumn().get(i).setComment(columnInfo.getComment());
-                }
-                // 对空的Ext进行初始化
-                if (columnInfo.getExt() == null) {
-                    columnInfo.setExt(new HashMap<>(6));
-                }
-                // 添加扩展信息
-                tableInfo.getFullColumn().get(i).setExt(columnInfo.getExt());
-            }
-            result.add(tableInfo);
+            // 全部覆盖
+            tableInfo.setFullColumn(fullColumn);
+            tableInfo.setPkColumn(pkColumn);
+            tableInfo.setOtherColumn(otherColumn);
         });
-        return result;
+        return tableInfoList;
+    }
+
+    /**
+     * 加载表配置
+     * @param dbTables 原始表对象
+     * @param project 项目对象
+     * @param title 是否提示未知类型
+     * @return 表信息对象
+     */
+    public List<TableInfo> loadTableInfo(Collection<DbTable> dbTables, Project project, boolean title) {
+        return loadConfig(toTableInfo(dbTables, title), project);
     }
 
     /**
      * 通过映射获取对应的java类型类型名称
      *
      * @param typeName 列类型
+     * @param title    是否提示未知类型
      * @return java类型
      */
-    private String getColumnType(String typeName) {
+    private String getColumnType(String typeName, boolean title) {
         for (TypeMapper typeMapper : getCurrMapper().getElementList()) {
             // 不区分大小写进行类型转换
             if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
                 return typeMapper.getJavaType();
             }
         }
-        //弹出消息框
-        Messages.showWarningDialog("发现未知类型：" + typeName, MsgValue.TITLE_INFO);
+        if (title) {
+            //弹出消息框
+            Messages.showWarningDialog("发现未知类型：" + typeName, MsgValue.TITLE_INFO);
+        }
         return "java.lang.Object";
     }
 
 
     /**
      * 保存数据
+     *
      * @param tableInfo 表信息对象
+     * @param project   项目对象
      */
-    public void save(TableInfo tableInfo) {
+    public void save(TableInfo tableInfo, Project project) {
+        // 获取未修改前的原数据
+        TableInfo oldTableInfo = toTableInfo(Collections.singletonList(tableInfo.getObj()), false).get(0);
+        // 克隆对象，防止串改，同时原始对象丢失
+        tableInfo = CloneUtils.getInstance().clone(tableInfo);
         //排除部分字段，这些字段不进行保存
         tableInfo.setOtherColumn(null);
         tableInfo.setPkColumn(null);
-        //获取原数据
-        TableInfo oldTableInfo = handler(Collections.singletonList(tableInfo.getObj()), false).get(0);
-        //将原始对象置空
-        tableInfo.setObj(null);
-        //将一致的原数据置空，保证数据的动态修改
-        for (int i = 0; i < oldTableInfo.getFullColumn().size(); i++) {
-            ColumnInfo columnInfo = oldTableInfo.getFullColumn().get(i);
-            ColumnInfo newColumn = tableInfo.getFullColumn().get(i);
-            // 类型排除
-            if (Objects.equals(columnInfo.getType(), newColumn.getType())) {
-                newColumn.setType(null);
+        // 获取迭代器
+        Iterator<ColumnInfo> oldColumnIterable = oldTableInfo.getFullColumn().iterator();
+        Iterator<ColumnInfo> columnIterable = tableInfo.getFullColumn().iterator();
+        while (columnIterable.hasNext()) {
+            // 新列
+            ColumnInfo columnInfo = columnIterable.next();
+            // 是否存在
+            boolean exists = false;
+            while (oldColumnIterable.hasNext()) {
+                ColumnInfo oldColumnInfo = oldColumnIterable.next();
+                // 不同列直接返回跳过
+                if (!Objects.equals(oldColumnInfo.getName(), oldColumnInfo.getName())) {
+                    continue;
+                }
+                // 类型排除
+                if (Objects.equals(columnInfo.getType(), oldColumnInfo.getType())) {
+                    columnInfo.setType(null);
+                }
+                // 注释排除
+                if (Objects.equals(columnInfo.getComment(), oldColumnInfo.getComment())) {
+                    columnInfo.setComment(null);
+                }
+                // 列存在，进行处理
+                exists = true;
+                break;
             }
-            // 注释排除
-            if (Objects.equals(columnInfo.getComment(), newColumn.getComment())) {
-                newColumn.setComment(null);
+            // 已经不存在的非自定义列直接删除
+            if (!exists && !columnInfo.isCustom()) {
+                columnIterable.remove();
             }
-            //将原始对象置空
-            newColumn.setObj(null);
         }
         // 获取优雅格式的JSON字符串
         String content = null;
@@ -233,7 +309,7 @@ public class TableInfoUtils extends AbstractService {
             return;
         }
         // 获取或创建保存目录
-        String path = cacheDataUtils.getProject().getBasePath() + SAVE_PATH;
+        String path = project.getBasePath() + SAVE_PATH;
         File dir = new File(path);
         if (!dir.exists()) {
             if (!dir.mkdir()) {
@@ -241,10 +317,8 @@ public class TableInfoUtils extends AbstractService {
                 return;
             }
         }
-        // 获取保存名称
-        String schemaName = DasUtil.getSchema(oldTableInfo.getObj());
-        String fileName = schemaName + "-" + oldTableInfo.getObj().getName() + ".json";
-        File file = new File(dir, fileName);
+        // 获取保存文件
+        File file = new File(dir, getConfigFileName(oldTableInfo.getObj()));
         if (!file.exists()) {
             try {
                 if (!file.createNewFile()) {
@@ -265,22 +339,17 @@ public class TableInfoUtils extends AbstractService {
 
     /**
      * 读取配置文件
-     * @param dbTable 表对象信息
+     *
+     * @param tableInfo 表信息对象
      * @return 读取到的配置信息
      */
-    private TableInfo readConfig(DbTable dbTable) {
+    private TableInfo read(TableInfo tableInfo, Project project) {
         // 获取保存的目录
-        String path = cacheDataUtils.getProject().getBasePath() + SAVE_PATH;
+        String path = project.getBasePath() + SAVE_PATH;
         File dir = new File(path);
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                return null;
-            }
-        }
         // 获取保存的文件
-        String schemaName = DasUtil.getSchema(dbTable);
-        String fileName = schemaName + "-" + dbTable.getName() + ".json";
-        File file = new File(dir, fileName);
+        File file = new File(dir, getConfigFileName(tableInfo.getObj()));
+        // 文件不存在时直接保存一份
         if (!file.exists()) {
             return null;
         }
@@ -289,7 +358,19 @@ public class TableInfoUtils extends AbstractService {
     }
 
     /**
+     * 获取配置文件名称
+     *
+     * @param dbTable 表信息对象
+     * @return 对应的配置文件名称
+     */
+    private String getConfigFileName(DbTable dbTable) {
+        String schemaName = DasUtil.getSchema(dbTable);
+        return schemaName + "-" + dbTable.getName() + ".json";
+    }
+
+    /**
      * 对象还原
+     *
      * @param str 原始JSON字符串
      * @return 解析结果
      */

@@ -1,5 +1,6 @@
 package com.sjhy.plugin.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.intellij.database.model.DasColumn;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class ColumnInfo {
     /**
      * 原始对象
      */
+    @JsonIgnore
     private DasColumn obj;
     /**
      * 名称
@@ -30,6 +32,10 @@ public class ColumnInfo {
      * 类型
      */
     private String type;
+    /**
+     * 标记是否为自定义附加列
+     */
+    private boolean custom;
     /**
      * 扩展数据
      */

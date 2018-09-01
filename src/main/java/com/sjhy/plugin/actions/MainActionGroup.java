@@ -86,9 +86,7 @@ public class MainActionGroup extends ActionGroup {
         }
 
         //保存数据到缓存
-        cacheDataUtils.setProject(project);
         cacheDataUtils.setDbTableList(dbTableList);
-        cacheDataUtils.setModules(modules);
         cacheDataUtils.setSelectDbTable(selectDbTable);
         this.notExistsChildren = false;
         return getMenuList();

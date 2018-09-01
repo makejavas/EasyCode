@@ -1,5 +1,6 @@
 package com.sjhy.plugin.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.intellij.database.psi.DbTable;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class TableInfo {
     /**
      * 原始对象
      */
+    @JsonIgnore
     private DbTable obj;
     /**
      * 表名（首字母大写）

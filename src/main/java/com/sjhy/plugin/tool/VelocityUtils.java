@@ -1,6 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -105,7 +106,7 @@ public class VelocityUtils {
      *
      * @return 全局自定义变量
      */
-    private Map<String, Object> templateVar() {
+    private Map<String, Object> templateVar(Project project) {
         Settings settings = Settings.getInstance();
         Map<String, Object> map = new HashMap<>(16);
         // 编码类型
@@ -113,7 +114,7 @@ public class VelocityUtils {
         // 坐着名称
         String author = settings.getAuthor();
         // 表信息集合
-        List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+        List<TableInfo> tableInfoList = tableInfoUtils.loadTableInfo(cacheDataUtils.getDbTableList(), project, false);
         // 选中的module
         Module selectModule = cacheDataUtils.getSelectModule();
 
@@ -143,7 +144,7 @@ public class VelocityUtils {
             map.put("moduleName", selectModule.getName());
         }
         // 项目路径
-        map.put("projectPath", cacheDataUtils.getProject().getBasePath());
+        map.put("projectPath", project.getBasePath());
         return map;
     }
 
@@ -203,13 +204,13 @@ public class VelocityUtils {
     /**
      * 生成代码
      */
-    public void handler() {
+    public void handler(Project project) {
         if (!createPath(cacheDataUtils.getSavePath())) {
             return;
         }
         Settings settings = Settings.getInstance();
         // 获取覆盖的表配置信息
-        List<TableInfo> tableInfoList = coverConfigInfo();
+        List<TableInfo> tableInfoList = coverConfigInfo(project);
         // 获取选中的模板并克隆一份，防止串改
         List<Template> templateList = CloneUtils.getInstance().cloneList(cacheDataUtils.getSelectTemplate());
         // 预处理加入全局变量
@@ -217,9 +218,9 @@ public class VelocityUtils {
         // 获取编码信息
         String encode = settings.getEncode();
         // 获取默认的配置信息
-        Map<String, Object> map = templateVar();
+        Map<String, Object> map = templateVar(project);
         // 项目路径
-        String projectPath = cacheDataUtils.getProject().getBasePath();
+        String projectPath = project.getBasePath();
 
         tableInfoList.forEach(tableInfo -> {
             Callback callback = new Callback();
@@ -272,7 +273,7 @@ public class VelocityUtils {
      *
      * @return 覆盖后的表配置信息
      */
-    private List<TableInfo> coverConfigInfo() {
+    private List<TableInfo> coverConfigInfo(Project project) {
         // 选择的module名称
         final String moduleName;
         if (cacheDataUtils.getSelectModule() != null) {
@@ -282,7 +283,7 @@ public class VelocityUtils {
         }
 
         AtomicBoolean isSave = new AtomicBoolean(false);
-        List<TableInfo> tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+        List<TableInfo> tableInfoList = tableInfoUtils.loadTableInfo(cacheDataUtils.getDbTableList(), project, false);
 
 
         // 判断路径是否需要是由相对路径
@@ -292,7 +293,7 @@ public class VelocityUtils {
             savePath = savePath.replace("\\", "/");
             cacheDataUtils.setSavePath(savePath);
         }
-        String projectPath = cacheDataUtils.getProject().getBasePath();
+        String projectPath = project.getBasePath();
         if (projectPath!=null) {
             // 兼容Linux路径
             if (projectPath.contains("\\")) {
@@ -329,12 +330,12 @@ public class VelocityUtils {
             tableInfo.setSavePackageName(cacheDataUtils.getPackageName());
             tableInfo.setSaveModelName(moduleName);
             // 保存信息
-            tableInfoUtils.save(tableInfo);
+            tableInfoUtils.save(tableInfo, project);
             isSave.set(true);
         });
         // 保存完毕后需要重新获取数据
         if (isSave.get()) {
-            tableInfoList = tableInfoUtils.handler(cacheDataUtils.getDbTableList());
+            tableInfoList = tableInfoUtils.loadTableInfo(cacheDataUtils.getDbTableList(), project, false);
         }
         // 判断是否进行覆盖，（临时覆盖，不保存）
         if (cacheDataUtils.isUnifiedConfig()) {
