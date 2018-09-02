@@ -32,4 +32,9 @@ public class MsgValue {
      * 模板名称标题
      */
     public static final String ITEM_NAME_LABEL = "新名称：";
+
+    /**
+     * 重置默认设置提示信息
+     */
+    public static final String RESET_DEFAULT_SETTING_MSG = "确认重置默认配置?\n重置默认配置只会还原插件自带分组配置信息，不会删除用户新增分组信息。";
 }

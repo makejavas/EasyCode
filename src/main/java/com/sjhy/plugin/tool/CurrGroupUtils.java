@@ -1,6 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import com.sjhy.plugin.config.Settings;
+import com.sjhy.plugin.entity.ColumnConfigGroup;
 import com.sjhy.plugin.entity.GlobalConfigGroup;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.entity.TypeMapperGroup;
@@ -84,5 +85,27 @@ public final class CurrGroupUtils {
     public static void setTypeMapperGroup(String groupName, TypeMapperGroup typeMapperGroup) {
         typeMapperGroup.setName(groupName);
         Settings.getInstance().getTypeMapperGroupMap().put(groupName, typeMapperGroup);
+    }
+
+    /**
+     * 获取当前列配置组对象
+     *
+     * @return 列配置组对象
+     */
+    public static ColumnConfigGroup getCurrColumnConfigGroup() {
+        Settings settings = Settings.getInstance();
+        String groupName = settings.getCurrColumnConfigGroupName();
+        return settings.getColumnConfigGroupMap().get(groupName);
+    }
+
+    /**
+     * 覆盖或添加列配置组
+     *
+     * @param groupName         组名
+     * @param tolumnConfigGroup 列配置组对象
+     */
+    public static void setColumnConfigGroup(String groupName, ColumnConfigGroup tolumnConfigGroup) {
+        tolumnConfigGroup.setName(groupName);
+        Settings.getInstance().getColumnConfigGroupMap().put(groupName, tolumnConfigGroup);
     }
 }

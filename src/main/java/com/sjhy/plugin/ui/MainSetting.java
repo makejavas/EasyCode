@@ -4,10 +4,9 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.sjhy.plugin.comm.AbstractService;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.config.Settings;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +22,7 @@ import java.util.List;
  * @version 1.0.0
  * @since 2018/07/17 13:10
  */
-public class MainSetting extends AbstractService implements Configurable, Configurable.Composite {
+public class MainSetting implements Configurable, Configurable.Composite {
     /**
      * 主面板
      */
@@ -52,6 +51,11 @@ public class MainSetting extends AbstractService implements Configurable, Config
     private List<Configurable> saveList;
 
     /**
+     * 设置对象
+     */
+    private Settings settings = Settings.getInstance();
+
+    /**
      * 默认构造方法
      */
     public MainSetting() {
@@ -61,16 +65,18 @@ public class MainSetting extends AbstractService implements Configurable, Config
         Settings settings = Settings.getInstance();
         //重置配置信息
         resetBtn.addActionListener(e -> {
-            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "确认重置默认配置?\n重置默认配置只会还原插件自带分组配置信息，不会删除用户新增分组信息。").isYes()) {
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, MsgValue.RESET_DEFAULT_SETTING_MSG).isYes()) {
                 if (CollectionUtil.isEmpty(resetList)) {
                     return;
                 }
                 // 初始化默认配置
                 settings.initDefault();
+                // 重置
                 resetList.forEach(UnnamedConfigurable::reset);
                 if (CollectionUtil.isEmpty(saveList)) {
                     return;
                 }
+                // 保存
                 saveList.forEach(configurable -> {
                     try {
                         configurable.apply();
