@@ -47,7 +47,7 @@ public class $!{tableName} extends ApiController {
      * @return 所有数据
      */
     @GetMapping
-    public ApiResult selectAll(Page<UserInfo> page, $!tableInfo.name $!entityName) {
+    public ApiResult selectAll(Page<$!tableInfo.name> page, $!tableInfo.name $!entityName) {
         return success(this.$!{serviceName}.page(page, new QueryWrapper<>($!entityName)));
     }
 

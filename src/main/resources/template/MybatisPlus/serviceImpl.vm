@@ -11,9 +11,9 @@ $!define
 #setPackageSuffix("service.impl")
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import $!{tableInfo.savePackageName}.dao.UserInfoDao;
-import $!{tableInfo.savePackageName}.entity.UserInfo;
-import $!{tableInfo.savePackageName}.service.UserInfoService;
+import $!{tableInfo.savePackageName}.dao.$!{tableInfo.name}Dao;
+import $!{tableInfo.savePackageName}.entity.$!{tableInfo.name};
+import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
 import org.springframework.stereotype.Service;
 
 ##表注释（宏定义）
