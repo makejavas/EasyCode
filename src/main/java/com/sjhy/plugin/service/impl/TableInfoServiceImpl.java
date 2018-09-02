@@ -95,6 +95,8 @@ public class TableInfoServiceImpl implements TableInfoService {
             columnInfo.setName(nameUtils.getJavaName(column.getName()));
             // 列注释
             columnInfo.setComment(column.getComment());
+            // 扩展项
+            columnInfo.setExt(new LinkedHashMap<>());
             // 添加到全部列
             tableInfo.getFullColumn().add(columnInfo);
             // 主键列添加到主键列，否则添加到其他列
@@ -265,6 +267,10 @@ public class TableInfoServiceImpl implements TableInfoService {
                 // 列存在，进行处理
                 exists = true;
                 break;
+            }
+            // 扩展项不能为空
+            if (columnInfo.getExt() == null) {
+                columnInfo.setExt(new LinkedHashMap<>());
             }
             // 已经不存在的非自定义列直接删除
             if (!exists && !columnInfo.isCustom()) {

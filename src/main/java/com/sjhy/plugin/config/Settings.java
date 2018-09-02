@@ -14,10 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 全局配置信息
@@ -225,7 +222,7 @@ public class Settings implements PersistentStateComponent<Settings> {
         XmlSerializerUtil.copyBean(settings, this);
 
         // 已经合并不再重复合并
-        if (settings.getVersion() != null && settings.getVersion().equals(version)) {
+        if (Objects.equals(settings.getVersion(), version)) {
             return;
         }
 
