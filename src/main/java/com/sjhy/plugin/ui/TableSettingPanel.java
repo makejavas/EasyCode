@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.entity.ColumnConfig;
 import com.sjhy.plugin.entity.ColumnConfigGroup;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Map;
 
 /**
  * 表设置面板
@@ -20,10 +22,9 @@ import javax.swing.*;
  */
 public class TableSettingPanel extends AbstractTableGroupPanel<ColumnConfigGroup, ColumnConfig> implements Configurable {
     private Settings settings = Settings.getInstance();
-    private CloneUtils cloneUtils = CloneUtils.getInstance();
 
     TableSettingPanel() {
-        super(CloneUtils.getInstance().cloneMap(Settings.getInstance().getColumnConfigGroupMap()), Settings.getInstance().getCurrColumnConfigGroupName());
+        super(CloneUtils.cloneByJson(Settings.getInstance().getColumnConfigGroupMap(), new TypeReference<Map<String, ColumnConfigGroup>>() {}), Settings.getInstance().getCurrColumnConfigGroupName());
     }
 
     @Override
@@ -81,7 +82,7 @@ public class TableSettingPanel extends AbstractTableGroupPanel<ColumnConfigGroup
 
     @Override
     public void reset() {
-        this.group = cloneUtils.cloneMap(settings.getColumnConfigGroupMap());
+        this.group = CloneUtils.cloneByJson(settings.getColumnConfigGroupMap(), new TypeReference<Map<String, ColumnConfigGroup>>() {});
         this.currGroupName = settings.getCurrColumnConfigGroupName();
         init();
     }

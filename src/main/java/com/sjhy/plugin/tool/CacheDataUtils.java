@@ -1,8 +1,6 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.database.psi.DbTable;
-import com.intellij.openapi.module.Module;
-import com.sjhy.plugin.entity.Template;
 import lombok.Data;
 
 import java.util.List;
@@ -43,24 +41,4 @@ public class CacheDataUtils {
      * 所有选中的表
      */
     private List<DbTable> dbTableList;
-    /**
-     * 选中的model
-     */
-    private Module selectModule;
-    /**
-     * 保存路径
-     */
-    private String savePath;
-    /**
-     * 设置的包名称
-     */
-    private String packageName;
-    /**
-     * 选中的所有模板
-     */
-    private List<Template> selectTemplate;
-    /**
-     * 是否统一配置
-     */
-    private boolean unifiedConfig;
 }

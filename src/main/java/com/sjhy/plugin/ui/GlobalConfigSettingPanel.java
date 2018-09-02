@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
@@ -79,11 +80,6 @@ public class GlobalConfigSettingPanel implements Configurable {
     private String currGroupName;
 
     /**
-     * 克隆工具
-     */
-    private CloneUtils cloneUtils;
-
-    /**
      * 项目对象
      */
     private Project project;
@@ -99,11 +95,9 @@ public class GlobalConfigSettingPanel implements Configurable {
         this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
         // 配置服务实例化
         this.settings = Settings.getInstance();
-        // 克隆工具实例化
-        this.cloneUtils = CloneUtils.getInstance();
         // 克隆对象
         this.currGroupName = this.settings.getCurrGlobalConfigGroupName();
-        this.group = this.cloneUtils.cloneMap(this.settings.getGlobalConfigGroupMap());
+        this.group = CloneUtils.cloneByJson(this.settings.getGlobalConfigGroupMap(), new TypeReference<Map<String, GlobalConfigGroup>>() {});
     }
 
     /**
@@ -154,7 +148,7 @@ public class GlobalConfigSettingPanel implements Configurable {
             @Override
             protected void copyGroup(String name) {
                 // 复制分组
-                GlobalConfigGroup globalConfigGroup = cloneUtils.clone(group.get(currGroupName));
+                GlobalConfigGroup globalConfigGroup = CloneUtils.cloneByJson(group.get(currGroupName));
                 globalConfigGroup.setName(name);
                 currGroupName = name;
                 group.put(name, globalConfigGroup);
@@ -189,7 +183,7 @@ public class GlobalConfigSettingPanel implements Configurable {
             @Override
             protected void copyItem(String newName, GlobalConfig item) {
                 // 复制模板
-                GlobalConfig globalConfig = cloneUtils.clone(item);
+                GlobalConfig globalConfig = CloneUtils.cloneByJson(item);
                 globalConfig.setName(newName);
                 List<GlobalConfig> globalConfigList = group.get(currGroupName).getElementList();
                 globalConfigList.add(globalConfig);
@@ -268,7 +262,7 @@ public class GlobalConfigSettingPanel implements Configurable {
             return;
         }
         // 防止对象篡改，需要进行克隆
-        this.group = cloneUtils.cloneMap(settings.getGlobalConfigGroupMap());
+        this.group = CloneUtils.cloneByJson(settings.getGlobalConfigGroupMap(), new TypeReference<Map<String, GlobalConfigGroup>>() {});
         this.currGroupName = settings.getCurrGlobalConfigGroupName();
         if (baseGroupPanel == null) {
             return;

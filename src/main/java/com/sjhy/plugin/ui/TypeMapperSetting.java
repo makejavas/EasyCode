@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.MessageDialogBuilder;
@@ -75,15 +76,11 @@ public class TypeMapperSetting implements Configurable {
      * 全局配置服务
      */
     private Settings settings;
-    /**
-     * 克隆工具类
-     */
-    private CloneUtils cloneUtils = CloneUtils.getInstance();
 
 
     public TypeMapperSetting(Settings settings) {
         this.settings = settings;
-        this.typeMapperGroupMap = cloneUtils.cloneMap(settings.getTypeMapperGroupMap());
+        this.typeMapperGroupMap = CloneUtils.cloneByJson(settings.getTypeMapperGroupMap(), new TypeReference<Map<String, TypeMapperGroup>>() {});
         this.currGroupName = settings.getCurrTypeMapperGroupName();
         //添加类型
         addButton.addActionListener(e -> typeMapperModel.addRow(new TypeMapper("demoColumn", "java.lang.Object")));
@@ -136,7 +133,7 @@ public class TypeMapperSetting implements Configurable {
                 return;
             }
             // 克隆对象
-            TypeMapperGroup typeMapperGroup = cloneUtils.clone(typeMapperGroupMap.get(currGroupName));
+            TypeMapperGroup typeMapperGroup = CloneUtils.cloneByJson(typeMapperGroupMap.get(currGroupName));
             typeMapperGroup.setName(value);
             typeMapperGroupMap.put(value, typeMapperGroup);
             currGroupName = value;
@@ -209,7 +206,7 @@ public class TypeMapperSetting implements Configurable {
 
     @Override
     public void reset() {
-        this.typeMapperGroupMap = cloneUtils.cloneMap(settings.getTypeMapperGroupMap());
+        this.typeMapperGroupMap = CloneUtils.cloneByJson(settings.getTypeMapperGroupMap(), new TypeReference<Map<String, TypeMapperGroup>>() {});
         this.currGroupName = settings.getCurrTypeMapperGroupName();
         init();
     }

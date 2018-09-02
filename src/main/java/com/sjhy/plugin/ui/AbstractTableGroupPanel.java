@@ -77,11 +77,6 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
      * 初始化标记
      */
     private boolean initFlag;
-    /**
-     * 克隆工具类
-     */
-    protected CloneUtils cloneUtils = CloneUtils.getInstance();
-
 
     /**
      * 构造方法
@@ -199,7 +194,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
                 return;
             }
             // 克隆对象
-            T groupItem = cloneUtils.clone(group.get(currGroupName));
+            T groupItem = CloneUtils.cloneByJson(group.get(currGroupName));
             groupItem.setName(value);
             group.put(value, groupItem);
             currGroupName = value;

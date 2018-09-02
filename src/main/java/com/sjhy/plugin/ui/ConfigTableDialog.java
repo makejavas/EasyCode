@@ -1,14 +1,15 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.*;
+import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CacheDataUtils;
-import com.sjhy.plugin.config.Settings;
-import com.sjhy.plugin.tool.TableInfoUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
@@ -52,9 +53,9 @@ public class ConfigTableDialog extends JDialog {
      */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
     /**
-     * 表信息工具类
+     * 表信息服务
      */
-    private TableInfoUtils tableInfoUtils = TableInfoUtils.getInstance();
+    private TableInfoService tableInfoService;
     /**
      * 默认的表模型
      */
@@ -77,9 +78,16 @@ public class ConfigTableDialog extends JDialog {
     private Settings settings = Settings.getInstance();
 
     /**
+     * 项目对象
+     */
+    private Project project;
+
+    /**
      * 构造方法
      */
-    public ConfigTableDialog() {
+    public ConfigTableDialog(Project project) {
+        this.project = project;
+        this.tableInfoService = TableInfoService.getInstance(project);
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -108,7 +116,7 @@ public class ConfigTableDialog extends JDialog {
      * 取人按钮回调
      */
     private void onOK() {
-        tableInfoUtils.save(tableInfo);
+        tableInfoService.save(tableInfo);
         // add your code here
         dispose();
     }
@@ -131,7 +139,7 @@ public class ConfigTableDialog extends JDialog {
         // 拿到列配置信息
         columnConfigList = getInitColumn(columnConfigGroup.getElementList());
         //读取表配置信息（一次只能配置一张表）
-        tableInfo = tableInfoUtils.handler(Collections.singletonList(cacheDataUtils.getSelectDbTable())).get(0);
+        tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
 
         refresh();
 

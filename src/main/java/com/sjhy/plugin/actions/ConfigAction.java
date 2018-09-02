@@ -2,6 +2,7 @@ package com.sjhy.plugin.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.sjhy.plugin.ui.ConfigTableDialog;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +30,10 @@ public class ConfigAction extends AnAction {
      */
     @Override
     public void actionPerformed(AnActionEvent event) {
-        new ConfigTableDialog().open();
+        Project project = event.getProject();
+        if (project == null) {
+            return;
+        }
+        new ConfigTableDialog(project).open();
     }
 }

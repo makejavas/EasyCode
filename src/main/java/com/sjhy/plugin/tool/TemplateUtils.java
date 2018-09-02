@@ -4,6 +4,7 @@ import com.sjhy.plugin.entity.GlobalConfig;
 import com.sjhy.plugin.entity.Template;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * 模板工具，主要用于对模板进行预处理
@@ -55,7 +56,7 @@ public final class TemplateUtils {
             return;
         }
         // 模板后面添加换行符号，防止在模板末尾添加全局变量导致无法匹配问题
-        template.setCode(addGlobalConfig(template + "\n", globalConfigs));
+        template.setCode(addGlobalConfig(template.getCode() + "\n", globalConfigs));
     }
 
     /**
@@ -78,5 +79,16 @@ public final class TemplateUtils {
      */
     public static void addGlobalConfig(Collection<Template> templates) {
         addGlobalConfig(templates, CurrGroupUtils.getCurrGlobalConfigGroup().getElementList());
+    }
+
+    /**
+     * 向模板中注入全局变量
+     *
+     * @param template 单个模板
+     */
+    public static void addGlobalConfig(Template template) {
+        if (template != null) {
+            addGlobalConfig(Collections.singleton(template));
+        }
     }
 }

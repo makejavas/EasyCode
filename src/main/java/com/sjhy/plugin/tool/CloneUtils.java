@@ -1,9 +1,12 @@
 package com.sjhy.plugin.tool;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
+import com.sjhy.plugin.entity.ColumnInfo;
+import com.sjhy.plugin.entity.TableInfo;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -36,6 +39,10 @@ public final class CloneUtils {
         if (entity == null) {
             return null;
         }
+        // 没有实现序列化统一使用json方式序列化
+        if (!(entity instanceof Serializable)) {
+            return cloneByJson(entity, false);
+        }
         // 定义一个缓冲输出流对象
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ObjectInputStream input = null;
@@ -62,6 +69,27 @@ public final class CloneUtils {
     }
 
     /**
+     * 通过JSON序列化方式进行克隆，默认不copy忽略对象
+     *
+     * @param entity        实例对象
+     * @param typeReference 返回类型
+     * @return 克隆后的实体对象
+     */
+    public static <E, T extends E> E cloneByJson(E entity, TypeReference<T> typeReference) {
+        return cloneByJson(entity, typeReference, false);
+    }
+
+    /**
+     * 通过JSON序列化方式进行克隆
+     *
+     * @param entity 实例对象
+     * @return 克隆后的实体对象
+     */
+    public static <E> E cloneByJson(E entity) {
+        return cloneByJson(entity, false);
+    }
+
+    /**
      * 通过JSON序列化方式进行克隆
      *
      * @param entity 实例对象
@@ -69,6 +97,18 @@ public final class CloneUtils {
      * @return 克隆后的实体对象
      */
     public static <E> E cloneByJson(E entity, boolean copy) {
+        return cloneByJson(entity, null, copy);
+    }
+
+    /**
+     * 通过JSON序列化方式进行克隆
+     *
+     * @param entity        实例对象
+     * @param copy          是否复制被忽略的属性
+     * @param typeReference 返回类型
+     * @return 克隆后的实体对象
+     */
+    public static <E, T extends E> E cloneByJson(E entity, TypeReference<T> typeReference, boolean copy) {
         if (entity == null) {
             return null;
         }
@@ -77,16 +117,49 @@ public final class CloneUtils {
             // 进行序列化
             String json = objectMapper.writeValueAsString(entity);
             // 进行反序列化
-            E result = (E) objectMapper.readValue(json, entity.getClass());
+            E result;
+            if (typeReference == null) {
+                result = (E) objectMapper.readValue(json, entity.getClass());
+            } else {
+                result = objectMapper.readValue(json, typeReference);
+            }
             // 复制被忽略的属性
             if (copy) {
                 copyIgnoreProp(entity, result);
+                // 针对TableInfo对象做特殊处理
+                if (entity instanceof TableInfo) {
+                    handlerTableInfo((TableInfo) entity, (TableInfo) result);
+                }
             }
             return result;
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         }
         return null;
+    }
+
+    /**
+     * 对TableInfo做特殊处理
+     *
+     * @param oldEntity 旧实体对象
+     * @param newEntity 新实体对象
+     */
+    private static void handlerTableInfo(TableInfo oldEntity, TableInfo newEntity) {
+        List<ColumnInfo> oldColumnInfoList = oldEntity.getFullColumn();
+        List<ColumnInfo> newColumnInfoList = newEntity.getFullColumn();
+        if (CollectionUtil.isEmpty(oldColumnInfoList) || CollectionUtil.isEmpty(newColumnInfoList)) {
+            return;
+        }
+        // 进行处理
+        for (ColumnInfo oldColumnInfo : oldColumnInfoList) {
+            for (ColumnInfo newColumnInfo : newColumnInfoList) {
+                // 对相同的列信息忽略复制
+                if (Objects.equals(oldColumnInfo.getName(), newColumnInfo.getName())) {
+                    copyIgnoreProp(oldColumnInfo, newColumnInfo);
+                    break;
+                }
+            }
+        }
     }
 
     /**

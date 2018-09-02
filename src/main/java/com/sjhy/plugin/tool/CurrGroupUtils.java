@@ -3,6 +3,7 @@ package com.sjhy.plugin.tool;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.entity.GlobalConfigGroup;
 import com.sjhy.plugin.entity.TemplateGroup;
+import com.sjhy.plugin.entity.TypeMapperGroup;
 
 /**
  * 当前分组配置获取工具
@@ -61,5 +62,27 @@ public final class CurrGroupUtils {
     public static void setGlobalConfigGroup(String groupName, GlobalConfigGroup globalConfigGroup) {
         globalConfigGroup.setName(groupName);
         Settings.getInstance().getGlobalConfigGroupMap().put(groupName, globalConfigGroup);
+    }
+
+    /**
+     * 获取当前类型映射组对象
+     *
+     * @return 类型映射组对象
+     */
+    public static TypeMapperGroup getCurrTypeMapperGroup() {
+        Settings settings = Settings.getInstance();
+        String groupName = settings.getCurrTypeMapperGroupName();
+        return settings.getTypeMapperGroupMap().get(groupName);
+    }
+
+    /**
+     * 覆盖或添加类型映射组
+     *
+     * @param groupName         组名
+     * @param typeMapperGroup 类型映射组对象
+     */
+    public static void setTypeMapperGroup(String groupName, TypeMapperGroup typeMapperGroup) {
+        typeMapperGroup.setName(groupName);
+        Settings.getInstance().getTypeMapperGroupMap().put(groupName, typeMapperGroup);
     }
 }

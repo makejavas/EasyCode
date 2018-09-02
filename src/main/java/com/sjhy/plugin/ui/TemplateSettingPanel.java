@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbPsiFacade;
 import com.intellij.database.util.DasUtil;
@@ -15,13 +16,12 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.tool.VelocityUtils;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
 import com.sjhy.plugin.ui.base.BaseItemSelectPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
@@ -90,11 +90,6 @@ public class TemplateSettingPanel implements Configurable {
     private String currGroupName;
 
     /**
-     * 克隆工具
-     */
-    private CloneUtils cloneUtils;
-
-    /**
      * 项目对象
      */
     private Project project;
@@ -107,11 +102,9 @@ public class TemplateSettingPanel implements Configurable {
         this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
         // 配置服务实例化
         this.settings = Settings.getInstance();
-        // 克隆工具实例化
-        this.cloneUtils = CloneUtils.getInstance();
         // 克隆对象
         this.currGroupName = this.settings.getCurrTemplateGroupName();
-        this.group = this.cloneUtils.cloneMap(this.settings.getTemplateGroupMap());
+        this.group = CloneUtils.cloneByJson(this.settings.getTemplateGroupMap(), new TypeReference<Map<String, TemplateGroup>>() {});
     }
 
     /**
@@ -162,7 +155,7 @@ public class TemplateSettingPanel implements Configurable {
             @Override
             protected void copyGroup(String name) {
                 // 复制分组
-                TemplateGroup templateGroup = cloneUtils.clone(group.get(currGroupName));
+                TemplateGroup templateGroup = CloneUtils.cloneByJson(group.get(currGroupName));
                 templateGroup.setName(name);
                 currGroupName = name;
                 group.put(name, templateGroup);
@@ -197,7 +190,7 @@ public class TemplateSettingPanel implements Configurable {
             @Override
             protected void copyItem(String newName, Template item) {
                 // 复制模板
-                Template template = cloneUtils.clone(item);
+                Template template = CloneUtils.cloneByJson(item);
                 template.setName(newName);
                 List<Template> templateList = group.get(currGroupName).getElementList();
                 templateList.add(template);
@@ -314,7 +307,7 @@ public class TemplateSettingPanel implements Configurable {
             return;
         }
         // 防止对象篡改，需要进行克隆
-        this.group = cloneUtils.cloneMap(settings.getTemplateGroupMap());
+        this.group = CloneUtils.cloneByJson(settings.getTemplateGroupMap(), new TypeReference<Map<String, TemplateGroup>>() {});
         this.currGroupName = settings.getCurrTemplateGroupName();
         if (baseGroupPanel == null) {
             return;
