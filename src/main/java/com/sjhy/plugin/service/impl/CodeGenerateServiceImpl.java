@@ -199,7 +199,10 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      * @param tableInfo 表信息对象
      */
     private void setModulePathAndImportList(Map<String, Object> param, TableInfo tableInfo) {
-        Module module = this.moduleManager.findModuleByName(tableInfo.getSaveModelName());
+        Module module = null;
+        if (!StringUtils.isEmpty(tableInfo.getSaveModelName())) {
+            module = this.moduleManager.findModuleByName(tableInfo.getSaveModelName());
+        }
         if (module != null) {
             // 设置modulePath
             param.put("modulePath", ModuleUtil.getModuleDirPath(module));
