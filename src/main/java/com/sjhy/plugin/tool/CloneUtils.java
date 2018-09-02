@@ -12,6 +12,12 @@ import java.io.*;
  * @since 2018/07/17 13:10
  */
 public final class CloneUtils {
+    /**
+     * 禁用构造方法
+     */
+    private CloneUtils() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * 实体对象克隆方法
@@ -20,7 +26,7 @@ public final class CloneUtils {
      * @return 克隆后的实体对象
      */
     @SuppressWarnings("unchecked")
-    public <E> E clone(E entity) {
+    public static <E> E clone(E entity) {
         if (entity == null) {
             return null;
         }
