@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.fileTypes.FileType;
@@ -297,13 +298,29 @@ public class TemplateSettingPanel implements Configurable {
                 PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
                 String fileName = templateEditor.getName();
                 FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
-                PsiFile psiFile = psiFileFactory.createFileFromText(fileName, velocityFileType, code, 0, true);
+                PsiFile psiFile = psiFileFactory.createFileFromText("EasyCodeTemplateDebug.vm.ft", velocityFileType, code, 0, true);
                 // 标识为模板，让velocity跳过语法校验
                 psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(project).getDefaultProperties());
                 Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
                 assert document != null;
-                Editor editor = editorFactory.createEditor(document, project);
+                Editor editor = editorFactory.createEditor(document, project, velocityFileType, true);
                 // 配置编辑框
+                EditorSettings editorSettings = editor.getSettings();
+                // 关闭虚拟空间
+                editorSettings.setVirtualSpace(false);
+                // 关闭标记位置（断点位置）
+                editorSettings.setLineMarkerAreaShown(false);
+                // 关闭缩减指南
+                editorSettings.setIndentGuidesShown(false);
+                // 显示行号
+                editorSettings.setLineNumbersShown(true);
+                // 支持代码折叠
+                editorSettings.setFoldingOutlineShown(true);
+                // 附加行，附加列（提高视野）
+                editorSettings.setAdditionalColumnsCount(3);
+                editorSettings.setAdditionalLinesCount(3);
+                // 不显示换行符号
+                editorSettings.setCaretRowShown(false);
                 ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, new LightVirtualFile(fileName)));
                 // 构建dialog
                 DialogBuilder dialogBuilder = new DialogBuilder(project);
@@ -315,6 +332,7 @@ public class TemplateSettingPanel implements Configurable {
                 dialogBuilder.addDisposable(() -> {
                     //释放掉编辑框
                     editorFactory.releaseEditor(editor);
+                    dialogBuilder.dispose();
                 });
                 dialogBuilder.show();
             }
