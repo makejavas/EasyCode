@@ -1,25 +1,40 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.intellij.database.model.DasTable;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbPsiFacade;
+import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.DialogBuilder;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
+import com.sjhy.plugin.service.CodeGenerateService;
+import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
@@ -34,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 模板编辑主面板
@@ -254,7 +270,53 @@ public class TemplateSettingPanel implements Configurable {
         DefaultActionGroup actionGroup = new DefaultActionGroup(new AnAction(AllIcons.Debugger.ToolConsole) {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                Messages.showInfoMessage("实时调试功能正在开发中。。。", MsgValue.TITLE_INFO);
+                // 获取选中的表
+                String name = (String) comboBox.getSelectedItem();
+                List<DbDataSource> dataSourceList = DbPsiFacade.getInstance(project).getDataSources();
+                DasTable dasTable = null;
+                if (!CollectionUtil.isEmpty(dataSourceList)) {
+                    for (DbDataSource dbDataSource : dataSourceList) {
+                        for (DasTable table : DasUtil.getTables(dbDataSource)) {
+                            if (Objects.equals(table.toString(), name)) {
+                                dasTable = table;
+                            }
+                        }
+                    }
+                }
+                if (dasTable == null) {
+                    return;
+                }
+                DbTable dbTable = (DbTable) DbPsiFacade.getInstance(project).findElement(dasTable);
+                // 获取表信息
+                TableInfo tableInfo = TableInfoService.getInstance(project).getTableInfoAndConfig(dbTable);
+                // 生成代码
+                String code = CodeGenerateService.getInstance(project).generate(new Template("temp", templateEditor.getEditor().getDocument().getText()), tableInfo);
+
+                // 创建编辑框
+                EditorFactory editorFactory = EditorFactory.getInstance();
+                PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
+                String fileName = templateEditor.getName();
+                FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
+                PsiFile psiFile = psiFileFactory.createFileFromText(fileName, velocityFileType, code, 0, true);
+                // 标识为模板，让velocity跳过语法校验
+                psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(project).getDefaultProperties());
+                Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
+                assert document != null;
+                Editor editor = editorFactory.createEditor(document, project);
+                // 配置编辑框
+                ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, new LightVirtualFile(fileName)));
+                // 构建dialog
+                DialogBuilder dialogBuilder = new DialogBuilder(project);
+                dialogBuilder.setTitle(MsgValue.TITLE_INFO);
+                JComponent component = editor.getComponent();
+                component.setPreferredSize(new Dimension(800, 600));
+                dialogBuilder.setCenterPanel(component);
+                dialogBuilder.addCloseButton();
+                dialogBuilder.addDisposable(() -> {
+                    //释放掉编辑框
+                    editorFactory.releaseEditor(editor);
+                });
+                dialogBuilder.show();
             }
 
             @Override

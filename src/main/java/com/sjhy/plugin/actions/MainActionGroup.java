@@ -2,8 +2,6 @@ package com.sjhy.plugin.actions;
 
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.sjhy.plugin.tool.CacheDataUtils;
@@ -56,8 +54,6 @@ public class MainActionGroup extends ActionGroup {
         if (project == null) {
             return getEmptyAnAction();
         }
-        //获取模块列表
-        Module[] modules = ModuleManager.getInstance(project).getModules();
 
         //获取选中的PSI元素
         PsiElement psiElement = event.getData(LangDataKeys.PSI_ELEMENT);
