@@ -25,6 +25,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -103,6 +104,10 @@ public class SelectSavePath extends JDialog {
      * 代码生成服务
      */
     private CodeGenerateService codeGenerateService;
+    /**
+     * 当前项目中的module
+     */
+    private List<Module> moduleList;
 
     /**
      * 构造方法
@@ -112,6 +117,16 @@ public class SelectSavePath extends JDialog {
         this.tableInfoService = TableInfoService.getInstance(project);
         this.codeGenerateService = CodeGenerateService.getInstance(project);
         this.templateGroup = CurrGroupUtils.getCurrTemplateGroup();
+        // 初始化module，存在资源路径的排前面
+        this.moduleList = new LinkedList<>();
+        for (Module module : ModuleManager.getInstance(project).getModules()) {
+            // 存在源代码文件夹放前面，否则放后面
+            if (ModuleUtils.existsSourcePath(module)) {
+                this.moduleList.add(0, module);
+            } else {
+                this.moduleList.add(module);
+            }
+        }
         init();
         setContentPane(contentPane);
         setModal(true);
@@ -222,7 +237,7 @@ public class SelectSavePath extends JDialog {
         allCheckBox.addActionListener(e -> checkBoxList.forEach(jCheckBox -> jCheckBox.setSelected(allCheckBox.isSelected())));
 
         //初始化Module选择
-        for (Module module : ModuleManager.getInstance(project).getModules()) {
+        for (Module module : this.moduleList) {
             moduleComboBox.addItem(module.getName());
         }
 

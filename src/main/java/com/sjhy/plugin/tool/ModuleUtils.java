@@ -38,4 +38,14 @@ public final class ModuleUtils {
         }
         return virtualFileList.get(0);
     }
+
+    /**
+     * 判断模块是否存在源代码文件夹
+     *
+     * @param module 模块对象
+     * @return 是否存在
+     */
+    public static boolean existsSourcePath(Module module) {
+        return !CollectionUtil.isEmpty(ModuleRootManager.getInstance(module).getSourceRoots(JavaSourceRootType.SOURCE));
+    }
 }
