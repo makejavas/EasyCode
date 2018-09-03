@@ -131,7 +131,8 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     return this.checkInput(inputString);
                 }
             });
-            String result = HttpUtils.get(String.format("/template?token=%s", token));
+//            String result = HttpUtils.get(String.format("/template?token=%s", token));
+            String result = "";
             if (result == null) {
                 return;
             }
@@ -163,7 +164,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 // 覆盖提示
                 Messages.showInfoMessage("导入完成", MsgValue.TITLE_INFO);
             } catch (IOException e1) {
-                e1.printStackTrace();
+                ExceptionUtil.rethrow(e1);
             }
         });
 
@@ -277,8 +278,8 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 }
             });
         } catch (IOException e) {
-            ExceptionUtil.rethrow(e);
             Messages.showWarningDialog("JSON解析错误！", MsgValue.TITLE_INFO);
+            ExceptionUtil.rethrow(e);
         }
     }
 

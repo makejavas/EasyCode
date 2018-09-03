@@ -346,8 +346,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         try {
             return objectMapper.readValue(str, TableInfo.class);
         } catch (IOException e) {
-            ExceptionUtil.rethrow(e);
             Messages.showWarningDialog("读取配置失败，JSON反序列化异常。", MsgValue.TITLE_INFO);
+            ExceptionUtil.rethrow(e);
         }
         return null;
     }
