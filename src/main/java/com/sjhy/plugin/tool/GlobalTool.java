@@ -172,4 +172,29 @@ public class GlobalTool extends NameUtils {
         result.put("methodList", debugMethodList);
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result).replace("\r\n", "\n");
     }
+
+    private static final long MAX = 100000000000000000L;
+
+    /**
+     * 生成长度为18位的序列号，保持代码美观
+     *
+     * @return 序列化
+     */
+    public String serial() {
+        Random random = new Random();
+        StringBuilder builder = new StringBuilder();
+        // 正负号生成
+        if (random.nextFloat() > 0.5F) {
+            builder.append("-");
+        }
+        // 首位不能为0
+        builder.append(random.nextInt(9) + 1);
+        // 生成剩余位数
+        do {
+            builder.append(random.nextInt(10));
+        } while (builder.length() < 18);
+        // 加上结束符号
+        builder.append("L");
+        return builder.toString();
+    }
 }
