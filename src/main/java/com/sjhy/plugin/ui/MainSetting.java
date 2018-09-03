@@ -1,19 +1,26 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
+import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.HttpUtils;
+import com.sjhy.plugin.tool.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 主设置面板
@@ -39,6 +46,14 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * 重置默认设置按钮
      */
     private JButton resetBtn;
+    /**
+     * 模板导入按钮
+     */
+    private JButton importBtn;
+    /**
+     * 模板导出按钮
+     */
+    private JButton exportBtn;
 
     /**
      * 重置列表
@@ -85,6 +100,35 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     }
                 });
             }
+        });
+
+        // 模板导入事件
+        importBtn.addActionListener(e -> {
+            String token = Messages.showInputDialog("Token:", MsgValue.TITLE_INFO, AllIcons.General.PasswordLock, "", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    return !StringUtils.isEmpty(inputString);
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
+            String result = HttpUtils.get(String.format("/template?token=%s", token));
+            // 解析数据
+            // 覆盖提示
+            Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
+        });
+
+        // 模板导出事件
+        importBtn.addActionListener(e -> {
+            // 选择要分享的数据
+            Map<String, Object> param = new HashMap<>();
+            // 上传数据
+            String result = HttpUtils.postJson("/template", param);
+            // 参数token
+            Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
         });
     }
 
