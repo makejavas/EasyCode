@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.MsgValue;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -110,6 +111,10 @@ public final class HttpUtils {
         try {
             CloseableHttpResponse response = HTTP_CLIENT.execute(request);
             String body = EntityUtils.toString(response.getEntity());
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Messages.showWarningDialog("连接到服务器错误！", MsgValue.TITLE_INFO);
+                return null;
+            }
             HttpClientUtils.closeQuietly(response);
             // 解析JSON数据
             ObjectMapper objectMapper = new ObjectMapper();

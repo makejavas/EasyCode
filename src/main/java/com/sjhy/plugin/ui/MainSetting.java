@@ -4,23 +4,29 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.*;
+import com.intellij.openapi.ui.ex.MultiLineLabel;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.entity.ColumnConfigGroup;
+import com.sjhy.plugin.entity.GlobalConfigGroup;
+import com.sjhy.plugin.entity.TemplateGroup;
+import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.tool.HttpUtils;
 import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.ui.base.ListCheckboxPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 主设置面板
@@ -74,6 +80,8 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * 默认构造方法
      */
     public MainSetting() {
+        // 获取默认项目
+        Project project = ProjectManager.getInstance().getDefaultProject();
         init();
 
         //初始化事件
@@ -122,14 +130,86 @@ public class MainSetting implements Configurable, Configurable.Composite {
         });
 
         // 模板导出事件
-        importBtn.addActionListener(e -> {
-            // 选择要分享的数据
-            Map<String, Object> param = new HashMap<>();
-            // 上传数据
-            String result = HttpUtils.postJson("/template", param);
-            // 参数token
-            Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
+        exportBtn.addActionListener(e -> {
+            // 创建一行四列的主面板
+            JPanel mainPanel = new JPanel(new GridLayout(1, 4));
+            // Type Mapper
+            ListCheckboxPanel typeMapperPanel = new ListCheckboxPanel("Type Mapper", settings.getTypeMapperGroupMap().keySet());
+            mainPanel.add(typeMapperPanel);
+            // Template
+            ListCheckboxPanel templatePanel = new ListCheckboxPanel("Template", settings.getTemplateGroupMap().keySet());
+            mainPanel.add(templatePanel);
+            // Column Config
+            ListCheckboxPanel columnConfigPanel = new ListCheckboxPanel("Column Config", settings.getColumnConfigGroupMap().keySet());
+            mainPanel.add(columnConfigPanel);
+            // GlobalConfig
+            ListCheckboxPanel globalConfigPanel = new ListCheckboxPanel("Global Config", settings.getGlobalConfigGroupMap().keySet());
+            mainPanel.add(globalConfigPanel);
+            // 构建dialog
+            DialogBuilder dialogBuilder = new DialogBuilder(project);
+            dialogBuilder.setTitle(MsgValue.TITLE_INFO);
+            dialogBuilder.setNorthPanel(new MultiLineLabel("请选择要导出的配置分组："));
+            dialogBuilder.setCenterPanel(mainPanel);
+            dialogBuilder.addActionDescriptor(dialogWrapper -> new AbstractAction("OK") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (!MainSetting.this.isSelected(typeMapperPanel, templatePanel, columnConfigPanel, globalConfigPanel)) {
+                        Messages.showWarningDialog("至少选择一个模板组！", MsgValue.TITLE_INFO);
+                        return;
+                    }
+                    // 打包数据
+                    Map<String, Object> param = new HashMap<>(4);
+
+                    Map<String, TypeMapperGroup> typeMapper = new LinkedHashMap<>();
+                    for (String selectedItem : typeMapperPanel.getSelectedItems()) {
+                        typeMapper.put(selectedItem, settings.getTypeMapperGroupMap().get(selectedItem));
+                    }
+                    param.put("typeMapper", typeMapper);
+
+                    Map<String, TemplateGroup> template = new LinkedHashMap<>();
+                    for (String selectedItem : templatePanel.getSelectedItems()) {
+                        template.put(selectedItem, settings.getTemplateGroupMap().get(selectedItem));
+                    }
+                    param.put("template", template);
+
+                    Map<String, ColumnConfigGroup> columnConfig = new LinkedHashMap<>();
+                    for (String selectedItem : columnConfigPanel.getSelectedItems()) {
+                        columnConfig.put(selectedItem, settings.getColumnConfigGroupMap().get(selectedItem));
+                    }
+                    param.put("columnConfig", columnConfig);
+
+                    Map<String, GlobalConfigGroup> globalConfig = new LinkedHashMap<>();
+                    for (String selectedItem : globalConfigPanel.getSelectedItems()) {
+                        globalConfig.put(selectedItem, settings.getGlobalConfigGroupMap().get(selectedItem));
+                    }
+                    param.put("globalConfig", globalConfig);
+                    // 上传数据
+                    String result = HttpUtils.postJson("/template", param);
+                    // 关闭并退出
+                    dialogWrapper.close(DialogWrapper.OK_EXIT_CODE);
+                    if (result != null) {
+                        // 显示token
+                        Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
+                    }
+                }
+            });
+            dialogBuilder.show();
         });
+    }
+
+    /**
+     * 判断是否选中
+     *
+     * @param checkboxPanels 复选框面板
+     * @return 是否选中
+     */
+    private boolean isSelected(@NotNull ListCheckboxPanel... checkboxPanels) {
+        for (ListCheckboxPanel checkboxPanel : checkboxPanels) {
+            if (!CollectionUtil.isEmpty(checkboxPanel.getSelectedItems())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
