@@ -124,6 +124,9 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 }
             });
             String result = HttpUtils.get(String.format("/template?token=%s", token));
+            if (result == null) {
+                return;
+            }
             // 解析数据
             // 覆盖提示
             Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
