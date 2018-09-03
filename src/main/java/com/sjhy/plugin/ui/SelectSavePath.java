@@ -8,24 +8,22 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiPackage;
-import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.CurrGroupUtils;
+import com.sjhy.plugin.tool.ModuleUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,8 +111,7 @@ public class SelectSavePath extends JDialog {
         this.project = project;
         this.tableInfoService = TableInfoService.getInstance(project);
         this.codeGenerateService = CodeGenerateService.getInstance(project);
-        Settings settings = Settings.getInstance();
-        this.templateGroup = settings.getTemplateGroupMap().get(settings.getCurrTemplateGroupName());
+        this.templateGroup = CurrGroupUtils.getCurrTemplateGroup();
         init();
         setContentPane(contentPane);
         setModal(true);
@@ -178,6 +175,7 @@ public class SelectSavePath extends JDialog {
             Messages.showWarningDialog("Can't Select Save Path!", MsgValue.TITLE_INFO);
             return;
         }
+        // 针对Linux系统路径做处理
         savePath = savePath.replace("\\", "/");
         // 保存路径使用相对路径
         String basePath = project.getBasePath();
@@ -189,8 +187,12 @@ public class SelectSavePath extends JDialog {
         TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
-        tableInfo.setSaveModelName(getSelectModule().getName());
+        Module module = getSelectModule();
+        if (module != null) {
+            tableInfo.setSaveModelName(module.getName());
+        }
         tableInfoService.save(tableInfo);
+
         // 生成代码
         codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), true);
         // 关闭窗口
@@ -242,6 +244,15 @@ public class SelectSavePath extends JDialog {
             }
         });
 
+        // 添加包编辑框失去焦点事件
+        packageField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                // 刷新路径
+                refreshPath();
+            }
+        });
+
         //初始化路径
         refreshPath();
 
@@ -251,7 +262,7 @@ public class SelectSavePath extends JDialog {
             VirtualFile path = project.getBaseDir();
             Module module = getSelectModule();
             if (module != null) {
-                path = VirtualFileManager.getInstance().findFileByUrl("file://" + new File(module.getModuleFilePath()).getParent());
+                path = ModuleUtils.getSourcePath(module);
             }
             VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project, path);
             if (virtualFile != null) {
@@ -270,8 +281,8 @@ public class SelectSavePath extends JDialog {
         }
         String savePath = tableInfo.getSavePath();
         if (!StringUtils.isEmpty(savePath)) {
-            // 判断是否需要凭借项目路径
-            if (savePath.startsWith("./")) {
+            // 判断是否需要拼接项目路径
+            if (savePath.startsWith(StrState.RELATIVE_PATH)) {
                 String projectPath = project.getBasePath();
                 savePath = projectPath + savePath.substring(1);
             }
@@ -286,13 +297,10 @@ public class SelectSavePath extends JDialog {
      */
     private Module getSelectModule() {
         String name = (String) moduleComboBox.getSelectedItem();
-        Module[] modules = ModuleManager.getInstance(project).getModules();
-        for (Module module : modules) {
-            if (module.getName().equals(name)) {
-                return module;
-            }
+        if (StringUtils.isEmpty(name)) {
+            return null;
         }
-        return modules[0];
+        return ModuleManager.getInstance(project).findModuleByName(name);
     }
 
     /**
@@ -304,21 +312,7 @@ public class SelectSavePath extends JDialog {
         Module module = getSelectModule();
         String baseDir = project.getBasePath();
         if (module != null) {
-            baseDir = new File(module.getModuleFilePath()).getParent();
-        }
-        // 针对Mac版路径做优化
-        if (baseDir != null && baseDir.contains("/.idea")) {
-            baseDir = baseDir.substring(0, baseDir.indexOf("/.idea"));
-        }
-        // 针对Maven项目
-        File file = new File(baseDir + "/src/main/java");
-        if (file.exists()) {
-            return file.getAbsolutePath();
-        }
-        // 针对普通Java项目
-        file = new File(baseDir + "/src");
-        if (file.exists()) {
-            return file.getAbsolutePath();
+            baseDir = ModuleUtils.getSourcePath(module).getPath();
         }
         return baseDir;
     }
