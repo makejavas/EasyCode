@@ -1,6 +1,5 @@
 package com.sjhy.plugin.ui;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.icons.AllIcons;
@@ -131,8 +130,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     return this.checkInput(inputString);
                 }
             });
-//            String result = HttpUtils.get(String.format("/template?token=%s", token));
-            String result = "";
+            String result = HttpUtils.get(String.format("/template?token=%s", token));
             if (result == null) {
                 return;
             }
@@ -144,10 +142,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     return;
                 }
                 // 配置覆盖
-                coverConfig(jsonNode, StrState.TYPE_MAPPER, settings.getTypeMapperGroupMap());
-                coverConfig(jsonNode, StrState.TEMPLATE, settings.getTemplateGroupMap());
-                coverConfig(jsonNode, StrState.COLUMN_CONFIG, settings.getColumnConfigGroupMap());
-                coverConfig(jsonNode, StrState.GLOBAL_CONFIG, settings.getGlobalConfigGroupMap());
+                coverConfig(jsonNode, StrState.TYPE_MAPPER, TypeMapperGroup.class, settings.getTypeMapperGroupMap());
+                coverConfig(jsonNode, StrState.TEMPLATE, TemplateGroup.class, settings.getTemplateGroupMap());
+                coverConfig(jsonNode, StrState.COLUMN_CONFIG, ColumnConfigGroup.class, settings.getColumnConfigGroupMap());
+                coverConfig(jsonNode, StrState.GLOBAL_CONFIG, GlobalConfigGroup.class, settings.getGlobalConfigGroupMap());
                 // 重置配置
                 allList.forEach(UnnamedConfigurable::reset);
                 if (CollectionUtil.isEmpty(saveList)) {
@@ -256,27 +254,32 @@ public class MainSetting implements Configurable, Configurable.Composite {
      *
      * @param jsonNode json节点对象
      * @param name     配置组名称
+     * @param cls      配置组类
+     * @param srcGroup 源分组
      */
-    private <T extends AbstractGroup> void coverConfig(@NotNull JsonNode jsonNode, @NotNull String name, @NotNull Map<String, T> srcGroup) {
+    private <T extends AbstractGroup> void coverConfig(@NotNull JsonNode jsonNode, @NotNull String name, Class<T> cls, @NotNull Map<String, T> srcGroup) {
         ObjectMapper objectMapper = new ObjectMapper();
         if (!jsonNode.has(name)) {
             return;
         }
         try {
-            Map<String, T> abstractGroup = objectMapper.readValue(jsonNode.get(name).toString(), new TypeReference<Map<String, T>>() {
-            });
-            if (CollectionUtil.isEmpty(abstractGroup)) {
+            JsonNode node = jsonNode.get(name);
+            if (node.size() == 0) {
                 return;
             }
             // 覆盖配置
-            abstractGroup.forEach((k, v) -> {
-                if (srcGroup.containsKey(v.getName())) {
-                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s模板的%s分组？", name, v.getName())).isYes()) {
+            Iterator<String> names = node.fieldNames();
+            while (names.hasNext()) {
+                String key = names.next();
+                String value = node.get(key).toString();
+                T group = objectMapper.readValue(value, cls);
+                if (srcGroup.containsKey(key)) {
+                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s模板的%s分组？", name, key)).isYes()) {
                         return;
                     }
-                    srcGroup.put(v.getName(), v);
+                    srcGroup.put(key, group);
                 }
-            });
+            }
         } catch (IOException e) {
             Messages.showWarningDialog("JSON解析错误！", MsgValue.TITLE_INFO);
             ExceptionUtil.rethrow(e);
