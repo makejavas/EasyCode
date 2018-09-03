@@ -1,5 +1,8 @@
 package com.sjhy.plugin.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -8,12 +11,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
+import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
-import com.sjhy.plugin.entity.ColumnConfigGroup;
-import com.sjhy.plugin.entity.GlobalConfigGroup;
-import com.sjhy.plugin.entity.TemplateGroup;
-import com.sjhy.plugin.entity.TypeMapperGroup;
+import com.sjhy.plugin.constants.StrState;
+import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.tool.HttpUtils;
 import com.sjhy.plugin.tool.StringUtils;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -70,6 +73,11 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * 需要保存的列表
      */
     private List<Configurable> saveList;
+
+    /**
+     * 所有列表
+     */
+    private List<Configurable> allList;
 
     /**
      * 设置对象
@@ -128,8 +136,35 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 return;
             }
             // 解析数据
-            // 覆盖提示
-            Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode jsonNode = objectMapper.readTree(result);
+                if (jsonNode == null) {
+                    return;
+                }
+                // 配置覆盖
+                coverConfig(jsonNode, StrState.TYPE_MAPPER, settings.getTypeMapperGroupMap());
+                coverConfig(jsonNode, StrState.TEMPLATE, settings.getTemplateGroupMap());
+                coverConfig(jsonNode, StrState.COLUMN_CONFIG, settings.getColumnConfigGroupMap());
+                coverConfig(jsonNode, StrState.GLOBAL_CONFIG, settings.getGlobalConfigGroupMap());
+                // 重置配置
+                allList.forEach(UnnamedConfigurable::reset);
+                if (CollectionUtil.isEmpty(saveList)) {
+                    return;
+                }
+                // 保存
+                allList.forEach(configurable -> {
+                    try {
+                        configurable.apply();
+                    } catch (ConfigurationException e1) {
+                        e1.printStackTrace();
+                    }
+                });
+                // 覆盖提示
+                Messages.showInfoMessage("导入完成", MsgValue.TITLE_INFO);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         });
 
         // 模板导出事件
@@ -167,25 +202,25 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     for (String selectedItem : typeMapperPanel.getSelectedItems()) {
                         typeMapper.put(selectedItem, settings.getTypeMapperGroupMap().get(selectedItem));
                     }
-                    param.put("typeMapper", typeMapper);
+                    param.put(StrState.TYPE_MAPPER, typeMapper);
 
                     Map<String, TemplateGroup> template = new LinkedHashMap<>();
                     for (String selectedItem : templatePanel.getSelectedItems()) {
                         template.put(selectedItem, settings.getTemplateGroupMap().get(selectedItem));
                     }
-                    param.put("template", template);
+                    param.put(StrState.TEMPLATE, template);
 
                     Map<String, ColumnConfigGroup> columnConfig = new LinkedHashMap<>();
                     for (String selectedItem : columnConfigPanel.getSelectedItems()) {
                         columnConfig.put(selectedItem, settings.getColumnConfigGroupMap().get(selectedItem));
                     }
-                    param.put("columnConfig", columnConfig);
+                    param.put(StrState.COLUMN_CONFIG, columnConfig);
 
                     Map<String, GlobalConfigGroup> globalConfig = new LinkedHashMap<>();
                     for (String selectedItem : globalConfigPanel.getSelectedItems()) {
                         globalConfig.put(selectedItem, settings.getGlobalConfigGroupMap().get(selectedItem));
                     }
-                    param.put("globalConfig", globalConfig);
+                    param.put(StrState.GLOBAL_CONFIG, globalConfig);
                     // 上传数据
                     String result = HttpUtils.postJson("/template", param);
                     // 关闭并退出
@@ -213,6 +248,38 @@ public class MainSetting implements Configurable, Configurable.Composite {
             }
         }
         return false;
+    }
+
+    /**
+     * 覆盖配置
+     *
+     * @param jsonNode json节点对象
+     * @param name     配置组名称
+     */
+    private <T extends AbstractGroup> void coverConfig(@NotNull JsonNode jsonNode, @NotNull String name, @NotNull Map<String, T> srcGroup) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        if (!jsonNode.has(name)) {
+            return;
+        }
+        try {
+            Map<String, T> abstractGroup = objectMapper.readValue(jsonNode.get(name).toString(), new TypeReference<Map<String, T>>() {
+            });
+            if (CollectionUtil.isEmpty(abstractGroup)) {
+                return;
+            }
+            // 覆盖配置
+            abstractGroup.forEach((k, v) -> {
+                if (srcGroup.containsKey(v.getName())) {
+                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s模板的%s分组？", name, v.getName())).isYes()) {
+                        return;
+                    }
+                    srcGroup.put(v.getName(), v);
+                }
+            });
+        } catch (IOException e) {
+            ExceptionUtil.rethrow(e);
+            Messages.showWarningDialog("JSON解析错误！", MsgValue.TITLE_INFO);
+        }
     }
 
     /**
@@ -248,6 +315,12 @@ public class MainSetting implements Configurable, Configurable.Composite {
         result[1] = new TemplateSettingPanel();
         result[2] = new TableSettingPanel();
         result[3] = new GlobalConfigSettingPanel();
+        // 所有列表
+        allList = new ArrayList<>();
+        allList.add(result[0]);
+        allList.add(result[1]);
+        allList.add(result[2]);
+        allList.add(result[3]);
         // 需要重置的列表
         resetList = new ArrayList<>();
         resetList.add(result[0]);
