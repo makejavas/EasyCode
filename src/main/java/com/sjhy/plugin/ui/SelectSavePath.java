@@ -81,6 +81,10 @@ public class SelectSavePath extends JDialog {
      */
     private JCheckBox unifiedConfig;
     /**
+     * 禁止提示复选框
+     */
+    private JCheckBox titleConfig;
+    /**
      * 所有模板复选框
      */
     private List<JCheckBox> checkBoxList = new ArrayList<>();
@@ -209,7 +213,7 @@ public class SelectSavePath extends JDialog {
         tableInfoService.save(tableInfo);
 
         // 生成代码
-        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), true);
+        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected());
         // 关闭窗口
         dispose();
     }
