@@ -1,0 +1,14 @@
+//调试表原始对象
+$!tool.debug($tableInfo.obj)
+
+//调试列原始对象
+$!tool.debug($tableInfo.fullColumn.get(0).obj)
+
+//调试列原始列类型
+$!tool.debug($tableInfo.fullColumn.get(0).obj.dataType)
+
+//获取原始列类型中的字段
+sqlType = $!tool.getField($tableInfo.fullColumn.get(0).obj.dataType, "typeName")
+
+//执行原始列类型中的方法
+sqlTypeLen = $!tableInfo.fullColumn.get(0).obj.dataType.getLength()

@@ -1,7 +1,11 @@
 package com.sjhy.plugin.tool;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
+import com.sjhy.plugin.entity.DebugField;
+import com.sjhy.plugin.entity.DebugMethod;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -121,41 +125,51 @@ public class GlobalTool extends NameUtils {
      * @param obj 对象
      * @return 调式JSON结果
      */
-    public String debug(Object obj) {
+    public String debug(Object obj) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> result = new LinkedHashMap<>();
         if (obj == null) {
-            return "null";
+            result.put("title", "调试对象为null");
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
         }
-        StringBuilder builder = new StringBuilder("\n/*调试信息：\nField Item List:\n");
+        // 获取类
         Class<?> cls = obj.getClass();
+        result.put("title", String.format("调试：%s", cls.getName()));
+        // 字段列表
         List<Field> fieldList = getAllFieldByClass(cls);
+        List<DebugField> debugFieldList = new ArrayList<>();
         fieldList.forEach(field -> {
-            field.setAccessible(true);
-            builder.append("field=");
-            builder.append(field.getName());
-            builder.append(",\t\ttype=");
-            builder.append(field.getType());
-            builder.append(",\t\tvalue=");
+            DebugField debugField = new DebugField();
+            debugField.setName(field.getName());
+            debugField.setType(field.getType());
             try {
-                builder.append(field.get(obj));
+                // 设置允许方法
+                field.setAccessible(true);
+                Object val = field.get(obj);
+                if (val == null) {
+                    debugField.setValue(null);
+                } else {
+                    debugField.setValue(val.toString());
+                }
             } catch (IllegalAccessException e) {
                 ExceptionUtil.rethrow(e);
             }
-            builder.append("\n");
+            debugFieldList.add(debugField);
         });
+        result.put("fieldList", debugFieldList);
         // 方法列表
-        builder.append("\nMethod List:\n");
+        List<DebugMethod> debugMethodList = new ArrayList<>();
         // 排除方法
-        List<String> fillterMethodName = Arrays.asList("hashCode", "toString", "equals");
+        List<String> filterMethodName = Arrays.asList("hashCode", "toString", "equals", "getClass", "clone", "notify", "notifyAll", "wait", "finalize");
         for (Method method : cls.getDeclaredMethods()) {
-            if (fillterMethodName.contains(method.getName())) {
+            if (filterMethodName.contains(method.getName())) {
                 continue;
             }
-            builder.append(method.getName());
-            builder.append("=");
-            builder.append(method.toGenericString());
-            builder.append("\n");
+            DebugMethod debugMethod = new DebugMethod();
+            debugMethod.setName(method.getName());
+            debugMethod.setDesc(method.toGenericString());
         }
-        builder.append("*/\n");
-        return builder.toString();
+        result.put("methodList", debugMethodList);
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result).replace("\r\n", "\n");
     }
 }
