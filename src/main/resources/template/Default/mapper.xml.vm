@@ -11,7 +11,6 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
 
     <resultMap type="$!{tableInfo.savePackageName}.entity.$!{tableInfo.name}" id="$!{tableInfo.name}Map">
 #foreach($column in $tableInfo.fullColumn)
-
         <result property="$!column.name" column="$!column.obj.name" jdbcType="$!column.ext.jdbcType"/>
 #end
     </resultMap>
@@ -24,7 +23,6 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
         from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         <where>
 #foreach($column in $tableInfo.pkColumn)
-
             <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
                 and $!column.obj.name = #{$!column.name},
             </if>
@@ -33,14 +31,13 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
     </select>
 
     <!--查询所有-->
-    <select id="selectById" resultMap="UserInfoMap">
+    <select id="selectAll" resultMap="UserInfoMap">
         select
           #allSqlColumn()
 
         from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         <where>
 #foreach($column in $tableInfo.fullColumn)
-
             <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
                 and $!column.obj.name = #{$!column.name},
             </if>
