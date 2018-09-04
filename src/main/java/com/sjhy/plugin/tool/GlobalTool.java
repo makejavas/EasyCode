@@ -208,6 +208,9 @@ public class GlobalTool extends NameUtils {
      */
     @SuppressWarnings("unchecked")
     public Object service(String name, Object... param) {
+        if (StringUtils.isEmpty(name)) {
+            return null;
+        }
         // 组装参数
         Map<String, Object> map = Collections.EMPTY_MAP;
         if (param != null && param.length > 0) {
@@ -217,7 +220,7 @@ public class GlobalTool extends NameUtils {
             }
         }
         // 发起请求
-        String result = HttpUtils.postJson("/service", map);
+        String result = HttpUtils.postJson(String.format("/service?name=%s", name), map);
         if (result == null) {
             return null;
         }
