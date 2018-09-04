@@ -37,7 +37,7 @@ public final class HttpUtils {
     /**
      * 服务器地址
      */
-    private static final String HOST_URL = "http://www.shujuhaiyang.com/easycode";
+    private static final String HOST_URL = "http://www.shujuhaiyang.com/easyCode";
     /**
      * http客户端
      */
