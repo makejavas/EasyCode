@@ -21,6 +21,21 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.0-RELEASE</p>
+      <ul>
+        <li>1.A lot of improvements have been made to user experience.</li>
+        <li>2.Add template debugging function</li>
+        <li>3.Add template to import and export Online</li>
+        <li>4.Optimize Mybatis XML file generation</li>
+        <li>5.Add object attribute method to dynamic debugging function</li>
+      </ul>
+      <ul>
+        <li>1.针对用户体验做了大量改进</li>
+        <li>2.添加模板调试功能</li>
+        <li>3.添加模板在线导入导出功能</li>
+        <li>4.针对Mybatis XML文件生成做优化</li>
+        <li>5.添加对象属性方法动态调试功能</li>
+      </ul>
       <p>1.1.2-SNAPSHOT</p>
       <ul>
         <li>1.This update focuses on optimizing MacOS devices.</li>
