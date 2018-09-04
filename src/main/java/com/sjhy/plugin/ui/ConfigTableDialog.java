@@ -10,6 +10,7 @@ import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.CurrGroupUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
@@ -135,7 +136,7 @@ public class ConfigTableDialog extends JDialog {
      */
     private void init() {
         initFlag = false;
-        ColumnConfigGroup columnConfigGroup = settings.getColumnConfigGroupMap().get(settings.getCurrColumnConfigGroupName());
+        ColumnConfigGroup columnConfigGroup = CurrGroupUtils.getCurrColumnConfigGroup();
         // 拿到列配置信息
         columnConfigList = getInitColumn(columnConfigGroup.getElementList());
         //读取表配置信息（一次只能配置一张表）
@@ -249,6 +250,8 @@ public class ConfigTableDialog extends JDialog {
             ColumnInfo columnInfo = new ColumnInfo();
             columnInfo.setName(value);
             columnInfo.setType("java.lang.String");
+            // 标记为自定义列
+            columnInfo.setCustom(true);
             tableInfo.getFullColumn().add(columnInfo);
             refresh();
         });

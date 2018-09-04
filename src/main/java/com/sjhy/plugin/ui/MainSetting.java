@@ -130,6 +130,9 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     return this.checkInput(inputString);
                 }
             });
+            if (token == null) {
+                return;
+            }
             String result = HttpUtils.get(String.format("/template?token=%s", token));
             if (result == null) {
                 return;
