@@ -217,7 +217,7 @@ public class GlobalTool extends NameUtils {
             }
         }
         // 发起请求
-        String result = HttpUtils.postJson("service", map);
+        String result = HttpUtils.postJson("/service", map);
         if (result == null) {
             return null;
         }
