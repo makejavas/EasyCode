@@ -92,6 +92,8 @@ public class TableInfoServiceImpl implements TableInfoService {
             columnInfo.setObj(column);
             // 列类型
             columnInfo.setType(getColumnType(column.getDataType().getSpecification()));
+            // 短类型
+            columnInfo.setShortType(nameUtils.getClsNameByFullName(columnInfo.getType()));
             // 列名
             columnInfo.setName(nameUtils.getJavaName(column.getName()));
             // 列注释
@@ -175,6 +177,8 @@ public class TableInfoServiceImpl implements TableInfoService {
                 // 覆盖空列
                 if (configColumn.getType() == null) {
                     configColumn.setType(column.getType());
+                    // 短类型
+                    configColumn.setShortType(nameUtils.getClsNameByFullName(configColumn.getType()));
                 }
                 if (configColumn.getComment() == null) {
                     configColumn.setComment(column.getComment());
@@ -291,6 +295,8 @@ public class TableInfoServiceImpl implements TableInfoService {
                 if (Objects.equals(columnInfo.getComment(), oldColumnInfo.getComment())) {
                     columnInfo.setComment(null);
                 }
+                // 不保存短类型
+                columnInfo.setShortType(null);
                 // 列存在，进行处理
                 exists = true;
                 break;

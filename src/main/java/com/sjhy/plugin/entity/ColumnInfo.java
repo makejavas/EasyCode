@@ -29,9 +29,13 @@ public class ColumnInfo {
      */
     private String comment;
     /**
-     * 类型
+     * 全类型
      */
     private String type;
+    /**
+     * 短类型
+     */
+    private String shortType;
     /**
      * 标记是否为自定义附加列
      */

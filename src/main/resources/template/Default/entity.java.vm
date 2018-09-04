@@ -9,10 +9,12 @@ $!define
 
 ##使用全局变量实现默认包导入
 $!autoImport
+import java.io.Serializable;
 
 ##使用宏定义实现类注释信息
 #tableComment("实体类")
-public class $!{tableInfo.name} {
+public class $!{tableInfo.name} implements Serializable {
+    private static final long serialVersionUID = $!tool.serial();
 #foreach($column in $tableInfo.fullColumn)
     #if(${column.comment})//${column.comment}#end
 
