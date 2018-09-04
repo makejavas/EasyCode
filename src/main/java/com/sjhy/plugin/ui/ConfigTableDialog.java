@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
-import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.service.TableInfoService;
@@ -73,21 +72,11 @@ public class ConfigTableDialog extends JDialog {
      * 初始化标记
      */
     private boolean initFlag;
-    /**
-     * 配置信息对象
-     */
-    private Settings settings = Settings.getInstance();
-
-    /**
-     * 项目对象
-     */
-    private Project project;
 
     /**
      * 构造方法
      */
     public ConfigTableDialog(Project project) {
-        this.project = project;
         this.tableInfoService = TableInfoService.getInstance(project);
         setContentPane(contentPane);
         setModal(true);
