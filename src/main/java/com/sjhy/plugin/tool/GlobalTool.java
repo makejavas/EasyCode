@@ -1,12 +1,14 @@
 package com.sjhy.plugin.tool;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.entity.DebugField;
 import com.sjhy.plugin.entity.DebugMethod;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -196,5 +198,44 @@ public class GlobalTool extends NameUtils {
         // 加上结束符号
         builder.append("L");
         return builder.toString();
+    }
+
+    /**
+     * 远程调用服务
+     * @param name 服务名称
+     * @param param 请求参数
+     * @return 结果
+     */
+    @SuppressWarnings("unchecked")
+    public Object service(String name, Object... param) {
+        // 组装参数
+        Map<String, Object> map = Collections.EMPTY_MAP;
+        if (param != null && param.length > 0) {
+            map = new LinkedHashMap<>(param.length);
+            for (int i = 0; i < param.length; i++) {
+                map.put("param" + i, param[0]);
+            }
+        }
+        // 发起请求
+        String result = HttpUtils.postJson("service", map);
+        if (result == null) {
+            return null;
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // 处理结果
+            JsonNode jsonNode = objectMapper.readTree(result);
+            String type = jsonNode.get("type").asText();
+            JsonNode data = jsonNode.get("data");
+            Class cls = Class.forName(type);
+            // 字符串类型
+            if (String.class.equals(cls)) {
+                return data.asText();
+            }
+            // 其他类型
+            return objectMapper.readValue(data.toString(), cls);
+        } catch (IOException | ClassNotFoundException e) {
+            return null;
+        }
     }
 }
