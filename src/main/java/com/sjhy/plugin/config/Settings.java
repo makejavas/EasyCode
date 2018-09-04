@@ -123,6 +123,7 @@ public class Settings implements PersistentStateComponent<Settings> {
         TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
         List<TypeMapper> typeMapperList = new ArrayList<>();
         typeMapperList.add(new TypeMapper("varchar(\\(\\d+\\))?", "java.lang.String"));
+        typeMapperList.add(new TypeMapper("char(\\(\\d+\\))?", "java.lang.String"));
         typeMapperList.add(new TypeMapper("text", "java.lang.String"));
         typeMapperList.add(new TypeMapper("decimal(\\(\\d+\\))?", "java.lang.Double"));
         typeMapperList.add(new TypeMapper("integer", "java.lang.Integer"));
