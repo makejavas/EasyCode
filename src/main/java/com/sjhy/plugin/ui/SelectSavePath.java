@@ -132,6 +132,7 @@ public class SelectSavePath extends JDialog {
             }
         }
         init();
+        setTitle(MsgValue.TITLE_INFO);
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -290,7 +291,7 @@ public class SelectSavePath extends JDialog {
         });
 
         // 获取选中的表信息（鼠标右键的那张表），并提示未知类型
-        TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable(), true);
+        TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         // 设置默认配置信息
         if (!StringUtils.isEmpty(tableInfo.getSaveModelName())) {
             moduleComboBox.setSelectedItem(tableInfo.getSaveModelName());

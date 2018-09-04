@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ExceptionUtil;
@@ -62,11 +64,10 @@ public class TableInfoServiceImpl implements TableInfoService {
      * 通过DbTable获取TableInfo
      *
      * @param dbTable 原始表对象
-     * @param title   是否提示未知类型
      * @return 表信息对象
      */
     @Override
-    public TableInfo getTableInfoByDbTable(DbTable dbTable, boolean title) {
+    public TableInfo getTableInfoByDbTable(DbTable dbTable) {
         if (dbTable == null) {
             return null;
         }
@@ -90,7 +91,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             // 原始列对象
             columnInfo.setObj(column);
             // 列类型
-            columnInfo.setType(getColumnType(column.getDataType().getSpecification(), title));
+            columnInfo.setType(getColumnType(column.getDataType().getSpecification()));
             // 列名
             columnInfo.setName(nameUtils.getJavaName(column.getName()));
             // 列注释
@@ -113,12 +114,11 @@ public class TableInfoServiceImpl implements TableInfoService {
      * 获取表信息并加载配置信息
      *
      * @param dbTable 原始表对象
-     * @param title   是否提示未知类型
      * @return 表信息对象
      */
     @Override
-    public TableInfo getTableInfoAndConfig(DbTable dbTable, boolean title) {
-        TableInfo tableInfo = this.getTableInfoByDbTable(dbTable, title);
+    public TableInfo getTableInfoAndConfig(DbTable dbTable) {
+        TableInfo tableInfo = this.getTableInfoByDbTable(dbTable);
         // 加载配置
         this.loadConfig(tableInfo);
         return tableInfo;
@@ -210,23 +210,50 @@ public class TableInfoServiceImpl implements TableInfoService {
      * 通过映射获取对应的java类型类型名称
      *
      * @param typeName 列类型
-     * @param title    是否提示未知类型
      * @return java类型
      */
-    private String getColumnType(String typeName, boolean title) {
+    private String getColumnType(String typeName) {
         for (TypeMapper typeMapper : CurrGroupUtils.getCurrTypeMapperGroup().getElementList()) {
             // 不区分大小写进行类型转换
             if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
                 return typeMapper.getJavaType();
             }
         }
-        if (title) {
-            //弹出消息框
-            Messages.showWarningDialog("发现未知类型：" + typeName, MsgValue.TITLE_INFO);
-        }
+        // 没找到直接返回Object
         return "java.lang.Object";
     }
 
+    /**
+     * 类型校验，如果存在未知类型则引导用于去条件类型
+     *
+     * @param dbTable 原始表对象
+     * @return 是否验证通过
+     */
+    @Override
+    public boolean typeValidator(DbTable dbTable) {
+        // 处理所有列
+        JBIterable<? extends DasColumn> columns = DasUtil.getColumns(dbTable);
+        List<TypeMapper> typeMapperList = CurrGroupUtils.getCurrTypeMapperGroup().getElementList();
+
+        FLAG:
+        for (DasColumn column : columns) {
+            String typeName = column.getDataType().getSpecification();
+            for (TypeMapper typeMapper : typeMapperList) {
+                // 不区分大小写查找类型
+                if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
+                    continue FLAG;
+                }
+            }
+            // 没找到类型，引导用户去添加类型
+            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("数据库类型%s，没有找到映射关系，是否去添加？", typeName)).isYes()) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, "Type Mapper");
+                return false;
+            }
+            // 用户取消添加
+            return true;
+        }
+        return true;
+    }
 
     /**
      * 保存数据

@@ -31,24 +31,14 @@ public interface TableInfoService {
     static TableInfoService getInstance(@NotNull Project project) {
         return ServiceManager.getService(project, TableInfoService.class);
     }
+
     /**
      * 通过DbTable获取TableInfo
      *
      * @param dbTable 原始表对象
-     * @param title   是否提示未知类型
      * @return 表信息对象
      */
-    TableInfo getTableInfoByDbTable(DbTable dbTable, boolean title);
-
-    /**
-     * 通过DbTable获取TableInfo，默认不提示未知类型
-     *
-     * @param dbTable 原始表对象
-     * @return 表信息对象
-     */
-    default TableInfo getTableInfoByDbTable(DbTable dbTable) {
-        return this.getTableInfoByDbTable(dbTable, false);
-    }
+    TableInfo getTableInfoByDbTable(DbTable dbTable);
 
     /**
      * 通过DbTable获取TableInfo
@@ -57,69 +47,44 @@ public interface TableInfoService {
      * @return 表信息对象
      */
     default List<TableInfo> getTableInfoByDbTable(Collection<DbTable> dbTables) {
-        return getTableInfoByDbTable(dbTables, false);
-    }
-
-    /**
-     * 通过DbTable获取TableInfo
-     *
-     * @param dbTables 原始表对象
-     * @param title    是否提示未知类型
-     * @return 表信息对象
-     */
-    default List<TableInfo> getTableInfoByDbTable(Collection<DbTable> dbTables, boolean title) {
         if (CollectionUtil.isEmpty(dbTables)) {
             return Collections.EMPTY_LIST;
         }
         List<TableInfo> tableInfoList = new ArrayList<>(dbTables.size());
-        dbTables.forEach(dbTable -> tableInfoList.add(this.getTableInfoByDbTable(dbTable, title)));
+        dbTables.forEach(dbTable -> tableInfoList.add(this.getTableInfoByDbTable(dbTable)));
         return tableInfoList;
-    }
-
-    /**
-     * 获取表信息并加载配置信息，默认不提示未知类型
-     *
-     * @param dbTable 原始表对象
-     * @return 表信息对象
-     */
-    default TableInfo getTableInfoAndConfig(DbTable dbTable) {
-        return getTableInfoAndConfig(dbTable, false);
     }
 
     /**
      * 获取表信息并加载配置信息
      *
      * @param dbTable 原始表对象
-     * @param title 是否提示未知类型
      * @return 表信息对象
      */
-    TableInfo getTableInfoAndConfig(DbTable dbTable, boolean title);
+    TableInfo getTableInfoAndConfig(DbTable dbTable);
 
     /**
-     * 获取表信息并加载配置信息，默认不提示未知类型
+     * 获取表信息并加载配置信息
      *
      * @param dbTables 原始表对象
      * @return 表信息对象
      */
     default List<TableInfo> getTableInfoAndConfig(Collection<DbTable> dbTables) {
-        return getTableInfoAndConfig(dbTables, false);
-    }
-
-    /**
-     * 获取表信息并加载配置信息
-     *
-     * @param dbTables 原始表对象
-     * @param title 是否提示未知类型
-     * @return 表信息对象
-     */
-    default List<TableInfo> getTableInfoAndConfig(Collection<DbTable> dbTables, boolean title) {
         if (CollectionUtil.isEmpty(dbTables)) {
             return Collections.EMPTY_LIST;
         }
         List<TableInfo> tableInfoList = new ArrayList<>(dbTables.size());
-        dbTables.forEach(dbTable -> tableInfoList.add(this.getTableInfoAndConfig(dbTable, title)));
+        dbTables.forEach(dbTable -> tableInfoList.add(this.getTableInfoAndConfig(dbTable)));
         return tableInfoList;
     }
+
+    /**
+     * 类型校验，如果存在未知类型则引导用于去条件类型
+     *
+     * @param dbTable 原始表对象
+     * @return 是否验证通过
+     */
+    boolean typeValidator(DbTable dbTable);
 
     /**
      * 保存数据

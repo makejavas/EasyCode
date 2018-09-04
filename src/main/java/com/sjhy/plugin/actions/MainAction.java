@@ -3,6 +3,8 @@ package com.sjhy.plugin.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.sjhy.plugin.service.TableInfoService;
+import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.ui.SelectSavePath;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +34,12 @@ public class MainAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getProject();
         if (project == null) {
+            return;
+        }
+
+        // 校验类型映射
+        if (!TableInfoService.getInstance(project).typeValidator(CacheDataUtils.getInstance().getSelectDbTable())) {
+            // 没通过不打开窗口
             return;
         }
         //开始处理
