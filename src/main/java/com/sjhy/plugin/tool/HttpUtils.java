@@ -3,6 +3,7 @@ package com.sjhy.plugin.tool;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.MsgValue;
@@ -34,6 +35,10 @@ public final class HttpUtils {
      * 用户设备标识
      */
     private static final String USER_AGENT = "EasyCode";
+    /**
+     * 内容类型标记
+     */
+    private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
     /**
      * 服务器地址
      */
@@ -69,6 +74,7 @@ public final class HttpUtils {
     public static String get(String uri) {
         HttpGet httpGet = new HttpGet(HOST_URL + uri);
         httpGet.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
+        httpGet.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpGet.setConfig(getDefaultConfig());
         return handlerRequest(httpGet);
     }
@@ -83,6 +89,7 @@ public final class HttpUtils {
     public static String postJson(String uri, Map<String, Object> param) {
         HttpPost httpPost = new HttpPost(HOST_URL + uri);
         httpPost.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpPost.setConfig(getDefaultConfig());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -120,7 +127,11 @@ public final class HttpUtils {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(body);
             if (jsonNode.get(STATE_CODE).asInt() == 1) {
-                return jsonNode.get("data").toString();
+                JsonNode data = jsonNode.get("data");
+                if (data instanceof TextNode) {
+                    return data.asText();
+                }
+                return data.toString();
             }
             // 获取错误消息
             String msg = jsonNode.get("msg").asText();
