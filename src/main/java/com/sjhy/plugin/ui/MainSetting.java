@@ -277,7 +277,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 String value = node.get(key).toString();
                 T group = objectMapper.readValue(value, cls);
                 if (srcGroup.containsKey(key)) {
-                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s模板的%s分组？", name, key)).isYes()) {
+                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s配置中的%s分组？", name, key)).isYes()) {
                         return;
                     }
                     srcGroup.put(key, group);
