@@ -34,6 +34,7 @@ public class $!{tableName} implements $!{tableInfo.name}Service {
      * @param $!pk.name 主键
      * @return 实例对象
      */
+    @Override
     public $!{tableInfo.name} queryById($!pk.shortType $!pk.name) {
         return this.$!{tool.firstLowerCase($!{tableInfo.name})}Dao.queryById($!pk.name);
     }
@@ -45,6 +46,7 @@ public class $!{tableName} implements $!{tableInfo.name}Service {
      * @param limit 查询条数
      * @return 对象列表
      */
+    @Override
     public List<$!{tableInfo.name}> queryAllByLimit(int offset, int limit) {
         return this.$!{tool.firstLowerCase($!{tableInfo.name})}Dao.queryAllByLimit(offset, limit);
     }
@@ -55,6 +57,7 @@ public class $!{tableName} implements $!{tableInfo.name}Service {
      * @param $!tool.firstLowerCase($!{tableInfo.name}) 实例对象
      * @return 实例对象
      */
+    @Override
     public $!{tableInfo.name} insert($!{tableInfo.name} $!tool.firstLowerCase($!{tableInfo.name})) {
         this.$!{tool.firstLowerCase($!{tableInfo.name})}Dao.insert($!tool.firstLowerCase($!{tableInfo.name}));
         return $!tool.firstLowerCase($!{tableInfo.name});
@@ -66,6 +69,7 @@ public class $!{tableName} implements $!{tableInfo.name}Service {
      * @param $!tool.firstLowerCase($!{tableInfo.name}) 实例对象
      * @return 实例对象
      */
+    @Override
     public $!{tableInfo.name} update($!{tableInfo.name} $!tool.firstLowerCase($!{tableInfo.name})) {
         this.$!{tool.firstLowerCase($!{tableInfo.name})}Dao.update($!tool.firstLowerCase($!{tableInfo.name}));
         return this.queryById($!{tool.firstLowerCase($!{tableInfo.name})}.get$!tool.firstUpperCase($pk.name)());
@@ -77,6 +81,7 @@ public class $!{tableName} implements $!{tableInfo.name}Service {
      * @param $!pk.name 主键
      * @return 是否成功
      */
+    @Override
     public boolean deleteById($!pk.shortType $!pk.name) {
         return this.$!{tool.firstLowerCase($!{tableInfo.name})}Dao.deleteById($!pk.name) > 0;
     }

@@ -19,14 +19,14 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
     </resultMap>
 
     <!--查询单个-->
-    <select id="queryById" resultMap="UserInfoMap">
+    <select id="queryById" resultMap="$!{tableInfo.name}Map">
         select
           #allSqlColumn()
 
         from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         <where>
 #foreach($column in $tableInfo.pkColumn)
-            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
+            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
                 and $!column.obj.name = #{$!column.name},
             </if>
 #end
@@ -34,7 +34,7 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
     </select>
 
     <!--查询指定行数据-->
-    <select id="queryAllByLimit" resultMap="UserInfoMap">
+    <select id="queryAllByLimit" resultMap="$!{tableInfo.name}Map">
         select
         #allSqlColumn()
 
@@ -43,14 +43,14 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
     </select>
 
     <!--通过实体作为筛选条件查询-->
-    <select id="queryAll" resultMap="UserInfoMap">
+    <select id="queryAll" resultMap="$!{tableInfo.name}Map">
         select
           #allSqlColumn()
 
         from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         <where>
 #foreach($column in $tableInfo.fullColumn)
-            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
+            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
                 and $!column.obj.name = #{$!column.name},
             </if>
 #end
@@ -68,7 +68,7 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
         update $!{tableInfo.obj.parent.name}.$!{tableInfo.obj.name}
         <set>
 #foreach($column in $tableInfo.otherColumn)
-            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end ">
+            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
                 and $!column.obj.name = #{$!column.name},
             </if>
 #end
