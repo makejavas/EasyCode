@@ -287,7 +287,14 @@ public class TemplateSettingPanel implements Configurable {
                 if (dasTable == null) {
                     return;
                 }
-                DbTable dbTable = (DbTable) DbPsiFacade.getInstance(project).findElement(dasTable);
+                DbTable dbTable;
+                if (dasTable instanceof DbTable) {
+                    // 针对2017版本
+                    dbTable = (DbTable) dasTable;
+                } else {
+                    // 针对2018版本
+                    dbTable = (DbTable) DbPsiFacade.getInstance(project).findElement(dasTable);
+                }
                 // 获取表信息
                 TableInfo tableInfo = TableInfoService.getInstance(project).getTableInfoAndConfig(dbTable);
                 // 生成代码
