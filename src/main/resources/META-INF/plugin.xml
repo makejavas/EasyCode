@@ -104,13 +104,15 @@
     ]]></change-notes>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="171"/>
+    <idea-version since-build="172"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
+
     -->
+    <!--必须为企业版-->
+    <depends>com.intellij.modules.lang</depends>
     <!--必须依赖Database Tool插件-->
     <depends>com.intellij.database</depends>
     <!--必须依赖Velocity插件-->

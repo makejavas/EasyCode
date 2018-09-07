@@ -1,6 +1,7 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.intellij.database.model.DasObject;
 import com.intellij.database.model.DasTable;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbPsiFacade;
@@ -23,12 +24,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ExceptionUtil;
+import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.TableInfo;
@@ -47,6 +50,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -287,13 +292,22 @@ public class TemplateSettingPanel implements Configurable {
                 if (dasTable == null) {
                     return;
                 }
-                DbTable dbTable;
+                DbTable dbTable = null;
                 if (dasTable instanceof DbTable) {
-                    // 针对2017版本
+                    // 针对2017.2版本做兼容
                     dbTable = (DbTable) dasTable;
                 } else {
-                    // 针对2018版本
-                    dbTable = (DbTable) DbPsiFacade.getInstance(project).findElement(dasTable);
+                    Method method = ReflectionUtil.getMethod(DbPsiFacade.class, "findElement", DasObject.class);
+                    if (method == null) {
+                        Messages.showWarningDialog("findElement method not found", MsgValue.TITLE_INFO);
+                        return;
+                    }
+                    try {
+                        // 针对2017.2以上版本做兼容
+                        dbTable = (DbTable) method.invoke(DbPsiFacade.getInstance(project), dasTable);
+                    } catch (IllegalAccessException|InvocationTargetException e1) {
+                        ExceptionUtil.rethrow(e1);
+                    }
                 }
                 // 获取表信息
                 TableInfo tableInfo = TableInfoService.getInstance(project).getTableInfoAndConfig(dbTable);
