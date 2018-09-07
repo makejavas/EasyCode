@@ -5,6 +5,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
@@ -64,8 +65,17 @@ public class VelocityUtils {
         // 设置编码
         velocityEngine.setProperty(VelocityEngine.INPUT_ENCODING, settings.getEncode());
         velocityEngine.setProperty(VelocityEngine.OUTPUT_ENCODING, settings.getEncode());
-        // 生成代码
-        velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate", template);
+        try {
+            // 生成代码
+            velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate", template);
+        } catch (Exception e) {
+            // 将异常全部捕获，直接返回，用于写入模板
+            StringBuilder builder = new StringBuilder("在生成代码时，模板发生了如下语法错误：\n");
+            StringWriter writer = new StringWriter();
+            e.printStackTrace(new PrintWriter(writer));
+            builder.append(writer.toString());
+            return builder.toString().replace("\r", "");
+        }
         // 返回结果
         return stringWriter.toString();
     }
