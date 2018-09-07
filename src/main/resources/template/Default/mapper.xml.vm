@@ -6,7 +6,9 @@ $!callback.setFileName($tool.append($!{tableInfo.name}, "Dao.xml"))
 $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
 
 ##拿到主键
-#set($pk = $tableInfo.pkColumn.get(0))
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $tableInfo.pkColumn.get(0))
+#end
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
