@@ -8,6 +8,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Velocity工具类，主要用于代码生成
@@ -17,36 +18,24 @@ import java.util.Map;
  * @since 2018/07/17 13:10
  */
 public class VelocityUtils {
-    private volatile static VelocityUtils velocityUtils;
-
     /**
-     * 单例模式
+     * velocity配置
      */
-    public static VelocityUtils getInstance() {
-        if (velocityUtils == null) {
-            synchronized (VelocityUtils.class) {
-                if (velocityUtils == null) {
-                    velocityUtils = new VelocityUtils();
-                }
-            }
-        }
-        return velocityUtils;
+    private static final Properties INIT_PROP;
+    static {
+        // 设置初始化配置
+        INIT_PROP = new Properties();
+        // 修复部分用户的velocity日志记录无权访问velocity.log文件问题
+        INIT_PROP.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        INIT_PROP.setProperty("runtime.log.logsystem.log4j.logger", "velocity");
     }
 
     /**
-     * 私有构造方法
+     * 禁止创建实例对象
      */
     private VelocityUtils() {
-        velocityEngine = new VelocityEngine();
-        // 修复部分用户的velocity日志记录无权访问velocity.log文件问题
-        velocityEngine.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
-        velocityEngine.setProperty("runtime.log.logsystem.log4j.logger", "velocity");
+        throw new UnsupportedOperationException();
     }
-
-    /**
-     * Velocity引擎
-     */
-    private final VelocityEngine velocityEngine;
 
     /**
      * 渲染模板
@@ -55,7 +44,10 @@ public class VelocityUtils {
      * @param map      参数集合
      * @return 渲染结果
      */
-    public String generate(String template, Map<String, Object> map) {
+    public static String generate(String template, Map<String, Object> map) {
+        // 每次创建一个新实例，防止velocity缓存宏定义
+        VelocityEngine velocityEngine = new VelocityEngine(INIT_PROP);
+        // 创建上下文对象
         VelocityContext velocityContext = new VelocityContext();
         Settings settings = Settings.getInstance();
         if (map != null) {

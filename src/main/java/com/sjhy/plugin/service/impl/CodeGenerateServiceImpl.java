@@ -31,10 +31,6 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      */
     private Project project;
     /**
-     * Velocity模板工具
-     */
-    private VelocityUtils velocityUtils;
-    /**
      * 模型管理
      */
     private ModuleManager moduleManager;
@@ -57,7 +53,6 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
 
     public CodeGenerateServiceImpl(Project project) {
         this.project = project;
-        this.velocityUtils = VelocityUtils.getInstance();
         this.moduleManager = ModuleManager.getInstance(project);
         this.fileUtils = FileUtils.getInstance();
         this.tableInfoService = TableInfoService.getInstance(project);
@@ -129,7 +124,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 // 设置回调对象
                 param.put("callback", callback);
                 // 开始生成
-                String code = velocityUtils.generate(template.getCode(), param);
+                String code = VelocityUtils.generate(template.getCode(), param);
                 // 消除两端空格
                 code = code.trim();
                 // 设置一个默认保存路径与默认文件名
@@ -189,7 +184,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         setModulePathAndImportList(param, tableInfo);
         // 处理模板，注入全局变量
         TemplateUtils.addGlobalConfig(template);
-        return velocityUtils.generate(template.getCode(), param).trim();
+        return VelocityUtils.generate(template.getCode(), param).trim();
     }
 
     /**
