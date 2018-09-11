@@ -162,44 +162,43 @@ public class TableInfoServiceImpl implements TableInfoService {
         List<ColumnInfo> pkColumn = new ArrayList<>(pkSize);
         // 其他列
         List<ColumnInfo> otherColumn = new ArrayList<>(fullSize - pkSize);
-        // 列信息合并
-        for (ColumnInfo configColumn : tableInfoConfig.getFullColumn()) {
-            Iterator<ColumnInfo> columnIterator = tableInfo.getFullColumn().iterator();
-            boolean exists = false;
-            while (columnIterator.hasNext()) {
-                ColumnInfo column = columnIterator.next();
-                if (!Objects.equals(configColumn.getName(), column.getName())) {
-                    continue;
-                }
-                // 覆盖空列
-                if (configColumn.getType() == null) {
-                    configColumn.setType(column.getType());
-                    // 短类型
-                    configColumn.setShortType(nameUtils.getClsNameByFullName(configColumn.getType()));
-                }
-                if (configColumn.getComment() == null) {
-                    configColumn.setComment(column.getComment());
-                }
-                // 列对象覆盖
-                configColumn.setObj(column.getObj());
 
-                // 添加自定义列
-                fullColumn.add(configColumn);
-                // 是否为主键
-                if (DasUtil.isPrimary(configColumn.getObj())) {
-                    pkColumn.add(configColumn);
-                } else {
-                    otherColumn.add(configColumn);
+        for (ColumnInfo column : tableInfo.getFullColumn()) {
+            boolean exists = false;
+            for (ColumnInfo configColumn : tableInfoConfig.getFullColumn()) {
+                if (Objects.equals(configColumn.getName(), column.getName())) {
+                    exists = true;
+                    // 覆盖空值
+                    if (configColumn.getType() == null) {
+                        configColumn.setType(column.getType());
+                        // 短类型
+                        configColumn.setShortType(nameUtils.getClsNameByFullName(configColumn.getType()));
+                    }
+                    if (configColumn.getComment() == null) {
+                        configColumn.setComment(column.getComment());
+                    }
+                    // 列对象覆盖
+                    configColumn.setObj(column.getObj());
+
+                    // 添加至新列表中
+                    fullColumn.add(configColumn);
+                    // 是否为主键
+                    if (DasUtil.isPrimary(configColumn.getObj())) {
+                        pkColumn.add(configColumn);
+                    } else {
+                        otherColumn.add(configColumn);
+                    }
+                    break;
                 }
-                exists = true;
-                break;
             }
-            if (exists) {
-                continue;
+            // 新增的列
+            if (!exists) {
+                fullColumn.add(column);
             }
-            // 只有自定义列才添加至所有列
+        }
+        // 添加附加列
+        for (ColumnInfo configColumn : tableInfoConfig.getFullColumn()) {
             if (configColumn.isCustom()) {
-                // 添加自定义列
                 fullColumn.add(configColumn);
             }
         }
