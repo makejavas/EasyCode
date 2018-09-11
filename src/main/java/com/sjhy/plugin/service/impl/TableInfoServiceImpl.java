@@ -162,12 +162,9 @@ public class TableInfoServiceImpl implements TableInfoService {
         List<ColumnInfo> pkColumn = new ArrayList<>(pkSize);
         // 其他列
         List<ColumnInfo> otherColumn = new ArrayList<>(fullSize - pkSize);
-
         // 列信息合并
-        Iterator<ColumnInfo> configColumnIterator = tableInfoConfig.getFullColumn().iterator();
-        Iterator<ColumnInfo> columnIterator = tableInfo.getFullColumn().iterator();
-        while (configColumnIterator.hasNext()) {
-            ColumnInfo configColumn = configColumnIterator.next();
+        for (ColumnInfo configColumn : tableInfoConfig.getFullColumn()) {
+            Iterator<ColumnInfo> columnIterator = tableInfo.getFullColumn().iterator();
             boolean exists = false;
             while (columnIterator.hasNext()) {
                 ColumnInfo column = columnIterator.next();
@@ -200,8 +197,11 @@ public class TableInfoServiceImpl implements TableInfoService {
             if (exists) {
                 continue;
             }
-            // 添加自定义列
-            fullColumn.add(configColumn);
+            // 只有自定义列才添加至所有列
+            if (configColumn.isCustom()) {
+                // 添加自定义列
+                fullColumn.add(configColumn);
+            }
         }
 
         // 全部覆盖
@@ -274,9 +274,9 @@ public class TableInfoServiceImpl implements TableInfoService {
         tableInfo.setOtherColumn(null);
         tableInfo.setPkColumn(null);
         // 获取迭代器
-        Iterator<ColumnInfo> oldColumnIterable = oldTableInfo.getFullColumn().iterator();
         Iterator<ColumnInfo> columnIterable = tableInfo.getFullColumn().iterator();
         while (columnIterable.hasNext()) {
+            Iterator<ColumnInfo> oldColumnIterable = oldTableInfo.getFullColumn().iterator();
             // 新列
             ColumnInfo columnInfo = columnIterable.next();
             // 是否存在
