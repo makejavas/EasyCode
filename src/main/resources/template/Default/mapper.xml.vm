@@ -26,19 +26,13 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
           #allSqlColumn()
 
         from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
-        <where>
-#foreach($column in $tableInfo.pkColumn)
-            <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
-                and $!column.obj.name = #{$!column.name},
-            </if>
-#end
-        </where>
+        where $!pk.obj.name = #{$!pk.name}
     </select>
 
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="$!{tableInfo.name}Map">
         select
-        #allSqlColumn()
+          #allSqlColumn()
 
         from $!{tableInfo.obj.parent.name}.$!tableInfo.obj.name
         limit #{offset}, #{limit}
@@ -53,7 +47,7 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
         <where>
 #foreach($column in $tableInfo.fullColumn)
             <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
-                and $!column.obj.name = #{$!column.name},
+                and $!column.obj.name = #{$!column.name}
             </if>
 #end
         </where>
@@ -71,7 +65,7 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
         <set>
 #foreach($column in $tableInfo.otherColumn)
             <if test="$!column.name != null#if($column.type.equals("java.lang.String")) and $!column.name != ''#end">
-                and $!column.obj.name = #{$!column.name},
+                $!column.obj.name = #{$!column.name},
             </if>
 #end
         </set>

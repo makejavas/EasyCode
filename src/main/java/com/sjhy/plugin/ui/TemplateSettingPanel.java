@@ -311,6 +311,10 @@ public class TemplateSettingPanel implements Configurable {
                 }
                 // 获取表信息
                 TableInfo tableInfo = TableInfoService.getInstance(project).getTableInfoAndConfig(dbTable);
+                // 为未配置的表设置一个默认包名
+                if (tableInfo.getSavePackageName() == null) {
+                    tableInfo.setSavePackageName("com.companyname.modulename");
+                }
                 // 生成代码
                 String code = CodeGenerateService.getInstance(project).generate(new Template("temp", templateEditor.getEditor().getDocument().getText()), tableInfo);
 
