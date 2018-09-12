@@ -19,4 +19,8 @@ public class DebugMethod {
      * 方法描述
      */
     private String desc;
+    /**
+     * 执行方法得到的值
+     */
+    private Object value;
 }

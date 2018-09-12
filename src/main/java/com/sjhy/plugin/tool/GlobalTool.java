@@ -10,6 +10,7 @@ import com.sjhy.plugin.entity.DebugMethod;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -137,6 +138,37 @@ public class GlobalTool extends NameUtils {
         // 获取类
         Class<?> cls = obj.getClass();
         result.put("title", String.format("调试：%s", cls.getName()));
+        // 方法列表
+        List<DebugMethod> debugMethodList = new ArrayList<>();
+        // 排除方法
+        List<String> filterMethodName = Arrays.asList("hashCode", "toString", "equals", "getClass", "clone", "notify", "notifyAll", "wait", "finalize");
+        for (Method method : cls.getMethods()) {
+            if (filterMethodName.contains(method.getName())) {
+                continue;
+            }
+            DebugMethod debugMethod = new DebugMethod();
+            String methodName = method.getName();
+            debugMethod.setName(methodName);
+            debugMethod.setDesc(method.toGenericString());
+            // 针对get，is开头的无参方法进行调用并取值。
+            if ((methodName.startsWith("get") || methodName.startsWith("is"))) {
+                if (method.getParameterCount() == 0) {
+                    try {
+                        Object val = method.invoke(obj);
+                        if (val != null) {
+                            debugMethod.setValue(val.toString());
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        ExceptionUtil.rethrow(e);
+                    }
+                }
+            }
+            // 添加至列表
+            debugMethodList.add(debugMethod);
+        }
+        result.put("methodList", debugMethodList);
+        // 添加一条分割先
+        result.put("----", "-----------------我是一条华丽的分割线-----------------");
         // 字段列表
         List<Field> fieldList = getAllFieldByClass(cls);
         List<DebugField> debugFieldList = new ArrayList<>();
@@ -159,19 +191,6 @@ public class GlobalTool extends NameUtils {
             debugFieldList.add(debugField);
         });
         result.put("fieldList", debugFieldList);
-        // 方法列表
-        List<DebugMethod> debugMethodList = new ArrayList<>();
-        // 排除方法
-        List<String> filterMethodName = Arrays.asList("hashCode", "toString", "equals", "getClass", "clone", "notify", "notifyAll", "wait", "finalize");
-        for (Method method : cls.getDeclaredMethods()) {
-            if (filterMethodName.contains(method.getName())) {
-                continue;
-            }
-            DebugMethod debugMethod = new DebugMethod();
-            debugMethod.setName(method.getName());
-            debugMethod.setDesc(method.toGenericString());
-        }
-        result.put("methodList", debugMethodList);
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result).replace("\r\n", "\n");
     }
 
@@ -202,7 +221,8 @@ public class GlobalTool extends NameUtils {
 
     /**
      * 远程调用服务
-     * @param name 服务名称
+     *
+     * @param name  服务名称
      * @param param 请求参数
      * @return 结果
      */
