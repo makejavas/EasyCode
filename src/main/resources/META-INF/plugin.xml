@@ -21,6 +21,17 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.1-RELEASE</p>
+      <ul>
+        <li>1.Repairing the change macro definition requires reboot.</li>
+        <li>2.Repairing a series of error problems caused by table configuration</li>
+        <li>3.Optimize the dynamic mode and repair some details.</li>
+      </ul>
+      <ul>
+        <li>1.修复更改宏定义需要重启才生效问题</li>
+        <li>2.修复表配置引发的一系列错误问题</li>
+        <li>3.优化动态调式，修复部分细节</li>
+      </ul>
       <p>1.2.0-RELEASE</p>
       <ul>
         <li>1.A lot of improvements have been made to user experience.</li>
