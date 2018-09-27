@@ -283,7 +283,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             while (oldColumnIterable.hasNext()) {
                 ColumnInfo oldColumnInfo = oldColumnIterable.next();
                 // 不同列直接返回跳过
-                if (!Objects.equals(oldColumnInfo.getName(), oldColumnInfo.getName())) {
+                if (!Objects.equals(columnInfo.getName(), oldColumnInfo.getName())) {
                     continue;
                 }
                 // 类型排除
