@@ -171,9 +171,9 @@ public class TableInfoServiceImpl implements TableInfoService {
                     // 覆盖空值
                     if (configColumn.getType() == null) {
                         configColumn.setType(column.getType());
-                        // 短类型
-                        configColumn.setShortType(nameUtils.getClsNameByFullName(configColumn.getType()));
                     }
+                    // 短类型
+                    configColumn.setShortType(nameUtils.getClsNameByFullName(configColumn.getType()));
                     if (configColumn.getComment() == null) {
                         configColumn.setComment(column.getComment());
                     }
