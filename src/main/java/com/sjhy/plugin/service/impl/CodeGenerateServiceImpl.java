@@ -102,22 +102,41 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      * @param title         是否显示提示
      */
     private void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title) {
+        generate(templates, tableInfoList, title, null);
+    }
+
+    /**
+     * 生成代码，并自动保存到对应位置
+     *
+     * @param templates     模板
+     * @param tableInfoList 表信息对象
+     * @param title         是否显示提示
+     * @param otherParam    其他参数
+     */
+    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title, Map<String, Object> otherParam) {
         if (CollectionUtil.isEmpty(templates) || CollectionUtil.isEmpty(tableInfoList)) {
             return;
         }
         // 处理模板，注入全局变量（克隆一份，防止篡改）
-        templates = CloneUtils.cloneByJson(templates, new TypeReference<ArrayList<Template>>() {});
+        templates = CloneUtils.cloneByJson(templates, new TypeReference<ArrayList<Template>>() {
+        });
         TemplateUtils.addGlobalConfig(templates);
         // 生成代码
         for (TableInfo tableInfo : tableInfoList) {
             // 构建参数
             Map<String, Object> param = getDefaultParam();
+            // 其他参数
+            if (otherParam != null) {
+                param.putAll(otherParam);
+            }
             // 所有表信息对象
             param.put("tableInfoList", tableInfoList);
             // 表信息对象
             param.put("tableInfo", tableInfo);
             // 设置模型路径与导包列表
             setModulePathAndImportList(param, tableInfo);
+            // 设置额外代码生成服务
+            param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, title));
 
             for (Template template : templates) {
                 Callback callback = new Callback();

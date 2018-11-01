@@ -8,3 +8,4 @@
 #* @vtlvariable name="time" type="com.sjhy.plugin.tool.TimeUtils" *#
 #* @vtlvariable name="tableInfo" type="com.sjhy.plugin.entity.TableInfo" *#
 #* @vtlvariable name="tableInfoList" type="java.util.List<com.sjhy.plugin.entity.TableInfo>" *#
+#* @vtlvariable name="generateService" type="com.sjhy.plugin.tool.ExtraCodeGenerateUtils" *#
