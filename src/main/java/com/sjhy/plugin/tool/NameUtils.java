@@ -38,7 +38,7 @@ public class NameUtils {
     /**
      * 转驼峰命名正则匹配规则
      */
-    private final Pattern TO_HUMP_PATTERN = Pattern.compile("[-_]([a-z])");
+    private final Pattern TO_HUMP_PATTERN = Pattern.compile("[-_]([a-z0-9])");
 
     /**
      * 首字母大写方法
