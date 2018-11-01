@@ -26,6 +26,11 @@ public class GlobalTool extends NameUtils {
     private static volatile GlobalTool globalTool;
 
     /**
+     * Jackson对象
+     */
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
      * 私有构造方法
      */
     private GlobalTool() {
@@ -217,6 +222,59 @@ public class GlobalTool extends NameUtils {
         // 加上结束符号
         builder.append("L");
         return builder.toString();
+    }
+
+    /**
+     * 将json转map
+     *
+     * @param json json字符串
+     * @return map对象
+     */
+    public Map parseJson(String json) {
+        if (StringUtils.isEmpty(json)) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(json, Map.class);
+        } catch (IOException e) {
+            return Collections.emptyMap();
+        }
+    }
+
+    /**
+     * 将对象转json字符串
+     *
+     * @param obj 对象
+     * @return json字符串
+     */
+    public String toJson(Object obj) {
+        return toJson(obj, false);
+    }
+
+    /**
+     * 将对象转json字符串
+     *
+     * @param obj 对象
+     * @param format 是否格式化json
+     * @return json字符串
+     */
+    public String toJson(Object obj, Boolean format) {
+        if (obj == null) {
+            return null;
+        }
+        if (format == null) {
+            format = false;
+        }
+        try {
+            // 是否格式化输出json
+            if (format) {
+                return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+            } else {
+                return objectMapper.writeValueAsString(obj);
+            }
+        } catch (JsonProcessingException e) {
+            return null;
+        }
     }
 
     /**
