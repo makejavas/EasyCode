@@ -42,6 +42,7 @@
         <properties>
           <borderPainted value="false"/>
           <floatable value="false"/>
+          <opaque value="false"/>
         </properties>
         <border type="none"/>
         <children>
