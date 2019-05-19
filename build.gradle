@@ -17,7 +17,7 @@ apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
 group 'com.sjhy'
-version '1.2.2-SNAPSHOT'
+version '1.2.2-RELEASE'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
