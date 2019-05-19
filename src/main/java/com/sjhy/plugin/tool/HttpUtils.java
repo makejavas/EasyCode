@@ -126,7 +126,7 @@ public final class HttpUtils {
             // 解析JSON数据
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(body);
-            if (jsonNode.get(STATE_CODE).asInt() == 1) {
+            if (jsonNode.get(STATE_CODE).asInt() == 0) {
                 JsonNode data = jsonNode.get("data");
                 if (data instanceof TextNode) {
                     return data.asText();

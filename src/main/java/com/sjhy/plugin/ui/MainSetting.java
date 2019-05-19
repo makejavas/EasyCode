@@ -278,10 +278,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 T group = objectMapper.readValue(value, cls);
                 if (srcGroup.containsKey(key)) {
                     if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s配置中的%s分组？", name, key)).isYes()) {
-                        return;
+                        continue;
                     }
-                    srcGroup.put(key, group);
                 }
+                srcGroup.put(key, group);
             }
         } catch (IOException e) {
             Messages.showWarningDialog("JSON解析错误！", MsgValue.TITLE_INFO);
