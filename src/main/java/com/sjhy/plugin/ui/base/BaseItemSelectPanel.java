@@ -281,7 +281,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
                     int index = getItemList().indexOf(selectedItem);
                     int targetIndex = index + 1;
 
-                    // 判断选项是否是不可移动情况, 已经在第一项 或 只有一个选项
+                    // 判断选项是否是不可移动情况, 已经在最后一项 或 只有一个选项
                     if (index == getItemList().size() - 1 || getItemList().size() == 1) {
                         return;
                     }
