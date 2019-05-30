@@ -34,6 +34,10 @@ public abstract class BaseItemSelectPanel<T extends Item> {
      * 可选面板集合
      */
     private List<T> itemList;
+    /**
+     * 列表元素是否可上下移动
+     */
+    private boolean movable = false;
 
     /**
      * 左边面板
@@ -52,6 +56,11 @@ public abstract class BaseItemSelectPanel<T extends Item> {
 
     protected BaseItemSelectPanel(@NotNull List<T> itemList) {
         this.itemList = itemList;
+    }
+
+    protected BaseItemSelectPanel(@NotNull List<T> itemList, boolean movable) {
+        this.itemList = itemList;
+        this.movable = movable;
     }
 
     /**
@@ -230,13 +239,79 @@ public abstract class BaseItemSelectPanel<T extends Item> {
             }
         });
 
+        // 如果启动顺序移动
+        if (isMovable()) {
+            // 上移事件
+            actionGroup.add(new AnAction(AllIcons.Actions.MoveUp) {
+                @Override
+                public void actionPerformed(AnActionEvent e) {
+                    T selectedItem = getSelectedItem();
+
+                    // 获取当前选项索引
+                    int index = getItemList().indexOf(selectedItem);
+                    int targetIndex = index - 1;
+
+                    // 判断选项是否是不可移动情况, 已经在第一项 或 只有一个选项
+                    if (index == 0 || getItemList().size() == 1) {
+                        return;
+                    }
+
+                    T targetItem = getItemList().get(targetIndex);
+                    getItemList().set(index, targetItem);
+                    getItemList().set(targetIndex, selectedItem);
+
+                    reset(getItemList(), targetIndex);
+                }
+
+                @Override
+                public void update(AnActionEvent e) {
+                    boolean movable = false;
+                    if (getSelectedItem() != null && itemList.size() > 1 && itemList.indexOf(getSelectedItem()) > 0) {
+                        movable = true;
+                    }
+                    e.getPresentation().setEnabled(movable);
+                }
+            });
+            // 下移事件
+            actionGroup.add(new AnAction(AllIcons.Actions.MoveDown) {
+                @Override
+                public void actionPerformed(AnActionEvent e) {
+                    T selectedItem = getSelectedItem();
+                    // 获取当前选项索引
+                    int index = getItemList().indexOf(selectedItem);
+                    int targetIndex = index + 1;
+
+                    // 判断选项是否是不可移动情况, 已经在第一项 或 只有一个选项
+                    if (index == getItemList().size() - 1 || getItemList().size() == 1) {
+                        return;
+                    }
+
+                    T targetItem = getItemList().get(targetIndex);
+                    getItemList().set(index, targetItem);
+                    getItemList().set(targetIndex, selectedItem);
+
+                    reset(getItemList(), targetIndex);
+                }
+
+                @Override
+                public void update(AnActionEvent e) {
+                    boolean movable = false;
+                    boolean isLast = itemList.size() - itemList.indexOf(getSelectedItem()) == 1;
+                    if (getSelectedItem() != null && itemList.size() > 1 && !isLast) {
+                        movable = true;
+                    }
+                    e.getPresentation().setEnabled(movable);
+                }
+            });
+        }
+
         return actionGroup;
     }
 
     /**
      * 重置方法
      *
-     * @param itemList     元素列表
+     * @param itemList      元素列表
      * @param selectedIndex 选中的元素下标
      */
     public void reset(@NotNull List<T> itemList, int selectedIndex) {
