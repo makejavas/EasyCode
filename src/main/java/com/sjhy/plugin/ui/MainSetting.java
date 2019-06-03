@@ -62,6 +62,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * 模板导出按钮
      */
     private JButton exportBtn;
+    /**
+     * 当前版本号
+     */
+    private JLabel versionLabel;
 
     /**
      * 重置列表
@@ -294,6 +298,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
      */
     private void init() {
         //初始化数据
+        versionLabel.setText(settings.getVersion());
         authorTextField.setText(settings.getAuthor());
         encodeComboBox.setSelectedItem(settings.getEncode());
     }

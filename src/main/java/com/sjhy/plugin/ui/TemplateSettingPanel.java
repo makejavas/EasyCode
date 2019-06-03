@@ -200,7 +200,7 @@ public class TemplateSettingPanel implements Configurable {
         };
 
         // 创建元素选择面板
-        this.baseItemSelectPanel = new BaseItemSelectPanel<Template>(group.get(currGroupName).getElementList()) {
+        this.baseItemSelectPanel = new BaseItemSelectPanel<Template>(group.get(currGroupName).getElementList(), true) {
             @Override
             protected void addItem(String name) {
                 List<Template> templateList = group.get(currGroupName).getElementList();
