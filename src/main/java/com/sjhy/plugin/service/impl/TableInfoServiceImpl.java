@@ -148,6 +148,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         tableInfo.setSavePackageName(tableInfoConfig.getSavePackageName());
         // 选择的保存路径
         tableInfo.setSavePath(tableInfoConfig.getSavePath());
+        // 选择的表名前缀
+        tableInfo.setPreName(tableInfoConfig.getPreName());
 
         // 没有列时不处理
         if (CollectionUtil.isEmpty(tableInfoConfig.getFullColumn())) {

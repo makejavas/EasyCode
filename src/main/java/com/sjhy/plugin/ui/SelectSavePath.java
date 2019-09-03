@@ -16,10 +16,7 @@ import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
-import com.sjhy.plugin.tool.CacheDataUtils;
-import com.sjhy.plugin.tool.CurrGroupUtils;
-import com.sjhy.plugin.tool.ModuleUtils;
-import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.tool.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -60,6 +57,10 @@ public class SelectSavePath extends JDialog {
      * 路径字段
      */
     private JTextField pathField;
+    /**
+     * 前缀字段
+     */
+    private JTextField preField;
     /**
      * 包选择按钮
      */
@@ -202,11 +203,11 @@ public class SelectSavePath extends JDialog {
         if (!StringUtils.isEmpty(basePath) && savePath.startsWith(basePath)) {
             savePath = savePath.replace(basePath, ".");
         }
-
         // 保存配置
         TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
+        tableInfo.setPreName(NameUtils.getInstance().firstUpperCase(preField.getText()));
         Module module = getSelectModule();
         if (module != null) {
             tableInfo.setSaveModelName(module.getName());
