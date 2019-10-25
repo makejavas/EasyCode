@@ -11,7 +11,7 @@
     #elseif($tool.newHashSet("java.lang.Integer", "int", "java.lang.Short", "short").contains($column.type))
         #set($jdbcType="INTEGER")
     #elseif($tool.newHashSet("java.lang.Long", "long").contains($column.type))
-        #set($jdbcType="LONG INTEGER")
+        #set($jdbcType="INTEGER")
     #elseif($tool.newHashSet("java.lang.Float", "float", "java.lang.Double", "double").contains($column.type))
         #set($jdbcType="NUMERIC")
     #elseif($tool.newHashSet("java.util.Date", "java.sql.Timestamp", "java.time.Instant", "java.time.LocalDateTime", "java.time.OffsetDateTime", "	java.time.ZonedDateTime").contains($column.type))

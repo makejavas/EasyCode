@@ -16,7 +16,9 @@ import java.io.Serializable;
 public class $!{tableInfo.name} implements Serializable {
     private static final long serialVersionUID = $!tool.serial();
 #foreach($column in $tableInfo.fullColumn)
-    #if(${column.comment})//${column.comment}#end
+    #if(${column.comment})/**
+    * ${column.comment}
+    */#end
 
     private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
 #end
