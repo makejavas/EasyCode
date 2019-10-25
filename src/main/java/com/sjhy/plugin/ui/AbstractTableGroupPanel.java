@@ -136,7 +136,6 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
         //初始化列
         columnConfigInfo = initColumn();
         tableModel = new DefaultTableModel();
-        table.setModel(tableModel);
         for (ColumnConfig column : columnConfigInfo) {
             tableModel.addColumn(column.getTitle());
         }

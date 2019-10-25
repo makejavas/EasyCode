@@ -228,8 +228,14 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     // 关闭并退出
                     dialogWrapper.close(DialogWrapper.OK_EXIT_CODE);
                     if (result != null) {
+                        // 提取token
+                        String token = "error";
+                        if (result.contains("token")) {
+                            int startLocation = result.indexOf("token") + 6;
+                            token = result.substring(startLocation, result.indexOf("，", startLocation));
+                        }
                         // 显示token
-                        Messages.showInfoMessage(result, MsgValue.TITLE_INFO);
+                        Messages.showInputDialog(project, result, MsgValue.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator());
                     }
                 }
             });
