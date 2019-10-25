@@ -4,8 +4,8 @@
     <version>1.2.0</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
-
     <description><![CDATA[
+      <tag>EasyCode,Easy Code,easy,code,code generate,code tools</tag>
       <h3>English:</h3>
       <ul>
       <li>The code generation plug-in based on IntelliJ IDEA is developed to support custom templates (Java, HTML, JS, XML).</li>
@@ -24,9 +24,15 @@
       <p>1.2.2-RELEASE</p>
       <ul>
         <li>1.Fix unavailability of online import function.</li>
+        <li>2.Fix the problem that use other encode do not effect</li>
+        <li>3.Add up and down movement function to template editing page (provided by cooppor)</li>
+        <li>Thank：Cooppor</li>
       </ul>
       <ul>
         <li>1.修复在线导入功能不可用问题</li>
+        <li>2.修复修改为其他编码不生效问题</li>
+        <li>3.模板编辑页面添加上下移动功能（由Cooppor提供）</li>
+        <li>感谢：Cooppor</li>
       </ul>
       <p>1.2.1-RELEASE</p>
       <ul>
