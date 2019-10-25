@@ -22,11 +22,12 @@ public class VelocityUtils {
      * velocity配置
      */
     private static final Properties INIT_PROP;
+
     static {
         // 设置初始化配置
         INIT_PROP = new Properties();
         // 修复部分用户的velocity日志记录无权访问velocity.log文件问题
-        INIT_PROP.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        INIT_PROP.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute");
         INIT_PROP.setProperty("runtime.log.logsystem.log4j.logger", "velocity");
     }
 

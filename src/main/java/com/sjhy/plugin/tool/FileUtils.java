@@ -2,10 +2,11 @@ package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.config.Settings;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 文件工具类
@@ -42,34 +43,11 @@ public class FileUtils {
     public String read(File file) {
         StringBuilder builder = new StringBuilder();
         try {
-            builder.append(FileUtil.loadFileText(file, "UTF-8"));
+            builder.append(FileUtil.loadFileText(file, StandardCharsets.UTF_8));
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         }
         return builder.toString();
-    }
-
-    /**
-     * 读取输入流内容
-     * @param in 输入流
-     * @return 文件内容
-     */
-    public String read(InputStream in) {
-        try {
-            byte[] temp = FileUtil.loadBytes(in);
-            return new String(temp, "UTF-8");
-        } catch (IOException e) {
-            ExceptionUtil.rethrow(e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    ExceptionUtil.rethrow(e);
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -87,9 +65,10 @@ public class FileUtils {
      * @param content 文件内容
      * @param append 是否为追加模式
      */
-    public void write(File file, String content, boolean append) {
+    private void write(File file, String content, boolean append) {
+        Settings settings = Settings.getInstance();
         try {
-            FileUtil.writeToFile(file, content, append);
+            FileUtil.writeToFile(file, content.getBytes(settings.getEncode()), append);
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         }
