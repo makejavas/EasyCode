@@ -3,7 +3,12 @@
 ##去掉表的t_前缀
 $!tableInfo.setName($tool.getClassName($tableInfo.obj.name.replaceFirst("book_","")))
 
-
+##参考阿里巴巴开发手册，POJO 类中布尔类型的变量，都不要加 is 前缀，否则部分框架解析会引起序列化错误
+#foreach($column in $tableInfo.fullColumn)
+#if($column.name.startsWith("is") && $column.type.equals("java.lang.Boolean"))
+    $!column.setName($tool.firstLowerCase($column.name.substring(2)))
+#end
+#end
 
 ##实现动态排除列
 #set($temp = $tool.newHashSet("testCreateTime", "otherColumn"))
