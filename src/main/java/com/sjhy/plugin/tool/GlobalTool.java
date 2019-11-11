@@ -277,6 +277,54 @@ public class GlobalTool extends NameUtils {
         }
     }
 
+    // 中文及中文符号正则表达式
+    public static final String CHINESE_REGEX = "[\u4e00-\u9fa5–—‘’“”…、。〈〉《》「」『』【】〔〕！（），．：；？]";
+
+    /**
+     * 字符串转unicode编码（默认只转换CHINESE_REGEX匹配到的字符）
+     * @param str 字符串
+     * @return 转码后的字符串
+     */
+    public String toUnicode(String str) {
+        return toUnicode(str, false);
+    }
+
+    /**
+     * 字符串转unicode编码
+     * @param str 字符串
+     * @param transAll true转换所有字符，false只转换CHINESE_REGEX匹配到的字符
+     * @return 转码后的字符串
+     */
+    public String toUnicode(String str, Boolean transAll) {
+        if (null == str) {
+            return null;
+        }
+        if (str.length() <= 0) {
+            return null;
+        }
+        if (null == transAll) {
+            transAll = false;
+        }
+
+        StringBuffer sb = new StringBuffer();
+        if (transAll) {
+            for (char c : str.toCharArray()) {
+                sb.append(String.format("\\u%04x", (int) c));
+            }
+        } else {
+            for (char c : str.toCharArray()) {
+                // 中文范围
+                if (String.valueOf(c).matches(CHINESE_REGEX)) {
+                    sb.append(String.format("\\u%04x", (int) c));
+                } else {
+                    sb.append(c);
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
     /**
      * 远程调用服务
      *
