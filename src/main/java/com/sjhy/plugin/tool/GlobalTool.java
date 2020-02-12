@@ -80,7 +80,7 @@ public class GlobalTool extends NameUtils {
     }
 
     /**
-     * 创建无须Map
+     * 创建无序Map
      *
      * @return map对象
      */
