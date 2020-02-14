@@ -41,6 +41,7 @@ import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
 import com.sjhy.plugin.ui.base.BaseItemSelectPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
@@ -117,11 +118,8 @@ public class TemplateSettingPanel implements Configurable {
     private Project project;
 
     TemplateSettingPanel() {
-        // 存在打开的项目则使用打开的项目，否则使用默认项目
-        ProjectManager projectManager = ProjectManager.getInstance();
-        Project[] openProjects = projectManager.getOpenProjects();
         // 项目对象
-        this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
+        this.project = ProjectUtils.getCurrProject();
         // 配置服务实例化
         this.settings = Settings.getInstance();
         // 克隆对象
