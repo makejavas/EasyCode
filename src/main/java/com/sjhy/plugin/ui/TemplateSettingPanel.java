@@ -273,7 +273,7 @@ public class TemplateSettingPanel implements Configurable {
         panel.add(comboBox);
 
         // 调试动作按钮
-        DefaultActionGroup actionGroup = new DefaultActionGroup(new AnAction(AllIcons.Debugger.ToolConsole) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup(new AnAction(AllIcons.Debugger.Console) {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 // 获取选中的表

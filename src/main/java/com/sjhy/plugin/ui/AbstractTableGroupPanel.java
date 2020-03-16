@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
@@ -131,6 +132,11 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
      */
     protected void init() {
         initFlag = false;
+        //初始化Icon
+        copyGroupButton.setIcon(AllIcons.Actions.Copy);
+        deleteGroupButton.setIcon(AllIcons.Actions.Cancel);
+        addItemButton.setIcon(AllIcons.General.Add);
+        deleteItemButton.setIcon(AllIcons.General.Remove);
         //初始化分组
         initGroup();
         //初始化列

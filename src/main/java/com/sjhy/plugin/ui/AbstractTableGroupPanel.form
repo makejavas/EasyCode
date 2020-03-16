@@ -48,15 +48,11 @@
         <children>
           <component id="450d2" class="javax.swing.JButton" binding="copyGroupButton">
             <constraints/>
-            <properties>
-              <icon value="actions/copy.png"/>
-            </properties>
+            <properties/>
           </component>
           <component id="d1404" class="javax.swing.JButton" binding="deleteGroupButton">
             <constraints/>
-            <properties>
-              <icon value="actions/delete.png"/>
-            </properties>
+            <properties/>
           </component>
         </children>
       </toolbar>
@@ -76,14 +72,11 @@
           <component id="cbe8d" class="javax.swing.JButton" binding="addItemButton">
             <constraints/>
             <properties>
-              <icon value="general/add.png"/>
             </properties>
           </component>
           <component id="56e42" class="javax.swing.JButton" binding="deleteItemButton">
             <constraints/>
-            <properties>
-              <icon value="actions/delete.png"/>
-            </properties>
+            <properties/>
           </component>
         </children>
       </toolbar>

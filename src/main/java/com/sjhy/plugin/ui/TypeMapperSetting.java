@@ -1,6 +1,7 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.MessageDialogBuilder;
@@ -80,6 +81,12 @@ public class TypeMapperSetting implements Configurable {
 
     public TypeMapperSetting(Settings settings) {
         this.settings = settings;
+
+        this.typeMapperCopyButton.setIcon(AllIcons.Actions.Copy);
+        this.deleteButton.setIcon(AllIcons.Actions.Cancel);
+        this.addButton.setIcon(AllIcons.General.Add);
+        this.removeButton.setIcon(AllIcons.General.Remove);
+
         this.typeMapperGroupMap = CloneUtils.cloneByJson(settings.getTypeMapperGroupMap(), new TypeReference<Map<String, TypeMapperGroup>>() {});
         this.currGroupName = settings.getCurrTypeMapperGroupName();
         //添加类型

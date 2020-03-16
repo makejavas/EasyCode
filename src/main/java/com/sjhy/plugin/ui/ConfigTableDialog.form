@@ -85,9 +85,7 @@
             <children>
               <component id="3f668" class="javax.swing.JButton" binding="addButton">
                 <constraints/>
-                <properties>
-                  <icon value="general/add.png"/>
-                </properties>
+                <properties/>
               </component>
             </children>
           </toolbar>

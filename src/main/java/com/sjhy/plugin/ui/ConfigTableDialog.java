@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
@@ -125,6 +126,7 @@ public class ConfigTableDialog extends JDialog {
      */
     private void init() {
         initFlag = false;
+        addButton.setIcon(AllIcons.General.Add);
         ColumnConfigGroup columnConfigGroup = CurrGroupUtils.getCurrColumnConfigGroup();
         // 拿到列配置信息
         columnConfigList = getInitColumn(columnConfigGroup.getElementList());
