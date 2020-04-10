@@ -1,6 +1,6 @@
 package com.sjhy.plugin.ui;
 
-import com.intellij.ide.util.PackageChooserDialog;
+//import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
@@ -8,7 +8,8 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiPackage;
+//import com.intellij.psi.PsiPackage;
+import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.entity.TableInfo;
@@ -24,6 +25,9 @@ import com.sjhy.plugin.tool.StringUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -254,14 +258,38 @@ public class SelectSavePath extends JDialog {
 
         //添加包选择事件
         packageChooseButton.addActionListener(e -> {
-            PackageChooserDialog dialog = new PackageChooserDialog("Package Chooser", project);
-            dialog.show();
-            PsiPackage psiPackage = dialog.getSelectedPackage();
-            if (psiPackage != null) {
-                packageField.setText(psiPackage.getQualifiedName());
-                // 刷新路径
-                refreshPath();
+            // 这里不知道发生了什么，明明类是存在的但是编译时就是找不到，只用通过反射来使用
+            try {
+                // 构建dialog
+                Class<?> cls = Class.forName("com.intellij.ide.util.PackageChooserDialog");
+                Constructor<?> constructor = cls.getConstructor(String.class, Project.class);
+                Object dialog = constructor.newInstance("Package Chooser", project);
+                // 打开dialog窗口
+                Method show = dialog.getClass().getMethod("show");
+                show.invoke(dialog);
+                // 获取选中的包信息
+                Method getSelectedPackage = dialog.getClass().getMethod("getSelectedPackage");
+                Object psiPackage = getSelectedPackage.invoke(dialog);
+                // 获取名字
+                if (psiPackage != null) {
+                    Method getQualifiedName = psiPackage.getClass().getMethod("getQualifiedName");
+                    String packageName = (String) getQualifiedName.invoke(psiPackage);
+                    packageField.setText(packageName);
+                    // 刷新路径
+                    refreshPath();
+                }
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException | ClassNotFoundException e1) {
+                // 抛出异常信息
+                ExceptionUtil.rethrow(e1);
             }
+//            PackageChooserDialog dialog = new PackageChooserDialog("Package Chooser", project);
+//            dialog.show();
+//            PsiPackage psiPackage = dialog.getSelectedPackage();
+//            if (psiPackage != null) {
+//                packageField.setText(psiPackage.getQualifiedName());
+//                // 刷新路径
+//                refreshPath();
+//            }
         });
 
         // 添加包编辑框失去焦点事件
