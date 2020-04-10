@@ -123,7 +123,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
 
         // 模板导入事件
         importBtn.addActionListener(e -> {
-            String token = Messages.showInputDialog("Token:", MsgValue.TITLE_INFO, AllIcons.General.PasswordLock, "", new InputValidator() {
+            String token = Messages.showInputDialog("Token:", MsgValue.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
                 @Override
                 public boolean checkInput(String inputString) {
                     return !StringUtils.isEmpty(inputString);

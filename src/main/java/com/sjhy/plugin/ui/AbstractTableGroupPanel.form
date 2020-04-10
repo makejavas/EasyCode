@@ -55,7 +55,7 @@
           <component id="d1404" class="javax.swing.JButton" binding="deleteGroupButton">
             <constraints/>
             <properties>
-              <icon value="actions/delete.png"/>
+              <icon value="actions/cancel.png"/>
             </properties>
           </component>
         </children>
@@ -82,7 +82,7 @@
           <component id="56e42" class="javax.swing.JButton" binding="deleteItemButton">
             <constraints/>
             <properties>
-              <icon value="actions/delete.png"/>
+              <icon value="actions/cancel.png"/>
             </properties>
           </component>
         </children>
