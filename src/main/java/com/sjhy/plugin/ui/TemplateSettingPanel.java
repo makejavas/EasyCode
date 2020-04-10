@@ -1,12 +1,12 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.intellij.database.model.DasNamespace;
 import com.intellij.database.model.DasObject;
 import com.intellij.database.model.DasTable;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbPsiFacade;
 import com.intellij.database.psi.DbTable;
-import com.intellij.database.util.DasUtil;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
@@ -21,10 +21,10 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Conditions;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
@@ -32,6 +32,7 @@ import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
+import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.TableInfo;
@@ -273,6 +274,10 @@ public class TemplateSettingPanel implements Configurable {
         return groupName;
     }
 
+    private JBIterable<DasTable> getTables(DbDataSource dataSource) {
+        return dataSource.getModel().traverser().expandAndSkip(Conditions.instanceOf(DasNamespace.class)).filter(DasTable.class);
+    }
+
     /**
      * 添加调试面板
      */
@@ -285,7 +290,7 @@ public class TemplateSettingPanel implements Configurable {
         List<String> tableList = new ArrayList<>();
         List<DbDataSource> dataSourceList = DbPsiFacade.getInstance(project).getDataSources();
         if (!CollectionUtil.isEmpty(dataSourceList)) {
-            dataSourceList.forEach(dbDataSource -> DasUtil.getTables(dbDataSource).forEach(table -> tableList.add(table.toString())));
+            dataSourceList.forEach(dbDataSource -> getTables(dbDataSource).forEach(table -> tableList.add(table.toString())));
         }
         ComboBoxModel<String> comboBoxModel = new CollectionComboBoxModel<>(tableList);
         ComboBox<String> comboBox = new ComboBox<>(comboBoxModel);
@@ -301,7 +306,7 @@ public class TemplateSettingPanel implements Configurable {
                 DasTable dasTable = null;
                 if (!CollectionUtil.isEmpty(dataSourceList)) {
                     for (DbDataSource dbDataSource : dataSourceList) {
-                        for (DasTable table : DasUtil.getTables(dbDataSource)) {
+                        for (DasTable table : getTables(dbDataSource)) {
                             if (Objects.equals(table.toString(), name)) {
                                 dasTable = table;
                             }
