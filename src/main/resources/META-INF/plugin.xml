@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>Easy Code</name>
-    <version>1.2.0</version>
+    <version>1.2.3</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
     <description><![CDATA[
@@ -21,6 +21,19 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.3-RELEASE</p>
+      <ul>
+        <li>1.Compatible with idea2020.1</li>
+        <li>2.Resolve null pointer exceptions for multiple projects (provided by tangcent)</li>
+        <li>3.Optimize some details</li>
+        <li>Thank：tangcent,czb,lyd123qw2008</li>
+      </ul>
+      <ul>
+        <li>1.兼容IDEA2020.1版本</li>
+        <li>2.解决多项目的空指针异常问题(由tangcent提供)</li>
+        <li>3.优化部分细节问题</li>
+        <li>感谢：tangcent,czb,lyd123qw2008贡献的PR</li>
+      </ul>
       <p>1.2.2-RELEASE</p>
       <ul>
         <li>1.Fix unavailability of online import function.</li>
