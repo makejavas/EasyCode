@@ -38,7 +38,8 @@ public class NameUtils {
     /**
      * 转驼峰命名正则匹配规则
      */
-    private final Pattern TO_HUMP_PATTERN = Pattern.compile("[-_]([a-z0-9])");
+    private static final Pattern TO_HUMP_PATTERN = Pattern.compile("[-_]([a-z0-9])");
+    private static final Pattern TO_LINE_PATTERN = Pattern.compile("[A-Z]+");
 
     /**
      * 首字母大写方法
@@ -58,6 +59,29 @@ public class NameUtils {
      */
     public String firstLowerCase(String name) {
         return StringUtils.uncapitalize(name);
+    }
+
+    /**
+     * 驼峰转下划线，全小写
+     *
+     * @param str 驼峰字符串
+     * @return 下划线字符串
+     */
+    public String hump2Underline(String str) {
+        if (StringUtils.isEmpty(str)) {
+            return str;
+        }
+        Matcher matcher = TO_LINE_PATTERN.matcher(str);
+        StringBuffer buffer = new StringBuffer();
+        while (matcher.find()) {
+            if (matcher.start() > 0) {
+                matcher.appendReplacement(buffer, "_" + matcher.group(0).toLowerCase());
+            } else {
+                matcher.appendReplacement(buffer, matcher.group(0).toLowerCase());
+            }
+        }
+        matcher.appendTail(buffer);
+        return buffer.toString();
     }
 
     /**

@@ -41,6 +41,7 @@ import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.ui.base.BaseGroupPanel;
 import com.sjhy.plugin.ui.base.BaseItemSelectPanel;
 import com.sjhy.plugin.ui.base.TemplateEditor;
@@ -117,11 +118,8 @@ public class TemplateSettingPanel implements Configurable {
     private Project project;
 
     TemplateSettingPanel() {
-        // 存在打开的项目则使用打开的项目，否则使用默认项目
-        ProjectManager projectManager = ProjectManager.getInstance();
-        Project[] openProjects = projectManager.getOpenProjects();
         // 项目对象
-        this.project = openProjects.length > 0 ? openProjects[0] : projectManager.getDefaultProject();
+        this.project = ProjectUtils.getCurrProject();
         // 配置服务实例化
         this.settings = Settings.getInstance();
         // 克隆对象
@@ -150,6 +148,8 @@ public class TemplateSettingPanel implements Configurable {
     public JComponent createComponent() {
         // 创建主面板
         JPanel mainPanel = new JPanel(new BorderLayout());
+
+        this.currGroupName = findExistedGroupName(this.currGroupName);
 
         // 实例化分组面板
         this.baseGroupPanel = new BaseGroupPanel(new ArrayList<>(group.keySet()), this.currGroupName) {
@@ -252,6 +252,25 @@ public class TemplateSettingPanel implements Configurable {
         mainPanel.add(baseGroupPanel, BorderLayout.NORTH);
         mainPanel.add(baseItemSelectPanel.getComponent(), BorderLayout.CENTER);
         return mainPanel;
+    }
+
+    /**
+     * 获取存在的分组名
+     *
+     * @param groupName 分组名
+     * @return 存在的分组名
+     */
+    private String findExistedGroupName(String groupName) {
+        //如果groupName不存在
+        if (!group.containsKey(groupName)) {
+            if (group.containsKey(Settings.DEFAULT_NAME)) {//尝试使用默认分组
+                return Settings.DEFAULT_NAME;
+            } else {
+                //获取第一个分组
+                return group.keySet().stream().findFirst().orElse(Settings.DEFAULT_NAME);
+            }
+        }
+        return groupName;
     }
 
     /**
@@ -414,6 +433,7 @@ public class TemplateSettingPanel implements Configurable {
         // 防止对象篡改，需要进行克隆
         this.group = CloneUtils.cloneByJson(settings.getTemplateGroupMap(), new TypeReference<Map<String, TemplateGroup>>() {});
         this.currGroupName = settings.getCurrTemplateGroupName();
+        this.currGroupName = findExistedGroupName(settings.getCurrTemplateGroupName());
         if (baseGroupPanel == null) {
             return;
         }
