@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.psi.PsiFile;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Callback;
@@ -138,7 +139,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
             setModulePathAndImportList(param, tableInfo);
             // 设置额外代码生成服务
             param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, title));
-
+            List<PsiFile> psiFileList = new ArrayList<>();
             for (Template template : templates) {
                 Callback callback = new Callback();
                 // 设置回调对象
@@ -180,8 +181,13 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                     }
                 }
                 // 保存文件
-                fileUtils.write(project, file, code, callback.isReformat());
+                PsiFile psiFile = fileUtils.write(project, file, code);
+                if (psiFile != null && callback.isReformat()) {
+                    psiFileList.add(psiFile);
+                }
             }
+            // 统一格式化
+            fileUtils.reformatFile(project, psiFileList);
         }
         //刷新整个项目
         VirtualFileManager.getInstance().syncRefresh();
