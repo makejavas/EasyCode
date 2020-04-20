@@ -335,7 +335,7 @@ public class TableInfoServiceImpl implements TableInfoService {
         // 获取保存文件
         File file = new File(dir, getConfigFileName(oldTableInfo.getObj()));
         //写入配置文件
-        fileUtils.write(file, content);
+        fileUtils.write(project, file, content, true);
         // 同步刷新
         VirtualFileManager.getInstance().syncRefresh();
     }
@@ -352,12 +352,16 @@ public class TableInfoServiceImpl implements TableInfoService {
         File dir = new File(path);
         // 获取保存的文件
         File file = new File(dir, getConfigFileName(tableInfo.getObj()));
-        // 文件不存在时直接保存一份
+        // 文件不存在时直接返回
         if (!file.exists()) {
             return null;
         }
         // 读取并解析文件
-        return parser(fileUtils.read(file));
+        String json = fileUtils.read(project, file);
+        if (StringUtils.isEmpty(json)) {
+            return null;
+        }
+        return parser(json);
     }
 
     /**

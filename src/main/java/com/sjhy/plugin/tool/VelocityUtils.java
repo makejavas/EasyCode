@@ -55,9 +55,6 @@ public class VelocityUtils {
             map.forEach(velocityContext::put);
         }
         StringWriter stringWriter = new StringWriter();
-        // 设置编码
-        velocityEngine.setProperty(VelocityEngine.INPUT_ENCODING, settings.getEncode());
-        velocityEngine.setProperty(VelocityEngine.OUTPUT_ENCODING, settings.getEncode());
         try {
             // 生成代码
             velocityEngine.evaluate(velocityContext, stringWriter, "Velocity Code Generate", template);

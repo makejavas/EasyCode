@@ -43,10 +43,6 @@ public class MainSetting implements Configurable, Configurable.Composite {
      */
     private JPanel mainPanel;
     /**
-     * 编码选择下拉框
-     */
-    private JComboBox encodeComboBox;
-    /**
      * 作者编辑框
      */
     private JTextField authorTextField;
@@ -306,7 +302,6 @@ public class MainSetting implements Configurable, Configurable.Composite {
         //初始化数据
         versionLabel.setText(settings.getVersion());
         authorTextField.setText(settings.getAuthor());
-        encodeComboBox.setSelectedItem(settings.getEncode());
     }
 
     /**
@@ -369,7 +364,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
      */
     @Override
     public boolean isModified() {
-        return !settings.getEncode().equals(encodeComboBox.getSelectedItem()) || !settings.getAuthor().equals(authorTextField.getText());
+        return !settings.getAuthor().equals(authorTextField.getText());
     }
 
     /**
@@ -379,7 +374,6 @@ public class MainSetting implements Configurable, Configurable.Composite {
     public void apply() {
         //保存数据
         settings.setAuthor(authorTextField.getText());
-        settings.setEncode((String) encodeComboBox.getSelectedItem());
     }
 
     /**

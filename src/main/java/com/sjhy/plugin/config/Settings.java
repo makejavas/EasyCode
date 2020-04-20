@@ -69,10 +69,6 @@ public class Settings implements PersistentStateComponent<Settings> {
      */
     private Map<String, GlobalConfigGroup> globalConfigGroupMap;
     /**
-     * 默认编码
-     */
-    private String encode;
-    /**
      * 作者
      */
     private String author;
@@ -99,9 +95,7 @@ public class Settings implements PersistentStateComponent<Settings> {
      */
     public void initDefault() {
         // 版本号
-        this.version = "1.2.0";
-        // 默认编码
-        this.encode = "UTF-8";
+        this.version = "1.2.4";
         // 作者名称
         this.author = "makejava";
         // 当前各项分组名称

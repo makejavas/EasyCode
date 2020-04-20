@@ -1,7 +1,5 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
-    <name>Easy Code</name>
-    <version>1.2.3</version>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">数据海洋</vendor>
 
     <description><![CDATA[

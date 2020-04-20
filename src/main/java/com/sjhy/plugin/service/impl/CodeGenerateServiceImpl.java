@@ -18,6 +18,7 @@ import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -179,7 +180,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                     }
                 }
                 // 保存文件
-                fileUtils.write(file, code);
+                fileUtils.write(project, file, code, callback.isReformat());
             }
         }
         //刷新整个项目
@@ -234,8 +235,6 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         // 系统设置
         Settings settings = Settings.getInstance();
         Map<String, Object> param = new HashMap<>(20);
-        // 编码
-        param.put("encode", settings.getEncode());
         // 作者
         param.put("author", settings.getAuthor());
         //工具类

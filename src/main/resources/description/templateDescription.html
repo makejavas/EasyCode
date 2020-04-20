@@ -7,7 +7,6 @@
 <pre>
     属性
     $author 设置中的作者 java.lang.String
-    $encode 设置的编码 java.lang.String
     $modulePath 选中的module路径 java.lang.String
     $projectPath 项目绝对路径 java.lang.String
 
@@ -34,9 +33,10 @@
     $importList 所有需要导入的包集合 java.util.Set&lt;java.lang.String&gt;
 
     回调
-    &callback
+    &callback 回调对象
         setFileName(String) 设置文件储存名字
         setSavePath(String) 设置文件储存路径，默认使用选中路径
+        setReformat(Boolean) 设置是否重新格式化生成后的代码，默认为true
 
     工具
     $tool
