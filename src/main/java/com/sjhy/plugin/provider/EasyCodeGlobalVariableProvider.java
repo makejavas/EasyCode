@@ -39,6 +39,8 @@ public class EasyCodeGlobalVariableProvider extends VtlGlobalVariableProvider {
         result.add(new VtlLightVariable("tableInfo", file, "com.sjhy.plugin.entity.TableInfo"));
         result.add(new VtlLightVariable("tableInfoList", file, "java.util.List<com.sjhy.plugin.entity.TableInfo>"));
         result.add(new VtlLightVariable("generateService", file, "com.sjhy.plugin.tool.ExtraCodeGenerateUtils"));
+        result.add(new VtlLightVariable("dbUtil", file, "com.intellij.database.util.DbUtil"));
+        result.add(new VtlLightVariable("dasUtil", file, "com.intellij.database.util.DasUtil"));
         return result;
     }
 

@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.SaveFile;
@@ -212,8 +213,8 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         // 项目路径
         param.put("projectPath", project.getBasePath());
         // Database数据库工具
-        param.put("dbUtil", DbUtil.class);
-        param.put("dasUtil", DasUtil.class);
+        param.put("dbUtil", ReflectionUtil.newInstance(DbUtil.class));
+        param.put("dasUtil", ReflectionUtil.newInstance(DasUtil.class));
         return param;
     }
 
