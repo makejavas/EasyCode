@@ -6,19 +6,25 @@ import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.entity.SaveFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,27 +76,61 @@ public class FileUtils {
     }
 
     /**
-     * 写入文件内容，覆盖模式
+     * 写入文件
      *
-     * @param project  项目对象
-     * @param file     文件
-     * @param content  文件内容
+     * @param saveFile 需要保存的文件对象
      */
-    public PsiFile write(Project project, File file, String content) {
-        // 替换换行符
-        content = content.replace("\r\n", "\n");
-        // 创建文件
-        PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
-        PsiFile psiFile = psiFileFactory.createFileFromText(file.getName(), FileTypes.UNKNOWN, content);
-        PsiManager psiManager = PsiManager.getInstance(project);
-        VirtualFile parentVirtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file.getParentFile());
-        if (parentVirtualFile == null) {
-            // 自动创建目录
-            Messages.showWarningDialog("目录不存在", MsgValue.TITLE_INFO);
-            return null;
+    public void write(SaveFile saveFile) {
+        // 校验目录是否存在
+        PsiManager psiManager = PsiManager.getInstance(saveFile.getProject());
+        PsiDirectory psiDirectory;
+        VirtualFile directory = LocalFileSystem.getInstance().findFileByPath(saveFile.getPath());
+        if (directory == null) {
+            // 尝试创建目录
+            if (saveFile.isOperateTitle() && !MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Directory " + saveFile.getPath() + " Not Found, Confirm Create?").isYes()) {
+                return;
+            }
+            psiDirectory = WriteCommandAction.runWriteCommandAction(saveFile.getProject(), (Computable<PsiDirectory>) () -> {
+                try {
+                    VirtualFile dir = VfsUtil.createDirectoryIfMissing(saveFile.getPath());
+                    LOG.assertTrue(dir != null);
+                    return psiManager.findDirectory(dir);
+                } catch (IOException e) {
+                    LOG.error("path {} error", saveFile.getPath());
+                    ExceptionUtil.rethrow(e);
+                    return null;
+                }
+            });
+        } else {
+            psiDirectory = psiManager.findDirectory(directory);
         }
-        PsiDirectory psiDirectory = psiManager.findDirectory(parentVirtualFile);
-        return saveFileAndFormatCode(project, psiDirectory, psiFile);
+        if (psiDirectory == null) {
+            return;
+        }
+        // 保存或替换文件
+        PsiFile oldFile = psiDirectory.findFile(saveFile.getFile().getName());
+        if (oldFile != null) {
+            if (saveFile.isOperateTitle() && MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "File " + saveFile.getFile().getName() + " Exists, Confirm Continue?").isYes()) {
+                return;
+            }
+        }
+        PsiDirectory finalPsiDirectory = psiDirectory;
+        PsiFile finalFile = WriteCommandAction.runWriteCommandAction(saveFile.getProject(), (Computable<PsiFile>) () -> {
+            if (oldFile == null) {
+                return (PsiFile) finalPsiDirectory.add(saveFile.getFile());
+            } else {
+                // 对旧文件进行替换操作
+                PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(saveFile.getProject());
+                Document document = psiDocumentManager.getDocument(oldFile);
+                LOG.assertTrue(document != null);
+                document.setText(saveFile.getFile().getText());
+                return oldFile;
+            }
+        });
+        // 判断是否需要进行代码格式化操作
+        if (saveFile.isReformat()) {
+            reformatFile(saveFile.getProject(), Collections.singletonList(finalFile));
+        }
     }
 
     /**
@@ -100,7 +140,7 @@ public class FileUtils {
      * @param psiFileList 文件列表
      */
     @SuppressWarnings("unchecked")
-    public void reformatFile(Project project, List<PsiFile> psiFileList) {
+    private void reformatFile(Project project, List<PsiFile> psiFileList) {
         if (CollectionUtil.isEmpty(psiFileList)) {
             return;
         }
@@ -126,29 +166,5 @@ public class FileUtils {
         }
         // 执行处理
         processor.run();
-    }
-
-    /**
-     * 保存并格式化文件
-     *
-     * @param project      项目
-     * @param psiDirectory 目录
-     * @param psiFile      文件
-     */
-    private PsiFile saveFileAndFormatCode(Project project, PsiDirectory psiDirectory, PsiFile psiFile) {
-        return WriteCommandAction.runWriteCommandAction(project, (Computable<PsiFile>) () -> {
-            PsiFile oldFile = psiDirectory.findFile(psiFile.getName());
-            PsiFile temFile;
-            if (oldFile != null) {
-                Document document = PsiDocumentManager.getInstance(project).getDocument(oldFile);
-                LOG.assertTrue(document != null);
-                // 替换文件
-                document.setText(psiFile.getText());
-                temFile = oldFile;
-            } else {
-                temFile = (PsiFile) psiDirectory.add(psiFile);
-            }
-            return temFile;
-        });
     }
 }

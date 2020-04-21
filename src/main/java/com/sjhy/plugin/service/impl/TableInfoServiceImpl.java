@@ -9,12 +9,11 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiFile;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.ColumnInfo;
+import com.sjhy.plugin.entity.SaveFile;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.service.TableInfoService;
@@ -334,14 +333,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             }
         }
         // 获取保存文件
-        File file = new File(dir, getConfigFileName(oldTableInfo.getObj()));
-        //写入配置文件
-        PsiFile psiFile = fileUtils.write(project, file, content);
-        if (psiFile != null) {
-            fileUtils.reformatFile(project, Collections.singletonList(psiFile));
-        }
-        // 同步刷新
-        VirtualFileManager.getInstance().syncRefresh();
+        new SaveFile(project, dir.getAbsolutePath(), getConfigFileName(oldTableInfo.getObj()), content, true, false).write();
     }
 
     /**

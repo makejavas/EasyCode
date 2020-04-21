@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 //import com.intellij.psi.PsiPackage;
 import com.intellij.util.ExceptionUtil;
@@ -28,8 +29,7 @@ import java.awt.event.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -307,7 +307,7 @@ public class SelectSavePath extends JDialog {
         //选择路径
         pathChooseButton.addActionListener(e -> {
             //将当前选中的model设置为基础路径
-            VirtualFile path = project.getBaseDir();
+            VirtualFile path = LocalFileSystem.getInstance().findFileByPath(project.getBasePath());
             Module module = getSelectModule();
             if (module != null) {
                 path = ModuleUtils.getSourcePath(module);

@@ -1,25 +1,21 @@
 package com.sjhy.plugin.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.intellij.database.util.DasUtil;
+import com.intellij.database.util.DbUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiFile;
 import com.sjhy.plugin.config.Settings;
-import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Callback;
+import com.sjhy.plugin.entity.SaveFile;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
 
-import java.io.File;
-import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -37,10 +33,6 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      */
     private ModuleManager moduleManager;
     /**
-     * 文件工具
-     */
-    private FileUtils fileUtils;
-    /**
      * 表信息服务
      */
     private TableInfoService tableInfoService;
@@ -56,7 +48,6 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
     public CodeGenerateServiceImpl(Project project) {
         this.project = project;
         this.moduleManager = ModuleManager.getInstance(project);
-        this.fileUtils = FileUtils.getInstance();
         this.tableInfoService = TableInfoService.getInstance(project);
         this.cacheDataUtils = CacheDataUtils.getInstance();
     }
@@ -139,14 +130,13 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
             setModulePathAndImportList(param, tableInfo);
             // 设置额外代码生成服务
             param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, title));
-            List<PsiFile> psiFileList = new ArrayList<>();
             for (Template template : templates) {
                 Callback callback = new Callback();
                 // 设置回调对象
                 param.put("callback", callback);
                 // 开始生成
                 String code = VelocityUtils.generate(template.getCode(), param);
-                // 消除两端空格
+                // 清除前面空格
                 code = code.trim();
                 // 设置一个默认保存路径与默认文件名
                 if (StringUtils.isEmpty(callback.getFileName())) {
@@ -161,36 +151,9 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 if (path.startsWith(".")) {
                     path = project.getBasePath() + path.substring(1);
                 }
-                // 创建目录
-                File dir = new File(path);
-                if (!dir.exists()) {
-                    // 提示创建目录
-                    if (title && !MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Directory " + dir.getAbsolutePath() + " Not Found, Confirm Create?").isYes()) {
-                        continue;
-                    }
-                    if (!dir.mkdirs()) {
-                        Messages.showWarningDialog("Directory Create Failure!", MsgValue.TITLE_INFO);
-                        continue;
-                    }
-                }
-                File file = new File(dir, callback.getFileName());
-                // 提示是否覆盖文件
-                if (title && file.exists()) {
-                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "File " + file.getName() + " Exists, Confirm Continue?").isYes()) {
-                        continue;
-                    }
-                }
-                // 保存文件
-                PsiFile psiFile = fileUtils.write(project, file, code);
-                if (psiFile != null && callback.isReformat()) {
-                    psiFileList.add(psiFile);
-                }
+                new SaveFile(project, path, callback.getFileName(), code, callback.isReformat(), title).write();
             }
-            // 统一格式化
-            fileUtils.reformatFile(project, psiFileList);
         }
-        //刷新整个项目
-        VirtualFileManager.getInstance().syncRefresh();
     }
 
     /**
@@ -248,6 +211,9 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         param.put("time", TimeUtils.getInstance());
         // 项目路径
         param.put("projectPath", project.getBasePath());
+        // Database数据库工具
+        param.put("dbUtil", DbUtil.class);
+        param.put("dasUtil", DasUtil.class);
         return param;
     }
 

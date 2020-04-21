@@ -1,6 +1,5 @@
 package com.sjhy.plugin.tool;
 
-import com.sjhy.plugin.config.Settings;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -50,7 +49,6 @@ public class VelocityUtils {
         VelocityEngine velocityEngine = new VelocityEngine(INIT_PROP);
         // 创建上下文对象
         VelocityContext velocityContext = new VelocityContext();
-        Settings settings = Settings.getInstance();
         if (map != null) {
             map.forEach(velocityContext::put);
         }
