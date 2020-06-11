@@ -3,8 +3,10 @@ package com.sjhy.plugin.entity;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.testFramework.LightVirtualFile;
 import com.sjhy.plugin.tool.FileUtils;
 import lombok.Data;
 
@@ -26,6 +28,10 @@ public class SaveFile {
      * 文件保存目录
      */
     private String path;
+    /**
+     * 虚拟文件
+     */
+    private VirtualFile virtualFile;
     /**
      * 需要保存的文件
      */
@@ -58,6 +64,7 @@ public class SaveFile {
         LOG.assertTrue(content != null);
         // 换行符统一使用\n
         this.file = psiFileFactory.createFileFromText(fileName, FileTypes.UNKNOWN, content.replace("\r", ""));
+        this.virtualFile = new LightVirtualFile(fileName, content.replace("\r", ""));
         this.reformat = reformat;
         this.operateTitle = operateTitle;
     }

@@ -6,8 +6,10 @@ import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -109,9 +111,23 @@ public class FileUtils {
         }
         // 保存或替换文件
         PsiFile oldFile = psiDirectory.findFile(saveFile.getFile().getName());
-        if (oldFile != null) {
-            if (saveFile.isOperateTitle() && MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "File " + saveFile.getFile().getName() + " Exists, Confirm Continue?").isYes()) {
-                return;
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(saveFile.getProject());
+        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+        if (saveFile.isOperateTitle() && oldFile != null) {
+            MessageDialogBuilder.YesNoCancel yesNoCancel = MessageDialogBuilder.yesNoCancel(MsgValue.TITLE_INFO, "File " + saveFile.getFile().getName() + " Exists, Select Operate Mode?");
+            yesNoCancel.yesText("Cover");
+            yesNoCancel.noText("Compare");
+            yesNoCancel.cancelText("Cancel");
+            int result = yesNoCancel.show();
+            switch (result) {
+                case Messages.YES:
+                    break;
+                case Messages.NO:
+                    CompareFileUtils.showCompareWindow(saveFile.getProject(), fileDocumentManager.getFile(psiDocumentManager.getDocument(oldFile)), saveFile.getVirtualFile());
+                    return;
+                case Messages.CANCEL:
+                default:
+                    return;
             }
         }
         PsiDirectory finalPsiDirectory = psiDirectory;
@@ -120,7 +136,6 @@ public class FileUtils {
                 return (PsiFile) finalPsiDirectory.add(saveFile.getFile());
             } else {
                 // 对旧文件进行替换操作
-                PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(saveFile.getProject());
                 Document document = psiDocumentManager.getDocument(oldFile);
                 LOG.assertTrue(document != null);
                 document.setText(saveFile.getFile().getText());
