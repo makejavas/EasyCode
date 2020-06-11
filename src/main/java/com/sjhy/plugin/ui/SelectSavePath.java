@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 //import com.intellij.psi.PsiPackage;
 import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.entity.TableInfo;
@@ -89,6 +90,10 @@ public class SelectSavePath extends JDialog {
      * 禁止提示复选框
      */
     private JCheckBox titleConfig;
+    /**
+     * 分组选择框
+     */
+    private JComboBox<String> groupComboBox;
     /**
      * 所有模板复选框
      */
@@ -212,6 +217,7 @@ public class SelectSavePath extends JDialog {
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
+        tableInfo.setTemplateGroupName((String) groupComboBox.getSelectedItem());
         Module module = getSelectModule();
         if (module != null) {
             tableInfo.setSaveModelName(module.getName());
@@ -232,19 +238,36 @@ public class SelectSavePath extends JDialog {
     }
 
     /**
-     * 初始化方法
+     * 初始化模板组
      */
-    private void init() {
+    private void initTemplateGroup() {
         //添加模板组
         checkBoxList.clear();
+        templatePanel.removeAll();
         templatePanel.setLayout(new GridLayout(6, 2));
         templateGroup.getElementList().forEach(template -> {
             JCheckBox checkBox = new JCheckBox(template.getName());
             checkBoxList.add(checkBox);
             templatePanel.add(checkBox);
         });
+        // 移除所有旧事件
+        ActionListener[] actionListeners = allCheckBox.getActionListeners();
+        if (actionListeners != null && actionListeners.length > 0) {
+            for (ActionListener actionListener : actionListeners) {
+                allCheckBox.removeActionListener(actionListener);
+            }
+        }
         //添加全选事件
         allCheckBox.addActionListener(e -> checkBoxList.forEach(jCheckBox -> jCheckBox.setSelected(allCheckBox.isSelected())));
+        allCheckBox.setSelected(false);
+    }
+
+    /**
+     * 初始化方法
+     */
+    private void init() {
+        // 初始化模板组
+        initTemplateGroup();
 
         //初始化Module选择
         for (Module module : this.moduleList) {
@@ -331,6 +354,30 @@ public class SelectSavePath extends JDialog {
         if (!StringUtils.isEmpty(tableInfo.getPreName())) {
             preField.setText(tableInfo.getPreName());
         }
+        Settings settings = Settings.getInstance();
+        String groupName = settings.getCurrTemplateGroupName();
+        if (!StringUtils.isEmpty(tableInfo.getTemplateGroupName())) {
+            if (settings.getTemplateGroupMap().containsKey(tableInfo.getTemplateGroupName())) {
+                groupName = tableInfo.getTemplateGroupName();
+                this.templateGroup = settings.getTemplateGroupMap().get(groupName);
+                // 选中的模板组发生变化，尝试重新初始化
+                initTemplateGroup();
+            }
+        }
+        for (String key : settings.getTemplateGroupMap().keySet()) {
+            groupComboBox.addItem(key);
+        }
+        groupComboBox.setSelectedItem(groupName);
+        groupComboBox.addActionListener(e -> {
+            String selectedItem = (String) groupComboBox.getSelectedItem();
+            if (this.templateGroup.getName().equals(selectedItem)) {
+                return;
+            }
+            this.templateGroup = settings.getTemplateGroupMap().get(selectedItem);
+            // 选中的模板组发生变化，尝试重新初始化
+            initTemplateGroup();
+            this.open();
+        });
         String savePath = tableInfo.getSavePath();
         if (!StringUtils.isEmpty(savePath)) {
             // 判断是否需要拼接项目路径

@@ -150,6 +150,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         tableInfo.setSavePath(tableInfoConfig.getSavePath());
         // 选择的表名前缀
         tableInfo.setPreName(tableInfoConfig.getPreName());
+        // 选择的模板组
+        tableInfo.setTemplateGroupName(tableInfoConfig.getTemplateGroupName());
 
         // 没有列时不处理
         if (CollectionUtil.isEmpty(tableInfoConfig.getFullColumn())) {
