@@ -118,8 +118,9 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         // 生成代码
         for (TableInfo tableInfo : tableInfoList) {
             // 表名去除前缀
-            if (tableInfo.getName().startsWith(tableInfo.getPreName())) {
-                tableInfo.setName(tableInfo.getName().replace(tableInfo.getPreName(), ""));
+            if (tableInfo.getObj().getName().startsWith(tableInfo.getPreName())) {
+                String newName = tableInfo.getObj().getName().replace(tableInfo.getPreName(), "");
+                tableInfo.setName(NameUtils.getInstance().getClassName(newName));
             }
             // 构建参数
             Map<String, Object> param = getDefaultParam();

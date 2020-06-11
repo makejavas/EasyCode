@@ -211,7 +211,7 @@ public class SelectSavePath extends JDialog {
         TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
-        tableInfo.setPreName(NameUtils.getInstance().firstUpperCase(preField.getText()));
+        tableInfo.setPreName(preField.getText());
         Module module = getSelectModule();
         if (module != null) {
             tableInfo.setSaveModelName(module.getName());
@@ -327,6 +327,9 @@ public class SelectSavePath extends JDialog {
         }
         if (!StringUtils.isEmpty(tableInfo.getSavePackageName())) {
             packageField.setText(tableInfo.getSavePackageName());
+        }
+        if (!StringUtils.isEmpty(tableInfo.getPreName())) {
+            preField.setText(tableInfo.getPreName());
         }
         String savePath = tableInfo.getSavePath();
         if (!StringUtils.isEmpty(savePath)) {
