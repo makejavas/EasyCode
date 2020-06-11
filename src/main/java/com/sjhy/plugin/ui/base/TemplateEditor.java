@@ -11,16 +11,15 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SeparatorFactory;
+import com.intellij.util.LocalTimeCounter;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
@@ -107,12 +106,13 @@ public class TemplateEditor {
         if (editor != null) {
             editorFactory.releaseEditor(editor);
         }
-        PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
-        PsiFile psiFile = psiFileFactory.createFileFromText(EASY_CODE_TEMPLATE, fileType, content, 0, true);
+
+        LightVirtualFile virtualFile = new LightVirtualFile(EASY_CODE_TEMPLATE, fileType, content, LocalTimeCounter.currentTime());
         // 标识为模板，让velocity跳过语法校验
-        psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(project).getDefaultProperties());
+        virtualFile.putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(project).getDefaultProperties());
+
         // 创建文档对象
-        Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
+        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
         assert document != null;
         // 创建编辑框
         editor = editorFactory.createEditor(document, project);
@@ -120,7 +120,7 @@ public class TemplateEditor {
         // 添加修改事件
         editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void documentChanged(DocumentEvent event) {
+            public void documentChanged(@NotNull DocumentEvent event) {
                 String text = editor.getDocument().getText();
                 // 回调事件
                 if (callback != null && !Objects.equals(text, content)) {

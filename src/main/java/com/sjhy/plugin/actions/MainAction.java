@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.ui.SelectSavePath;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -31,7 +32,7 @@ public class MainAction extends AnAction {
      * @param event 事件对象
      */
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         if (project == null) {
             return;
