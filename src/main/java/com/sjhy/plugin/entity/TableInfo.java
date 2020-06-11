@@ -25,6 +25,10 @@ public class TableInfo {
      */
     private String name;
     /**
+     * 表名前缀(首字母大写)
+     */
+    private String preName;
+    /**
      * 注释
      */
     private String comment;

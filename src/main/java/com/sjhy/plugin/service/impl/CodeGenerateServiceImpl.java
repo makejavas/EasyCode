@@ -117,6 +117,10 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         TemplateUtils.addGlobalConfig(templates);
         // 生成代码
         for (TableInfo tableInfo : tableInfoList) {
+            // 表名去除前缀
+            if (tableInfo.getName().startsWith(tableInfo.getPreName())) {
+                tableInfo.setName(tableInfo.getName().replace(tableInfo.getPreName(), ""));
+            }
             // 构建参数
             Map<String, Object> param = getDefaultParam();
             // 其他参数
