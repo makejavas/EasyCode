@@ -1,7 +1,8 @@
 package com.sjhy.plugin.entity;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -62,9 +63,10 @@ public class SaveFile {
         // 构建文件对象
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
         LOG.assertTrue(content != null);
+        FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(fileName);
         // 换行符统一使用\n
-        this.file = psiFileFactory.createFileFromText(fileName, FileTypes.UNKNOWN, content.replace("\r", ""));
-        this.virtualFile = new LightVirtualFile(fileName, content.replace("\r", ""));
+        this.file = psiFileFactory.createFileFromText(fileName, fileType, content.replace("\r", ""));
+        this.virtualFile = new LightVirtualFile(fileName, fileType, content.replace("\r", ""));
         this.reformat = reformat;
         this.operateTitle = operateTitle;
     }

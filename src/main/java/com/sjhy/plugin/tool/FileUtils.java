@@ -123,6 +123,10 @@ public class FileUtils {
                 case Messages.YES:
                     break;
                 case Messages.NO:
+                    // 对比代码时也格式化代码
+                    if (saveFile.isReformat()) {
+                        reformatFile(saveFile.getProject(), Collections.singletonList(PsiManager.getInstance(saveFile.getProject()).findFile(saveFile.getVirtualFile())));
+                    }
                     CompareFileUtils.showCompareWindow(saveFile.getProject(), fileDocumentManager.getFile(psiDocumentManager.getDocument(oldFile)), saveFile.getVirtualFile());
                     return;
                 case Messages.CANCEL:
