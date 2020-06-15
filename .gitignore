@@ -5,6 +5,8 @@
 .gradle/
 *.iml
 
+gradle.properties
+
 ##忽略输出文件夹
 out/
 build/
