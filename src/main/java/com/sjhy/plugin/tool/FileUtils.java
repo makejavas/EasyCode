@@ -150,6 +150,8 @@ public class FileUtils {
         PsiDirectory finalPsiDirectory = psiDirectory;
         PsiFile finalFile = WriteCommandAction.runWriteCommandAction(saveFile.getProject(), (Computable<PsiFile>) () -> {
             if (oldFile == null) {
+                // 提交所有改动，并非VCS中的提交文件
+                PsiDocumentManager.getInstance(saveFile.getProject()).commitAllDocuments();
                 return (PsiFile) finalPsiDirectory.add(saveFile.getFile());
             } else {
                 // 对旧文件进行替换操作
