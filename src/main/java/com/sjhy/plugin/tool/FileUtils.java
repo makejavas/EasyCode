@@ -18,6 +18,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.SaveFile;
@@ -98,7 +99,7 @@ public class FileUtils {
                     LOG.assertTrue(dir != null);
                     return psiManager.findDirectory(dir);
                 } catch (IOException e) {
-                    LOG.error("path {} error", saveFile.getPath());
+                    LOG.error("path " + saveFile.getPath() + " error");
                     ExceptionUtil.rethrow(e);
                     return null;
                 }
@@ -125,7 +126,19 @@ public class FileUtils {
                 case Messages.NO:
                     // 对比代码时也格式化代码
                     if (saveFile.isReformat()) {
-                        reformatFile(saveFile.getProject(), Collections.singletonList(PsiManager.getInstance(saveFile.getProject()).findFile(saveFile.getVirtualFile())));
+                        // 保留旧文件内容，用新文件覆盖旧文件执行格式化，然后再还原旧文件内容
+                        String oldText = oldFile.getText();
+                        WriteCommandAction.runWriteCommandAction(saveFile.getProject(), () -> psiDocumentManager.getDocument(oldFile).setText(saveFile.getFile().getText()));
+                        // 提交所有改动，并非VCS中的提交文件
+                        PsiDocumentManager.getInstance(saveFile.getProject()).commitAllDocuments();
+                        reformatFile(saveFile.getProject(), Collections.singletonList(oldFile));
+                        // 提交所有改动，并非VCS中的提交文件
+                        PsiDocumentManager.getInstance(saveFile.getProject()).commitAllDocuments();
+                        String newText = oldFile.getText();
+                        WriteCommandAction.runWriteCommandAction(saveFile.getProject(), () -> psiDocumentManager.getDocument(oldFile).setText(oldText));
+                        // 提交所有改动，并非VCS中的提交文件
+                        PsiDocumentManager.getInstance(saveFile.getProject()).commitAllDocuments();
+                        saveFile.setVirtualFile(new LightVirtualFile(saveFile.getFile().getName(), saveFile.getFile().getFileType(), newText));
                     }
                     CompareFileUtils.showCompareWindow(saveFile.getProject(), fileDocumentManager.getFile(psiDocumentManager.getDocument(oldFile)), saveFile.getVirtualFile());
                     return;
@@ -150,6 +163,8 @@ public class FileUtils {
         if (saveFile.isReformat()) {
             reformatFile(saveFile.getProject(), Collections.singletonList(finalFile));
         }
+        // 提交所有改动，并非VCS中的提交文件
+        PsiDocumentManager.getInstance(saveFile.getProject()).commitAllDocuments();
     }
 
     /**
@@ -163,7 +178,7 @@ public class FileUtils {
         if (CollectionUtil.isEmpty(psiFileList)) {
             return;
         }
-        // 提交所有改动，并非CVS中的提交文件
+        // 提交所有改动，并非VCS中的提交文件
         PsiDocumentManager.getInstance(project).commitAllDocuments();
         // 尝试对文件进行格式化处理
         AbstractLayoutCodeProcessor processor = new ReformatCodeProcessor(project, psiFileList.toArray(new PsiFile[0]), null, false);

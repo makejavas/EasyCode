@@ -62,6 +62,17 @@ public class TableSettingPanel extends AbstractTableGroupPanel<ColumnConfigGroup
         return "Table Editor Config";
     }
 
+    /**
+     * Returns the topic in the help file which is shown when help for the configurable is requested.
+     *
+     * @return the help topic, or {@code null} if no help is available
+     */
+    @Nullable
+    @Override
+    public String getHelpTopic() {
+        return null;
+    }
+
     @Nullable
     @Override
     public JComponent createComponent() {

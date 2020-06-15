@@ -110,6 +110,17 @@ public class GlobalConfigSettingPanel implements Configurable {
     }
 
     /**
+     * Returns the topic in the help file which is shown when help for the configurable is requested.
+     *
+     * @return the help topic, or {@code null} if no help is available
+     */
+    @Nullable
+    @Override
+    public String getHelpTopic() {
+        return null;
+    }
+
+    /**
      * 获取主面板对象
      *
      * @return 主面板对象

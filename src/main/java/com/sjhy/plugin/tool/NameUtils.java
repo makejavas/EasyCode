@@ -1,7 +1,5 @@
 package com.sjhy.plugin.tool;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,7 +89,7 @@ public class NameUtils {
      * @return 类名
      */
     public String getClsNameByFullName(String fullName) {
-        return fullName.substring(fullName.lastIndexOf('.') + 1, fullName.length());
+        return fullName.substring(fullName.lastIndexOf('.') + 1);
     }
 
     /**
@@ -133,7 +131,7 @@ public class NameUtils {
      */
     public String append(Object... objects) {
 
-        if (ArrayUtils.isEmpty(objects)) {
+        if (objects == null || objects.length == 0) {
             return null;
         }
         StringBuilder builder = new StringBuilder();

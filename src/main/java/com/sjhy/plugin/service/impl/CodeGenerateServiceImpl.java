@@ -7,8 +7,10 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.config.Settings;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.SaveFile;
 import com.sjhy.plugin.entity.TableInfo;
@@ -66,6 +68,11 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         TableInfo selectedTableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         // 获取所有选中的表信息
         List<TableInfo> tableInfoList = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getDbTableList());
+        // 校验选中表的保存路径是否正确
+        if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
+            Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", MsgValue.TITLE_INFO);
+            return;
+        }
         // 将未配置的表进行配置覆盖
         tableInfoList.forEach(tableInfo -> {
             if (StringUtils.isEmpty(tableInfo.getSavePath())) {

@@ -120,6 +120,11 @@ public class TemplateEditor {
         // 添加修改事件
         editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
+            public void beforeDocumentChange(DocumentEvent event) {
+
+            }
+
+            @Override
             public void documentChanged(@NotNull DocumentEvent event) {
                 String text = editor.getDocument().getText();
                 // 回调事件

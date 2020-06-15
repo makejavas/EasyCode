@@ -316,6 +316,17 @@ public class MainSetting implements Configurable, Configurable.Composite {
     }
 
     /**
+     * Returns the topic in the help file which is shown when help for the configurable is requested.
+     *
+     * @return the help topic, or {@code null} if no help is available
+     */
+    @Nullable
+    @Override
+    public String getHelpTopic() {
+        return getDisplayName();
+    }
+
+    /**
      * 更多配置
      *
      * @return 配置选项
