@@ -97,6 +97,8 @@ public class FileUtils {
                 try {
                     VirtualFile dir = VfsUtil.createDirectoryIfMissing(saveFile.getPath());
                     LOG.assertTrue(dir != null);
+                    // 重载文件，防止发生IndexNotReadyException异常
+                    FileDocumentManager.getInstance().reloadFiles(dir);
                     return psiManager.findDirectory(dir);
                 } catch (IOException e) {
                     LOG.error("path " + saveFile.getPath() + " error");
