@@ -20,6 +20,27 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.4-SNAPSHOT</p>
+      <ul>
+        <li>1.Add code auto format support (enabled by default), and use idea's own code format</li>
+        <li>2.New code will automatically prompt you to add to VCS (version control)</li>
+        <li>3.Add dasUtil dbUtil advanced tool class</li>
+        <li>4.Partial optimization for version 20.1</li>
+        <li>5.When the generated file exists, it supports three operations: overlay, comparison and cancellation</li>
+        <li>6.The code generation panel adds a table prefix, which is provided by feiyan99</li>
+        <li>7.Add template group selection function to code generation panel</li>
+        <li>8.Compatible with IDEA 17.1</li>
+      </ul>
+      <ul>
+        <li>1.加入代码自动格式化支持(默认开启)，使用IDEA自带代码格式化实现</li>
+        <li>2.新增的代码会自动提示添加到VCS(版本控制)</li>
+        <li>3.新增dasUtil dbUtil高级工具类</li>
+        <li>4.针对20.1版本进行部分优化</li>
+        <li>5.生成文件存在时支持覆盖、对比、取消三种操作</li>
+        <li>6.代码生成面板加入表前缀，该功能由feiyan99提供PR</li>
+        <li>7.代码生成面板加入模板组选中功能</li>
+        <li>8.兼容至IDEA 17.1版本</li>
+      </ul>
       <p>1.2.3-RELEASE</p>
       <ul>
         <li>1.Compatible with idea2020.1</li>
@@ -164,6 +185,8 @@
     <depends>com.intellij.database</depends>
     <!--必须依赖Velocity插件-->
     <depends>com.intellij.velocity</depends>
+    <!--java支持扩展-->
+    <depends>com.intellij.modules.java</depends>
 
     <!--扩展点-->
     <extensions defaultExtensionNs="com.intellij">
