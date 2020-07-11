@@ -7,7 +7,6 @@ import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -379,7 +378,7 @@ public class TableInfoServiceImpl implements TableInfoService {
      * @return EasyCodeConfig目录
      */
     private PsiDirectory getEasyCodeConfigDirectory(Project project) {
-        VirtualFile baseDir = ProjectUtil.guessProjectDir(project);
+        VirtualFile baseDir = ProjectUtils.getBaseDir(project);
         if (baseDir == null) {
             Messages.showInfoMessage("无法获取项目路径", MsgValue.TITLE_INFO);
             return null;
