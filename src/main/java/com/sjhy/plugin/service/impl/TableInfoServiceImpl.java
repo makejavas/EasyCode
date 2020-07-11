@@ -7,8 +7,13 @@ import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.constants.MsgValue;
@@ -348,20 +353,55 @@ public class TableInfoServiceImpl implements TableInfoService {
      */
     private TableInfo read(TableInfo tableInfo) {
         // 获取保存的目录
-        String path = project.getBasePath() + SAVE_PATH;
-        File dir = new File(path);
-        // 获取保存的文件
-        File file = new File(dir, getConfigFileName(tableInfo.getObj()));
-        // 文件不存在时直接返回
-        if (!file.exists()) {
+        PsiDirectory easyCodeConfigDir = getEasyCodeConfigDirectory(project);
+        if (easyCodeConfigDir == null) {
+            return null;
+        }
+        // 获取配置文件
+        String fileName = getConfigFileName(tableInfo.getObj());
+        PsiFile configJsonFile = easyCodeConfigDir.findFile(getConfigFileName(tableInfo.getObj()));
+        if (configJsonFile == null) {
             return null;
         }
         // 读取并解析文件
-        String json = fileUtils.read(project, file);
+        String json = fileUtils.read(configJsonFile);
         if (StringUtils.isEmpty(json)) {
+            Messages.showInfoMessage(fileName + "配置文件文件为空，请尝试手动删除" + configJsonFile.getVirtualFile().getPath() + "文件！", MsgValue.TITLE_INFO);
             return null;
         }
-        return parser(json);
+        return parser(json, configJsonFile);
+    }
+
+    /**
+     * 获取EasyCodeConfig目录
+     *
+     * @param project 项目
+     * @return EasyCodeConfig目录
+     */
+    private PsiDirectory getEasyCodeConfigDirectory(Project project) {
+        VirtualFile baseDir = ProjectUtil.guessProjectDir(project);
+        if (baseDir == null) {
+            Messages.showInfoMessage("无法获取项目路径", MsgValue.TITLE_INFO);
+            return null;
+        }
+        // 项目目录
+        PsiDirectory projectDirectory = PsiManager.getInstance(project).findDirectory(baseDir);
+        if (projectDirectory == null) {
+            Messages.showInfoMessage("项目路径转换失败", MsgValue.TITLE_INFO);
+            return null;
+        }
+        // 获取.idea路径
+        PsiDirectory ideaDir = projectDirectory.findSubdirectory(".idea");
+        if (ideaDir == null) {
+            Messages.showInfoMessage(".idea路径获取失败", MsgValue.TITLE_INFO);
+            return null;
+        }
+        // 查找或创建EasyCodeConfig路径
+        PsiDirectory easyCodeDir = ideaDir.findSubdirectory("EasyCodeConfig");
+        if (easyCodeDir == null) {
+            easyCodeDir = ideaDir.createSubdirectory("EasyCodeConfig");
+        }
+        return easyCodeDir;
     }
 
     /**
@@ -381,11 +421,11 @@ public class TableInfoServiceImpl implements TableInfoService {
      * @param str 原始JSON字符串
      * @return 解析结果
      */
-    private TableInfo parser(String str) {
+    private TableInfo parser(String str, PsiFile originalFile) {
         try {
             return objectMapper.readValue(str, TableInfo.class);
         } catch (IOException e) {
-            Messages.showWarningDialog("读取配置失败，JSON反序列化异常。", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("读取配置失败，JSON反序列化异常。请尝试手动删除" + originalFile.getVirtualFile().getPath() + "文件！", MsgValue.TITLE_INFO);
             ExceptionUtil.rethrow(e);
         }
         return null;

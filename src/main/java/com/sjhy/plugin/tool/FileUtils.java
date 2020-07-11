@@ -22,8 +22,8 @@ import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.SaveFile;
+import lombok.NonNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -61,21 +61,11 @@ public class FileUtils {
     /**
      * 读取文件内容（文本文件）
      *
-     * @param project 项目对象
-     * @param file    文件对象
+     * @param jsonFile JSON配置文件
      * @return 文件内容
      */
-    public String read(Project project, File file) {
-        PsiManager psiManager = PsiManager.getInstance(project);
-        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(file);
-        if (virtualFile == null) {
-            return null;
-        }
-        PsiFile psiFile = psiManager.findFile(virtualFile);
-        if (psiFile == null) {
-            return null;
-        }
-        return psiFile.getText();
+    public String read(@NonNull PsiFile jsonFile) {
+        return jsonFile.getText();
     }
 
     /**
