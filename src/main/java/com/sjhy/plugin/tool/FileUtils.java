@@ -6,14 +6,23 @@ import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.ExceptionUtil;
-import lombok.NonNull;
+import com.sjhy.plugin.constants.MsgValue;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,33 +54,82 @@ public class FileUtils {
     }
 
     /**
-     * 读取文件内容（文本文件）
+     * 创建子目录
      *
-     * @param jsonFile JSON配置文件
-     * @return 文件内容
+     * @param project 文件对象
+     * @param parent  父级目录
+     * @param dirName 子目录
+     * @return 目录对象
      */
-    public String read(@NonNull PsiFile jsonFile) {
-        return jsonFile.getText();
+    public VirtualFile createChildDirectory(Project project, VirtualFile parent, String dirName) {
+        return WriteCommandAction.runWriteCommandAction(project, (Computable<VirtualFile>) () -> {
+            try {
+                return VfsUtil.createDirectoryIfMissing(parent, dirName);
+            } catch (IOException e) {
+                Messages.showWarningDialog("目录创建失败：" + dirName, MsgValue.TITLE_INFO);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 创建子文件
+     *
+     * @param project  项目对象
+     * @param parent   父级目录
+     * @param fileName 子文件名
+     * @return 文件对象
+     */
+    public VirtualFile createChildFile(Project project, VirtualFile parent, String fileName) {
+        return WriteCommandAction.runWriteCommandAction(project, (Computable<VirtualFile>) () -> {
+            PsiManager psiManager = PsiManager.getInstance(project);
+            try {
+                PsiDirectory directory = psiManager.findDirectory(parent);
+                if (directory != null) {
+                    PsiFile psiFile = directory.createFile(fileName);
+                    return psiFile.getVirtualFile();
+                }
+                return parent.createChildData(new Object(), fileName);
+            } catch (IOException e) {
+                Messages.showWarningDialog("文件创建失败：" + fileName, MsgValue.TITLE_INFO);
+                return null;
+            }
+        });
     }
 
     /**
      * 设置文件内容
      *
      * @param project 项目对象
-     * @param psiFile 文件
+     * @param file    文件
      * @param text    文件内容
      * @return 覆盖后的文档对象
      */
-    public Document writeFileContent(Project project, PsiFile psiFile, String fileName, String text) {
-        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
-        Document document = psiDocumentManager.getDocument(psiFile);
+    public Document writeFileContent(Project project, VirtualFile file, String fileName, String text) {
+        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+        Document document = fileDocumentManager.getDocument(file);
         if (document == null) {
             throw new IllegalStateException("获取文档对象失败，fileName：" + fileName);
         }
         WriteCommandAction.runWriteCommandAction(project, () -> document.setText(text));
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
         // 提交改动，并非VCS中的提交文件
         psiDocumentManager.commitDocument(document);
         return document;
+    }
+
+    /**
+     * 格式化虚拟文件
+     *
+     * @param project     项目对象
+     * @param virtualFile 虚拟文件
+     */
+    public void reformatFile(Project project, VirtualFile virtualFile) {
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+        if (psiFile == null) {
+            return;
+        }
+        reformatFile(project, Collections.singletonList(psiFile));
     }
 
     /**
