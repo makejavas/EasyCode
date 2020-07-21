@@ -20,6 +20,13 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.4-RC2</p>
+      <ul>
+        <li>1.Fix the incorrect configuration information of some user prompt tables</li>
+      </ul>
+      <ul>
+        <li>1.修复部分用户提示表配置信息不正确问题</li>
+      </ul>
       <p>1.2.4-RC</p>
       <ul>
         <li>1.Fix the incorrect configuration information of some user prompt tables</li>
