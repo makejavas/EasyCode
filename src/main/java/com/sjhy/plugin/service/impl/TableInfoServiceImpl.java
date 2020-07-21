@@ -22,7 +22,6 @@ import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -50,11 +49,6 @@ public class TableInfoServiceImpl implements TableInfoService {
      * 文件工具类
      */
     private FileUtils fileUtils;
-
-    /**
-     * 保存的相对路径
-     */
-    private static final String SAVE_PATH = "/.idea/EasyCodeConfig";
 
     public TableInfoServiceImpl(Project project) {
         this.project = project;
@@ -331,16 +325,12 @@ public class TableInfoServiceImpl implements TableInfoService {
             return;
         }
         // 获取或创建保存目录
-        String path = project.getBasePath() + SAVE_PATH;
-        File dir = new File(path);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                Messages.showWarningDialog("保存失败，无法创建目录。", MsgValue.TITLE_INFO);
-                return;
-            }
+        VirtualFile dir = getEasyCodeConfigDirectory(project);
+        if (dir == null) {
+            return;
         }
         // 获取保存文件
-        new SaveFile(project, dir.getAbsolutePath(), getConfigFileName(oldTableInfo.getObj()), content, true, false).write();
+        new SaveFile(project, dir.getPath(), getConfigFileName(oldTableInfo.getObj()), content, true, false).write();
     }
 
     /**
