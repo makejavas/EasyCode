@@ -97,6 +97,11 @@ public class SaveFile {
         // 路径对比，判断项目路径是否为文件保存路径的子路径
         String projectPath = handlerPath(baseDir.getPath());
         String tmpFilePath = handlerPath(this.path);
+        if (tmpFilePath.length() > projectPath.length()) {
+            if (!"/".equals(tmpFilePath.substring(projectPath.length(), projectPath.length() + 1))) {
+                return false;
+            }
+        }
         return tmpFilePath.indexOf(projectPath) == 0;
     }
 
