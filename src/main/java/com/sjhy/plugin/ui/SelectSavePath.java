@@ -210,7 +210,13 @@ public class SelectSavePath extends JDialog {
         // 保存路径使用相对路径
         String basePath = project.getBasePath();
         if (!StringUtils.isEmpty(basePath) && savePath.startsWith(basePath)) {
-            savePath = savePath.replace(basePath, ".");
+            if (savePath.length() > basePath.length()) {
+                if ("/".equals(savePath.substring(basePath.length(), basePath.length() + 1))) {
+                    savePath = savePath.replace(basePath, ".");
+                }
+            } else {
+                savePath = savePath.replace(basePath, ".");
+            }
         }
         // 保存配置
         TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
