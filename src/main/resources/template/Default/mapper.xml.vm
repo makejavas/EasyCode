@@ -59,6 +59,24 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
         values (#foreach($column in $tableInfo.otherColumn)#{$!{column.name}}#if($velocityHasNext), #end#end)
     </insert>
 
+    <insert id="insertBatch" keyProperty="$!pk.name" useGeneratedKeys="true">
+        insert into $!{tableInfo.obj.parent.name}.$!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($velocityHasNext), #end#end)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#foreach($column in $tableInfo.otherColumn)#{entity.$!{column.name}}#if($velocityHasNext), #end#end)
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="$!pk.name" useGeneratedKeys="true">
+        insert into $!{tableInfo.obj.parent.name}.$!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($velocityHasNext), #end#end)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#foreach($column in $tableInfo.otherColumn)#{entity.$!{column.name}}#if($velocityHasNext), #end#end)
+        </foreach>
+        on duplicate key update
+         #foreach($column in $tableInfo.otherColumn)$!column.obj.name = values($!column.obj.name) #if($velocityHasNext), #end#end
+    </insert>
+
     <!--通过主键修改数据-->
     <update id="update">
         update $!{tableInfo.obj.parent.name}.$!{tableInfo.obj.name}
