@@ -20,7 +20,6 @@ import lombok.Data;
 import lombok.NonNull;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * 需要保存的文件
@@ -187,12 +186,7 @@ public class SaveFile {
         if (this.operateTitle && !MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, msg).isYes()) {
             return null;
         }
-        try {
-            saveDir = VfsUtil.createDirectoryIfMissing(baseDir, savePath);
-        } catch (IOException e) {
-            Messages.showWarningDialog("目录创建失败" + savePath, MsgValue.TITLE_INFO);
-            return null;
-        }
+        saveDir = fileUtils.createChildDirectory(project, baseDir, savePath);
         return saveDir;
     }
 
