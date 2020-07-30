@@ -1,0 +1,39 @@
+##导入宏定义
+$!define
+
+##设置表后缀（宏定义）
+#setTableSuffix("Dao")
+
+##保存文件（宏定义）
+#save("/dao", "Dao.java")
+
+##包路径（宏定义）
+#setPackageSuffix("dao")
+
+import java.util.List;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import $!{tableInfo.savePackageName}.entity.$!tableInfo.name;
+
+##表注释（宏定义）
+#tableComment("表数据库访问层")
+public interface $!{tableName} extends BaseMapper<$!tableInfo.name> {
+
+/**
+* 批量新增数据（MyBatis原生foreach方法）
+*
+* @param entities List<$!{tableInfo.name}> 实例对象列表
+* @return 影响行数
+*/
+int insertBatch(@Param("entities") List<$!{tableInfo.name}> entities);
+
+/**
+* 批量新增或按主键更新数据（MyBatis原生foreach方法）
+*
+* @param entities List<$!{tableInfo.name}> 实例对象列表
+* @return 影响行数
+*/
+int insertOrUpdateBatch(@Param("entities") List<$!{tableInfo.name}> entities);
+
+}
