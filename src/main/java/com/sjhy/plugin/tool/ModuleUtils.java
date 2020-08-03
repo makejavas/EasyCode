@@ -34,7 +34,12 @@ public final class ModuleUtils {
     public static VirtualFile getSourcePath(@NotNull Module module) {
         List<VirtualFile> virtualFileList = ModuleRootManager.getInstance(module).getSourceRoots(JavaSourceRootType.SOURCE);
         if (CollectionUtil.isEmpty(virtualFileList)) {
-            return VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", ModuleUtil.getModuleDirPath(module)));
+            String modulePath = ModuleUtil.getModuleDirPath(module);
+            int index = modulePath.indexOf(".idea");
+            if (index > 0) {
+                modulePath = modulePath.substring(0, index - 1);
+            }
+            return VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", modulePath));
         }
         return virtualFileList.get(0);
     }

@@ -7,7 +7,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiPackage;
 import com.sjhy.plugin.config.Settings;
@@ -18,10 +17,7 @@ import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
-import com.sjhy.plugin.tool.CacheDataUtils;
-import com.sjhy.plugin.tool.CurrGroupUtils;
-import com.sjhy.plugin.tool.ModuleUtils;
-import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.tool.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -313,7 +309,7 @@ public class SelectSavePath extends JDialog {
         //选择路径
         pathChooseButton.addActionListener(e -> {
             //将当前选中的model设置为基础路径
-            VirtualFile path = LocalFileSystem.getInstance().findFileByPath(project.getBasePath());
+            VirtualFile path = ProjectUtils.getBaseDir(project);
             Module module = getSelectModule();
             if (module != null) {
                 path = ModuleUtils.getSourcePath(module);
@@ -391,9 +387,17 @@ public class SelectSavePath extends JDialog {
      */
     private String getBasePath() {
         Module module = getSelectModule();
-        String baseDir = project.getBasePath();
+        VirtualFile baseVirtualFile = ProjectUtils.getBaseDir(project);
+        if (baseVirtualFile == null) {
+            Messages.showWarningDialog("无法获取到项目基本路径！", MsgValue.TITLE_INFO);
+            return "";
+        }
+        String baseDir = baseVirtualFile.getPath();
         if (module != null) {
-            baseDir = ModuleUtils.getSourcePath(module).getPath();
+            VirtualFile virtualFile = ModuleUtils.getSourcePath(module);
+            if (virtualFile != null) {
+                baseDir = virtualFile.getPath();
+            }
         }
         return baseDir;
     }
