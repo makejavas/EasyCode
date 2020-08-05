@@ -5,7 +5,6 @@ import com.intellij.database.util.DasUtil;
 import com.intellij.database.util.DbUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ReflectionUtil;
@@ -202,7 +201,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         }
         if (module != null) {
             // 设置modulePath
-            param.put("modulePath", ModuleUtil.getModuleDirPath(module));
+            param.put("modulePath", ModuleUtils.getModuleDir(module).getPath());
         }
         // 设置要导入的包
         param.put("importList", getImportList(tableInfo));
