@@ -34,9 +34,14 @@ public final class ModuleUtils {
      */
     public static VirtualFile getModuleDir(@NotNull Module module) {
         String modulePath = ModuleUtil.getModuleDirPath(module);
-        int index = modulePath.indexOf(".idea");
-        if (index > 0) {
+        // 统一路径分割符号
+        modulePath = modulePath.replace("\\", "/");
+        // 尝试消除不正确的路径
+        if (modulePath.contains(".idea/modules/")) {
             modulePath = modulePath.replace(".idea/modules/","");
+        }
+        if (modulePath.contains("/.idea")) {
+            modulePath = modulePath.replace("/.idea","");
         }
         return VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", modulePath));
     }
