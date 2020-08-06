@@ -36,7 +36,7 @@ public final class ModuleUtils {
         String modulePath = ModuleUtil.getModuleDirPath(module);
         int index = modulePath.indexOf(".idea");
         if (index > 0) {
-            modulePath = modulePath.substring(0, index - 1);
+            modulePath = modulePath.replace(".idea/modules/","");
         }
         return VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", modulePath));
     }
