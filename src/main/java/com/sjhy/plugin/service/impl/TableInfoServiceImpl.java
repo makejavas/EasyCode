@@ -25,6 +25,7 @@ import com.sjhy.plugin.tool.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * @author makejava
@@ -242,13 +243,23 @@ public class TableInfoServiceImpl implements TableInfoService {
         JBIterable<? extends DasColumn> columns = DasUtil.getColumns(dbTable);
         List<TypeMapper> typeMapperList = CurrGroupUtils.getCurrTypeMapperGroup().getElementList();
 
+        // 简单的记录报错弹窗次数，避免重复报错
+        Set<String> errorCount = new HashSet<>();
+
         FLAG:
         for (DasColumn column : columns) {
             String typeName = column.getDataType().getSpecification();
             for (TypeMapper typeMapper : typeMapperList) {
-                // 不区分大小写查找类型
-                if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
-                    continue FLAG;
+                try {
+                    // 不区分大小写查找类型
+                    if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
+                        continue FLAG;
+                    }
+                } catch (PatternSyntaxException e) {
+                    if (!errorCount.contains(typeMapper.getColumnType())) {
+                        Messages.showWarningDialog("类型映射《" + typeMapper.getColumnType() + "》存在语法错误，请及时修正。报错信息:" + e.getMessage(), MsgValue.TITLE_INFO);
+                        errorCount.add(typeMapper.getColumnType());
+                    }
                 }
             }
             // 没找到类型，引导用户去添加类型
