@@ -392,6 +392,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         VirtualFile ideaDir = baseDir.findChild(".idea");
         if (ideaDir == null) {
             Messages.showInfoMessage(".idea路径获取失败", MsgValue.TITLE_INFO);
+            String errorMsg = String.format("baseDir:%s, not found .idea child directory", baseDir.getPath());
+            ExceptionUtil.rethrow(new IllegalStateException(errorMsg));
             return null;
         }
         // 查找或创建EasyCodeConfig路径
