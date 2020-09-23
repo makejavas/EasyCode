@@ -20,6 +20,13 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.4-RC3</p>
+      <ul>
+        <li>1.Fix known bugs</li>
+      </ul>
+      <ul>
+        <li>1.修复已知BUG</li>
+      </ul>
       <p>1.2.4-RC2</p>
       <ul>
         <li>1.Fix the incorrect configuration information of some user prompt tables</li>
