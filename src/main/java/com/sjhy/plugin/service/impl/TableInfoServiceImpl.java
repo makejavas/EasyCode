@@ -390,6 +390,19 @@ public class TableInfoServiceImpl implements TableInfoService {
         }
         // 获取.idea路径
         VirtualFile ideaDir = baseDir.findChild(".idea");
+        // 当获取失败时尝试通过父级目录获取，最多向上找3级目录
+        VirtualFile tmpDir = baseDir;
+        for (int i = 0; i < 3; i++) {
+            if (ideaDir != null) {
+                break;
+            }
+            tmpDir = tmpDir.getParent();
+            // 当没有父级目录时不再继续
+            if (tmpDir == null) {
+                break;
+            }
+            ideaDir = tmpDir.findChild(".idea");
+        }
         if (ideaDir == null) {
             Messages.showInfoMessage(".idea路径获取失败", MsgValue.TITLE_INFO);
             String errorMsg = String.format("baseDir:%s, not found .idea child directory", baseDir.getPath());
