@@ -3,9 +3,11 @@ package com.sjhy.plugin.tool;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.sjhy.plugin.constants.MsgValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
@@ -40,10 +42,17 @@ public final class ModuleUtils {
         if (modulePath.contains(".idea/modules/")) {
             modulePath = modulePath.replace(".idea/modules/","");
         }
+        if (modulePath.contains(".idea/modules")) {
+            modulePath = modulePath.replace(".idea/modules","");
+        }
         if (modulePath.contains("/.idea")) {
             modulePath = modulePath.replace("/.idea","");
         }
-        return VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", modulePath));
+        VirtualFile dir = VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", modulePath));
+        if (dir == null) {
+            Messages.showInfoMessage("无法获取Module路径, path=" + modulePath, MsgValue.TITLE_INFO);
+        }
+        return dir;
     }
 
     /**
@@ -56,12 +65,20 @@ public final class ModuleUtils {
         List<VirtualFile> virtualFileList = ModuleRootManager.getInstance(module).getSourceRoots(JavaSourceRootType.SOURCE);
         if (CollectionUtil.isEmpty(virtualFileList)) {
             VirtualFile modulePath = getModuleDir(module);
-            // 尝试智能识别原代码路径(通过上面的方式，IDEA不能百分百拿到原代码路径)
+            // 尝试智能识别源代码路径(通过上面的方式，IDEA不能百分百拿到源代码路径)
             VirtualFile srcDir = VfsUtil.findRelativeFile(modulePath, "src", "main", "java");
             if (srcDir != null && srcDir.isDirectory()) {
                 return srcDir;
             }
             return modulePath;
+        }
+        if (virtualFileList.size() > 1) {
+            for (VirtualFile file : virtualFileList) {
+                String tmpPath = file.getPath();
+                if (!tmpPath.contains("build") && !tmpPath.contains("generated")) {
+                    return file;
+                }
+            }
         }
         return virtualFileList.get(0);
     }
