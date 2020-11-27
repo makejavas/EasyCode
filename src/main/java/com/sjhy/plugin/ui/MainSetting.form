@@ -43,11 +43,6 @@
               <text value="导入模板"/>
             </properties>
           </component>
-          <hspacer id="f42dd">
-            <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </hspacer>
           <vspacer id="a8dbe">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
@@ -59,6 +54,14 @@
             </constraints>
             <properties>
               <text value="导出模板"/>
+            </properties>
+          </component>
+          <component id="71c51" class="javax.swing.JButton" binding="remoteBtn">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="远程导入"/>
             </properties>
           </component>
         </children>

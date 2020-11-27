@@ -62,6 +62,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * 当前版本号
      */
     private JLabel versionLabel;
+    /**
+     * 导入远程json
+     */
+    private JButton remoteBtn;
 
     /**
      * 重置列表
@@ -134,6 +138,54 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 return;
             }
             String result = HttpUtils.get(String.format("/template?token=%s", token));
+            if (result == null) {
+                return;
+            }
+            // 解析数据
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode jsonNode = objectMapper.readTree(result);
+                if (jsonNode == null) {
+                    return;
+                }
+                // 配置覆盖
+                coverConfig(jsonNode, StrState.TYPE_MAPPER, TypeMapperGroup.class, settings.getTypeMapperGroupMap());
+                coverConfig(jsonNode, StrState.TEMPLATE, TemplateGroup.class, settings.getTemplateGroupMap());
+                coverConfig(jsonNode, StrState.COLUMN_CONFIG, ColumnConfigGroup.class, settings.getColumnConfigGroupMap());
+                coverConfig(jsonNode, StrState.GLOBAL_CONFIG, GlobalConfigGroup.class, settings.getGlobalConfigGroupMap());
+                // 重置配置
+                allList.forEach(UnnamedConfigurable::reset);
+                if (CollectionUtil.isEmpty(saveList)) {
+                    return;
+                }
+                // 保存
+                allList.forEach(configurable -> {
+                    try {
+                        configurable.apply();
+                    } catch (ConfigurationException e1) {
+                        e1.printStackTrace();
+                    }
+                });
+                // 覆盖提示
+                Messages.showInfoMessage("导入完成", MsgValue.TITLE_INFO);
+            } catch (IOException e1) {
+                ExceptionUtil.rethrow(e1);
+            }
+        });
+
+        remoteBtn.addActionListener(e -> {
+            String url = Messages.showInputDialog("远程Url:", MsgValue.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    return !StringUtils.isEmpty(inputString);
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return this.checkInput(inputString);
+                }
+            });
+            String result = HttpUtils.getRemoteUrl(url);
             if (result == null) {
                 return;
             }
