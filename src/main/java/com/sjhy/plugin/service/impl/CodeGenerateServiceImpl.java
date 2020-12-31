@@ -149,7 +149,11 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 // 开始生成
                 String code = VelocityUtils.generate(template.getCode(), param);
                 // 清除前面空格
-                code = code.trim();
+                StringBuilder sb = new StringBuilder(code);
+                while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
+                    sb.deleteCharAt(0);
+                }
+                code = sb.toString();
                 // 设置一个默认保存路径与默认文件名
                 if (StringUtils.isEmpty(callback.getFileName())) {
                     callback.setFileName(tableInfo.getName() + "Default.java");
