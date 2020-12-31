@@ -1,28 +1,23 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-        maven {
-            url 'https://dl.bintray.com/jetbrains/intellij-plugin-service'
-        }
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+        maven { url 'https://dl.bintray.com/jetbrains/intellij-plugin-service' }
+        maven { url 'https://dl.bintray.com/jetbrains/intellij-third-party-dependencies/' }
     }
     dependencies {
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.5.0-SNAPSHOT"
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.6.0"
     }
 }
 
-//plugins {
-//    id 'java'
-//    id 'org.jetbrains.intellij' version '0.3.5'
-//}
-
 //2.1 插件配置
 // 这两个插件是必备
-apply plugin: 'idea'
-apply plugin: 'java'
-apply plugin: 'org.jetbrains.intellij'
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.6.0'
+}
+
 
 group 'com.sjhy'
 version '1.2.4-RC4'
@@ -35,22 +30,13 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.2'
-    compileOnly 'org.projectlombok:lombok:1.18.2'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
-    testCompileOnly 'org.projectlombok:lombok:1.18.2'
-}
-
 intellij {
 //    插件名称
     pluginName 'EasyCode'
     // 沙箱目录位置，用于保存IDEA的设置，默认在build文件下面，防止clean，放在根目录下。
     sandboxDirectory = "${rootProject.rootDir}/idea-sandbox"
     // 开发环境运行时使用的版本
-    version '2020.1'
+    version '2020.1.2'
     type 'IU'
     // 各种版本去这里找
     // https://www.jetbrains.com/intellij-repository/releases
@@ -58,6 +44,14 @@ intellij {
     plugins = ['java', 'DatabaseTools', 'Velocity']
     //Disables updating since-build attribute in plugin.xml
     updateSinceUntilBuild false
+    downloadSources = true
+}
+
+dependencies {
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
+    compileOnly 'org.projectlombok:lombok:1.18.2'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
 }
 
 tasks.withType(JavaCompile) {
