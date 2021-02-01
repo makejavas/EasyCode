@@ -20,7 +20,7 @@
         #set($jdbcType="TIMESTAMP")
     #else
         ##其他类型
-        #set($jdbcType="OTHER")
+        #set($jdbcType="VARCHAR")
     #end
     $tool.call($column.ext.put("jdbcType", $jdbcType))
 #end
