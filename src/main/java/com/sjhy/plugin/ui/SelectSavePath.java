@@ -282,26 +282,33 @@ public class SelectSavePath extends JDialog {
             refreshPath();
         });
 
-        //添加包选择事件
-        packageChooseButton.addActionListener(e -> {
-            PackageChooserDialog dialog = new PackageChooserDialog("Package Chooser", project);
-            dialog.show();
-            PsiPackage psiPackage = dialog.getSelectedPackage();
-            if (psiPackage != null) {
-                packageField.setText(psiPackage.getQualifiedName());
-                // 刷新路径
-                refreshPath();
-            }
-        });
+        try {
+            Class.forName("com.intellij.ide.util.PackageChooserDialog");
+            //添加包选择事件
+            packageChooseButton.addActionListener(e -> {
+                PackageChooserDialog dialog = new PackageChooserDialog("Package Chooser", project);
+                dialog.show();
+                PsiPackage psiPackage = dialog.getSelectedPackage();
+                if (psiPackage != null) {
+                    packageField.setText(psiPackage.getQualifiedName());
+                    // 刷新路径
+                    refreshPath();
+                }
+            });
 
-        // 添加包编辑框失去焦点事件
-        packageField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                // 刷新路径
-                refreshPath();
-            }
-        });
+            // 添加包编辑框失去焦点事件
+            packageField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    // 刷新路径
+                    refreshPath();
+                }
+            });
+        } catch (ClassNotFoundException e) {
+            // 没有PackageChooserDialog，并非支持Java的IDE，禁用相关UI组件
+            packageField.setEnabled(false);
+            packageChooseButton.setEnabled(false);
+        }
 
         //初始化路径
         refreshPath();

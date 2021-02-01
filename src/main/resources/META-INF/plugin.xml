@@ -204,10 +204,12 @@
     <depends>com.intellij.modules.lang</depends>
     <!--必须依赖Database Tool插件-->
     <depends>com.intellij.database</depends>
-    <!--必须依赖Velocity插件-->
-    <depends>com.intellij.velocity</depends>
-    <!--java支持扩展-->
-    <depends>com.intellij.modules.java</depends>
+
+    <application-components>
+        <!--<component>-->
+            <!--<implementation-class>com.sjhy.plugin.tool.CloneUtils</implementation-class>-->
+        <!--</component>-->
+    </application-components>
 
     <!--扩展点-->
     <extensions defaultExtensionNs="com.intellij">
@@ -219,8 +221,6 @@
         <projectService serviceInterface="com.sjhy.plugin.service.CodeGenerateService" serviceImplementation="com.sjhy.plugin.service.impl.CodeGenerateServiceImpl"/>
         <!--系统设置面板-->
         <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSetting"/>
-
-        <velocity.globalVariableProvider implementation="com.sjhy.plugin.provider.EasyCodeGlobalVariableProvider"/>
     </extensions>
 
     <actions>

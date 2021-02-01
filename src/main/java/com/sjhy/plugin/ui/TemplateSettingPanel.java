@@ -19,6 +19,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -246,8 +247,13 @@ public class TemplateSettingPanel implements Configurable {
             protected void selectedItem(Template item) {
                 // 如果编辑面板已经实例化，需要选释放后再初始化
                 if (templateEditor == null) {
-                    FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
-                    templateEditor = new TemplateEditor(project, item.getName() + ".vm", item.getCode(), TEMPLATE_DESCRIPTION_INFO, velocityFileType);
+                    // 针对不支持velocity的IDE特殊处理
+                    String fileType = "vm";
+                    if (FileTypeManager.getInstance().getFileTypeByExtension(fileType) == UnknownFileType.INSTANCE) {
+                        fileType = "txt";
+                    }
+                    FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension(fileType);
+                    templateEditor = new TemplateEditor(project, item.getName() + "." + fileType, item.getCode(), TEMPLATE_DESCRIPTION_INFO, velocityFileType);
                     // 代码修改回调
                     templateEditor.setCallback(() -> onUpdate());
                     baseItemSelectPanel.getRightPanel().add(templateEditor.createComponent(), BorderLayout.CENTER);
@@ -358,6 +364,10 @@ public class TemplateSettingPanel implements Configurable {
                 PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
                 String fileName = templateEditor.getName();
                 FileType velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("vm");
+                // 当IDE未安装velocity插件时，使用txt类型处理数据
+                if (velocityFileType == UnknownFileType.INSTANCE) {
+                    velocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("txt");
+                }
                 PsiFile psiFile = psiFileFactory.createFileFromText("EasyCodeTemplateDebug.vm.ft", velocityFileType, code, 0, true);
                 // 标识为模板，让velocity跳过语法校验
                 psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(project).getDefaultProperties());
