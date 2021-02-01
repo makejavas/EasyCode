@@ -3,7 +3,6 @@ package com.sjhy.plugin.ui;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.TypeMapper;
@@ -11,6 +10,7 @@ import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.entity.TypeMapperModel;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.config.Settings;
+import com.sjhy.plugin.tool.MessageDialogUtils;
 import com.sjhy.plugin.tool.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +91,7 @@ public class TypeMapperSetting implements Configurable {
             if (selectRows == null || selectRows.length == 0) {
                 return;
             }
-            if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Selected Item?").isYes()) {
+            if (!MessageDialogUtils.yesNo("Confirm Delete Selected Item?")) {
                 return;
             }
             // 从后面往前面移除，防止下标错位问题。
@@ -142,7 +142,7 @@ public class TypeMapperSetting implements Configurable {
 
         //删除分组
         deleteButton.addActionListener(e -> {
-            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Group " + typeMapperComboBox.getSelectedItem() + "?").isYes()) {
+            if (MessageDialogUtils.yesNo( "Confirm Delete Group " + typeMapperComboBox.getSelectedItem() + "?")) {
                 if (Settings.DEFAULT_NAME.equals(currGroupName)) {
                     Messages.showWarningDialog("Can't Delete Default Group!", MsgValue.TITLE_INFO);
                     return;

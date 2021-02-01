@@ -1,7 +1,6 @@
 package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
@@ -10,6 +9,7 @@ import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.entity.ColumnConfig;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.config.Settings;
+import com.sjhy.plugin.tool.MessageDialogUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
 import javax.swing.*;
@@ -204,7 +204,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
             if (!initFlag) {
                 return;
             }
-            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Group " + currGroupName + "?").isYes()) {
+            if (MessageDialogUtils.yesNo( "Confirm Delete Group " + currGroupName + "?")) {
                 if (Settings.DEFAULT_NAME.equals(currGroupName)) {
                     Messages.showWarningDialog("Can't Delete Default Group!", MsgValue.TITLE_INFO);
                     return;
@@ -257,7 +257,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
             if (itemList.isEmpty()) {
                 return;
             }
-            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, "Confirm Delete Selected Item?").isYes()) {
+            if (MessageDialogUtils.yesNo( "Confirm Delete Selected Item?")) {
                 int[] rows = table.getSelectedRows();
                 for (int i = rows.length - 1; i >= 0; i--) {
                     tableModel.removeRow(rows[i]);

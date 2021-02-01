@@ -14,10 +14,7 @@ import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.entity.*;
-import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.tool.HttpUtils;
-import com.sjhy.plugin.tool.ProjectUtils;
-import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.tool.*;
 import com.sjhy.plugin.ui.base.ListCheckboxPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +92,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
         Settings settings = Settings.getInstance();
         //重置配置信息
         resetBtn.addActionListener(e -> {
-            if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, MsgValue.RESET_DEFAULT_SETTING_MSG).isYes()) {
+            if (MessageDialogUtils.yesNo(project, MsgValue.RESET_DEFAULT_SETTING_MSG)) {
                 if (CollectionUtil.isEmpty(resetList)) {
                     return;
                 }
@@ -283,7 +280,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 String value = node.get(key).toString();
                 T group = objectMapper.readValue(value, cls);
                 if (srcGroup.containsKey(key)) {
-                    if (!MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format("是否覆盖%s配置中的%s分组？", name, key)).isYes()) {
+                    if (!MessageDialogUtils.yesNo(String.format("是否覆盖%s配置中的%s分组？", name, key))) {
                         continue;
                     }
                 }

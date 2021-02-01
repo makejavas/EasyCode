@@ -4,12 +4,12 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.util.ui.JBUI;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.config.Settings;
+import com.sjhy.plugin.tool.MessageDialogUtils;
 import com.sjhy.plugin.tool.StringUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -201,7 +201,7 @@ public abstract class BaseGroupPanel extends JPanel {
                     return;
                 }
                 // 确认删除？
-                if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format(MsgValue.CONFIRM_DELETE_GROUP, groupName)).isYes()) {
+                if (MessageDialogUtils.yesNo(String.format(MsgValue.CONFIRM_DELETE_GROUP, groupName))) {
                     deleteGroup(groupName);
                 }
             }

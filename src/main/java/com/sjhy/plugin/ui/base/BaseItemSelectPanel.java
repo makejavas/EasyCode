@@ -3,7 +3,6 @@ package com.sjhy.plugin.ui.base;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.CollectionListModel;
@@ -11,6 +10,7 @@ import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.JBUI;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.tool.MessageDialogUtils;
 import com.sjhy.plugin.tool.StringUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -228,7 +228,7 @@ public abstract class BaseItemSelectPanel<T extends Item> {
             public void actionPerformed(AnActionEvent e) {
                 T selectedItem = getSelectedItem();
                 // 确认删除？
-                if (MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, String.format(MsgValue.CONFIRM_DELETE_MESSAGE, selectedItem.getName())).isYes()) {
+                if (MessageDialogUtils.yesNo(String.format(MsgValue.CONFIRM_DELETE_MESSAGE, selectedItem.getName()))) {
                     deleteItem(selectedItem);
                 }
             }

@@ -6,15 +6,14 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.testFramework.LightVirtualFile;
-import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.tool.CompareFileUtils;
 import com.sjhy.plugin.tool.FileUtils;
+import com.sjhy.plugin.tool.MessageDialogUtils;
 import com.sjhy.plugin.tool.ProjectUtils;
 import lombok.Data;
 import lombok.NonNull;
@@ -183,7 +182,7 @@ public class SaveFile {
         }
         // 尝试创建目录
         String msg = String.format("Directory %s Not Found, Confirm Create?", this.path);
-        if (this.operateTitle && !MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, msg).isYes()) {
+        if (this.operateTitle && !MessageDialogUtils.yesNo(project, msg)) {
             return null;
         }
         saveDir = fileUtils.createChildDirectory(project, baseDir, savePath);
@@ -210,11 +209,7 @@ public class SaveFile {
             // 提示覆盖文件
             if (operateTitle) {
                 String msg = String.format("File %s Exists, Select Operate Mode?", file.getPath());
-                MessageDialogBuilder.YesNoCancel yesNoCancel = MessageDialogBuilder.yesNoCancel(MsgValue.TITLE_INFO, msg);
-                yesNoCancel.yesText("Cover");
-                yesNoCancel.noText("Compare");
-                yesNoCancel.cancelText("Cancel");
-                int result = yesNoCancel.show();
+                int result = MessageDialogUtils.yesNoCancel(project, msg, "Conver", "Compare", "Cancel");
                 switch (result) {
                     case Messages.YES:
                         // 覆盖文件
