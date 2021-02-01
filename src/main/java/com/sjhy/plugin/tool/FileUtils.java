@@ -145,8 +145,8 @@ public class FileUtils {
         }
         // 尝试对文件进行格式化处理
         AbstractLayoutCodeProcessor processor = new ReformatCodeProcessor(project, psiFileList.toArray(new PsiFile[0]), null, false);
-        // 优化导入
-        processor = new OptimizeImportsProcessor(processor);
+        // 优化导入，有时候会出现莫名其妙的问题，暂时关闭
+//        processor = new OptimizeImportsProcessor(processor);
         // 重新编排代码（会将代码中的属性与方法的顺序进行重新调整）
 //            processor = new RearrangeCodeProcessor(processor);
 
