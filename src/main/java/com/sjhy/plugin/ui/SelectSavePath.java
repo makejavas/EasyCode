@@ -1,6 +1,5 @@
 package com.sjhy.plugin.ui;
 
-import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
@@ -8,7 +7,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiPackage;
+import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.constants.StrState;
@@ -22,6 +21,9 @@ import com.sjhy.plugin.tool.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -283,16 +285,27 @@ public class SelectSavePath extends JDialog {
         });
 
         try {
-            Class.forName("com.intellij.ide.util.PackageChooserDialog");
+            Class<?> cls = Class.forName("com.intellij.ide.util.PackageChooserDialog");
             //添加包选择事件
             packageChooseButton.addActionListener(e -> {
-                PackageChooserDialog dialog = new PackageChooserDialog("Package Chooser", project);
-                dialog.show();
-                PsiPackage psiPackage = dialog.getSelectedPackage();
-                if (psiPackage != null) {
-                    packageField.setText(psiPackage.getQualifiedName());
-                    // 刷新路径
-                    refreshPath();
+                try {
+                    Constructor<?> constructor = cls.getConstructor(String.class, Project.class);
+                    Object dialog = constructor.newInstance("Package Chooser", project);
+                    // 显示窗口
+                    Method showMethod = cls.getMethod("show");
+                    showMethod.invoke(dialog);
+                    // 获取选中的包名
+                    Method getSelectedPackageMethod = cls.getMethod("getSelectedPackage");
+                    Object psiPackage = getSelectedPackageMethod.invoke(dialog);
+                    if (psiPackage != null) {
+                        Method getQualifiedNameMethod = psiPackage.getClass().getMethod("getQualifiedName");
+                        String packageName = (String) getQualifiedNameMethod.invoke(psiPackage);
+                        packageField.setText(packageName);
+                        // 刷新路径
+                        refreshPath();
+                    }
+                } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e1) {
+                    ExceptionUtil.rethrow(e1);
                 }
             });
 
