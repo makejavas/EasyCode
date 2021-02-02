@@ -20,6 +20,17 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.4-RC4</p>
+      <ul>
+        <li>1.compatible with PyCharm,WebStorm,GoLand,DataGrip,PhpStorm</li>
+        <li>2.Solve the problem of errors or slowness when some IDEs use code formatting</li>
+        <li>3.Optimize compatibility issues, compatible to 2020.3.2</li>
+      </ul>
+      <ul>
+        <li>1.兼容 PyCharm WebStorm GoLand DataGrip PhpStorm</li>
+        <li>2.解决部分部分IDE使用代码格式化时产生错误或卡顿问题</li>
+        <li>3.优化兼容性问题，兼容至2020.3.2</li>
+      </ul>
       <p>1.2.4-RC3</p>
       <ul>
         <li>1.Fix known bugs</li>
