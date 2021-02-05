@@ -1,5 +1,8 @@
 package com.sjhy.plugin.ui;
 
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.io.file.FileWriter;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.icons.AllIcons;
@@ -7,15 +10,21 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.*;
+import com.intellij.openapi.ui.DialogBuilder;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.*;
+import com.sjhy.plugin.ui.base.ImOrExportWayConfirmPanel;
 import com.sjhy.plugin.ui.base.ListCheckboxPanel;
+import com.sjhy.plugin.ui.base.ListRadioPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,15 +32,20 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 主设置面板
  *
  * @author makejava
- * @version 1.0.0
+ * @version 1.2.5
  * @since 2018/07/17 13:10
  */
 public class MainSetting implements Configurable, Configurable.Composite {
@@ -113,57 +127,38 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 });
             }
         });
-
         // 模板导入事件
         importBtn.addActionListener(e -> {
-            String token = Messages.showInputDialog("Token:", MsgValue.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
-                @Override
-                public boolean checkInput(String inputString) {
-                    return !StringUtils.isEmpty(inputString);
-                }
+            // 创建两行一列的主面板
+            ImOrExportWayConfirmPanel importPanel = new ImOrExportWayConfirmPanel();
+            // 构建dialog
+            DialogBuilder dialogBuilder = new DialogBuilder(project);
+            dialogBuilder.setTitle(MsgValue.TITLE_INFO);
+            dialogBuilder.setCenterPanel(importPanel);
+            dialogBuilder.addActionDescriptor(dialogWrapper -> new AbstractAction("OK") {
 
                 @Override
-                public boolean canClose(String inputString) {
-                    return this.checkInput(inputString);
+                public void actionPerformed(ActionEvent e) {
+                    final String importWay = importPanel.getSelected();
+                    final String importValue = importPanel.getValue();
+                    if (importOrExportWayError(project, "导入", importWay, importValue)) {
+                        return;
+                    }
+                    // 关闭并退出
+                    dialogWrapper.close(DialogWrapper.OK_EXIT_CODE);
+                    switch (importWay) {
+                        case ImOrExportWayConfirmPanel.WAY_TOKEN:
+                            tokenImport(importValue);
+                            break;
+                        case ImOrExportWayConfirmPanel.WAY_LOCAL:
+                            localImport(importValue);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
-            if (token == null) {
-                return;
-            }
-            String result = HttpUtils.get(String.format("/template?token=%s", token));
-            if (result == null) {
-                return;
-            }
-            // 解析数据
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                JsonNode jsonNode = objectMapper.readTree(result);
-                if (jsonNode == null) {
-                    return;
-                }
-                // 配置覆盖
-                coverConfig(jsonNode, StrState.TYPE_MAPPER, TypeMapperGroup.class, settings.getTypeMapperGroupMap());
-                coverConfig(jsonNode, StrState.TEMPLATE, TemplateGroup.class, settings.getTemplateGroupMap());
-                coverConfig(jsonNode, StrState.COLUMN_CONFIG, ColumnConfigGroup.class, settings.getColumnConfigGroupMap());
-                coverConfig(jsonNode, StrState.GLOBAL_CONFIG, GlobalConfigGroup.class, settings.getGlobalConfigGroupMap());
-                // 重置配置
-                allList.forEach(UnnamedConfigurable::reset);
-                if (CollectionUtil.isEmpty(saveList)) {
-                    return;
-                }
-                // 保存
-                allList.forEach(configurable -> {
-                    try {
-                        configurable.apply();
-                    } catch (ConfigurationException e1) {
-                        e1.printStackTrace();
-                    }
-                });
-                // 覆盖提示
-                Messages.showInfoMessage("导入完成", MsgValue.TITLE_INFO);
-            } catch (IOException e1) {
-                ExceptionUtil.rethrow(e1);
-            }
+            dialogBuilder.show();
         });
 
         // 模板导出事件
@@ -182,16 +177,27 @@ public class MainSetting implements Configurable, Configurable.Composite {
             // GlobalConfig
             ListCheckboxPanel globalConfigPanel = new ListCheckboxPanel("Global Config", settings.getGlobalConfigGroupMap().keySet());
             mainPanel.add(globalConfigPanel);
+            // 创建导出方式主面板
+            ImOrExportWayConfirmPanel exportPanel = new ImOrExportWayConfirmPanel(false);
+
+            JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+            centerPanel.add(mainPanel, BorderLayout.CENTER);
+            centerPanel.add(exportPanel, BorderLayout.SOUTH);
             // 构建dialog
             DialogBuilder dialogBuilder = new DialogBuilder(project);
             dialogBuilder.setTitle(MsgValue.TITLE_INFO);
             dialogBuilder.setNorthPanel(new MultiLineLabel("请选择要导出的配置分组："));
-            dialogBuilder.setCenterPanel(mainPanel);
+            dialogBuilder.setCenterPanel(centerPanel);
             dialogBuilder.addActionDescriptor(dialogWrapper -> new AbstractAction("OK") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (!MainSetting.this.isSelected(typeMapperPanel, templatePanel, columnConfigPanel, globalConfigPanel)) {
                         Messages.showWarningDialog("至少选择一个模板组！", MsgValue.TITLE_INFO);
+                        return;
+                    }
+                    final String selected = exportPanel.getSelected();
+                    final String text = exportPanel.getValue();
+                    if (importOrExportWayError(project, "导出", selected, text)) {
                         return;
                     }
                     // 打包数据
@@ -220,24 +226,311 @@ public class MainSetting implements Configurable, Configurable.Composite {
                         globalConfig.put(selectedItem, settings.getGlobalConfigGroupMap().get(selectedItem));
                     }
                     param.put(StrState.GLOBAL_CONFIG, globalConfig);
-                    // 上传数据
-                    String result = HttpUtils.postJson("/template", param);
                     // 关闭并退出
                     dialogWrapper.close(DialogWrapper.OK_EXIT_CODE);
-                    if (result != null) {
-                        // 提取token
-                        String token = "error";
-                        if (result.contains("token")) {
-                            int startLocation = result.indexOf("token") + 6;
-                            token = result.substring(startLocation, result.indexOf("，", startLocation));
-                        }
-                        // 显示token
-                        Messages.showInputDialog(project, result, MsgValue.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator());
+                    switch (selected) {
+                        case ImOrExportWayConfirmPanel.WAY_TOKEN:
+                            tokenExport(project, param);
+                            break;
+                        case ImOrExportWayConfirmPanel.WAY_LOCAL:
+                            localExport(project, param, text);
+                            break;
+                        default:
+                            break;
                     }
+
                 }
             });
             dialogBuilder.show();
         });
+    }
+
+
+    private boolean importOrExportWayError(Project project, String action, String way, String value) {
+        // 导入导出方式错误检查
+        if (StringUtils.isEmpty(way)) {
+            Messages.showWarningDialog(project, String.format("请选择%s方式", action), MsgValue.TITLE_INFO);
+            return true;
+        } else if (StringUtils.isEmpty(value)) {
+            Messages.showWarningDialog(project, String.format("请填写%s", "Token".equals(way) ? "Token" : "本地路径"), MsgValue.TITLE_INFO);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 网络Token导入
+     *
+     * @param token
+     */
+    private void tokenImport(String token) {
+        if (token == null) {
+            return;
+        }
+        String result = HttpUtils.get(String.format("/template?token=%s", token));
+        if (result == null) {
+            return;
+        }
+        dataImport(result);
+    }
+
+    /**
+     * 本地导入
+     *
+     * @param local
+     */
+    private void localImport(String local) {
+        Map<String, Object> param = new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, TypeMapperGroup> typeMapper = new LinkedHashMap<>();
+        param.put(StrState.TYPE_MAPPER, typeMapper);
+        final String typeMapperDirectories = local + File.separatorChar + StrState.TYPE_MAPPER;
+        final File typeMapperDirectoriesFile = new File(typeMapperDirectories);
+        if (typeMapperDirectoriesFile.exists()) {
+            Arrays.stream(typeMapperDirectoriesFile.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return dir.isFile() && name.endsWith(".json");
+                }
+            })).forEach(file -> {
+                try {
+                    String content = new FileReader(file).readString()..replace("\r","");
+                    final TypeMapperGroup typeMapperGroup = objectMapper.readValue(content, TypeMapperGroup.class);
+                    typeMapper.put(typeMapperGroup.getName(), typeMapperGroup);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        Map<String, ColumnConfigGroup> columnConfig = new LinkedHashMap<>();
+        param.put(StrState.COLUMN_CONFIG, columnConfig);
+        final String columnConfigDirectories = local + File.separatorChar + StrState.COLUMN_CONFIG;
+        final File columnConfigDirectoriesFile = new File(columnConfigDirectories);
+        if (columnConfigDirectoriesFile.exists()) {
+            Arrays.stream(columnConfigDirectoriesFile.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return dir.isFile() && name.endsWith(".json");
+                }
+            })).forEach(file -> {
+                try {
+                    String content = new FileReader(file).readString()..replace("\r","");
+                    final ColumnConfigGroup columnConfigGroup = objectMapper.readValue(content, ColumnConfigGroup.class);
+                    columnConfig.put(columnConfigGroup.getName(), columnConfigGroup);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        Map<String, TemplateGroup> template = new LinkedHashMap<>();
+        param.put(StrState.TEMPLATE, template);
+        final String templateDirectories = local + File.separatorChar + StrState.TEMPLATE;
+        final File templateDirectoriesFile = new File(templateDirectories);
+        if (templateDirectoriesFile.exists()) {
+            Arrays.stream(templateDirectoriesFile.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            })).forEach(file -> {
+                final TemplateGroup templateGroup = new TemplateGroup();
+                templateGroup.setName(file.getName());
+                final Stream<File> fileStream = Arrays.stream(file.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(".vm");
+                    }
+                }));
+                templateGroup.setElementList(fileStream.map(f -> {
+                    Template t = new Template();
+                    final String name = f.getName();
+                    t.setName(name.substring(0, name.indexOf(".vm")));
+                    t.setCode(new FileReader(f).readString()..replace("\r",""));
+                    return t;
+                }).collect(Collectors.toList()));
+                if (!templateGroup.getElementList().isEmpty()) {
+                    template.put(templateGroup.getName(), templateGroup);
+                }
+            });
+        }
+
+
+        Map<String, GlobalConfigGroup> globalConfig = new LinkedHashMap<>();
+        param.put(StrState.GLOBAL_CONFIG, globalConfig);
+        final String globalConfigDirectories = local + File.separatorChar + StrState.GLOBAL_CONFIG;
+        final File globalConfigDirectoriesFile = new File(globalConfigDirectories);
+        if (globalConfigDirectoriesFile.exists()) {
+            Arrays.stream(globalConfigDirectoriesFile.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            })).forEach(file -> {
+                final GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
+                globalConfigGroup.setName(file.getName());
+                final Stream<File> fileStream = Arrays.stream(file.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(".vm");
+                    }
+                }));
+                globalConfigGroup.setElementList(fileStream.map(f -> {
+                    final GlobalConfig config = new GlobalConfig();
+                    final String name = f.getName();
+                    config.setName(name.substring(0, name.indexOf(".vm")));
+                    config.setValue(new FileReader(f).readString().replace("\r",""));
+                    return config;
+                }).collect(Collectors.toList()));
+                if (!globalConfigGroup.getElementList().isEmpty()) {
+                    globalConfig.put(globalConfigGroup.getName(), globalConfigGroup);
+                }
+            });
+        }
+
+        try {
+            dataImport(objectMapper.writeValueAsString(param));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void dataImport(String result) {
+        // 解析数据
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonNode = objectMapper.readTree(result);
+            if (jsonNode == null) {
+                return;
+            }
+            // 配置覆盖
+            coverConfig(jsonNode, StrState.TYPE_MAPPER, TypeMapperGroup.class, settings.getTypeMapperGroupMap());
+            coverConfig(jsonNode, StrState.TEMPLATE, TemplateGroup.class, settings.getTemplateGroupMap());
+            coverConfig(jsonNode, StrState.COLUMN_CONFIG, ColumnConfigGroup.class, settings.getColumnConfigGroupMap());
+            coverConfig(jsonNode, StrState.GLOBAL_CONFIG, GlobalConfigGroup.class, settings.getGlobalConfigGroupMap());
+            // 重置配置
+            allList.forEach(UnnamedConfigurable::reset);
+            if (CollectionUtil.isEmpty(saveList)) {
+                return;
+            }
+            // 保存
+            allList.forEach(configurable -> {
+                try {
+                    configurable.apply();
+                } catch (ConfigurationException e1) {
+                    e1.printStackTrace();
+                }
+            });
+            // 覆盖提示
+            Messages.showInfoMessage("导入完成", MsgValue.TITLE_INFO);
+        } catch (IOException e1) {
+            ExceptionUtil.rethrow(e1);
+        }
+    }
+
+    /**
+     * Token导出
+     *
+     * @param project
+     * @param param
+     */
+    private void tokenExport(Project project, Map<String, Object> param) {
+        // 上传数据
+        String result = HttpUtils.postJson("/template", param);
+        if (result != null) {
+            // 提取token
+            String token = "error";
+            if (result.contains("token")) {
+                int startLocation = result.indexOf("token") + 6;
+                token = result.substring(startLocation, result.indexOf("，", startLocation));
+            }
+            // 显示token
+            Messages.showInputDialog(project, result, MsgValue.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator());
+        }
+    }
+
+    /**
+     * 本地导出
+     *
+     * @param project
+     * @param local
+     * @param param
+     */
+    private void localExport(Project project, Map<String, Object> param, String local) {
+        // 导出文件夹结构
+        // local
+        //      |-- typeMapper
+        //          |-- Default.json
+        //      |-- columnConfig
+        //          |-- Default.json
+        //      |-- globalConfig
+        //          |-- Default
+        //              |-- init.vm
+        //      |-- template
+        //          |-- Default
+        //              |-- entity.java.vm
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, TypeMapperGroup> typeMapper = (LinkedHashMap<String, TypeMapperGroup>) param.get(StrState.TYPE_MAPPER);
+        final String typeMapperDirectories = local + File.separatorChar + StrState.TYPE_MAPPER;
+        for (Map.Entry<String, TypeMapperGroup> entry : typeMapper.entrySet()) {
+            final TypeMapperGroup typeMapperGroup = entry.getValue();
+            final String name = typeMapperGroup.getName();
+            final String groupFileName = typeMapperDirectories + File.separatorChar + name + ".json";
+            try {
+                final String string = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(typeMapperGroup);
+                FileWriter writer = new FileWriter(groupFileName);
+                writer.write(string);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Map<String, ColumnConfigGroup> columnConfig = (LinkedHashMap<String, ColumnConfigGroup>) param.get(StrState.COLUMN_CONFIG);
+        final String columnConfigDirectories = local + File.separatorChar + StrState.COLUMN_CONFIG;
+        for (Map.Entry<String, ColumnConfigGroup> entry : columnConfig.entrySet()) {
+            final ColumnConfigGroup columnConfigGroup = entry.getValue();
+            final String name = columnConfigGroup.getName();
+            final String groupFileName = columnConfigDirectories + File.separatorChar + name + ".json";
+            try {
+                final String string = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(columnConfigGroup);
+                FileWriter writer = new FileWriter(groupFileName);
+                writer.write(string);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Map<String, TemplateGroup> template = (Map<String, TemplateGroup>) param.get(StrState.TEMPLATE);
+        final String templateDirectories = local + File.separatorChar + StrState.TEMPLATE;
+        for (Map.Entry<String, TemplateGroup> entry : template.entrySet()) {
+            final TemplateGroup templateGroup = entry.getValue();
+            final String name = templateGroup.getName();
+            final String templateGroupDirectories = templateDirectories + File.separatorChar + name;
+            for (Template t : templateGroup.getElementList()) {
+                final String fileName = templateGroupDirectories + File.separatorChar + t.getName() + ".vm";
+                FileWriter writer = new FileWriter(fileName);
+                writer.write(t.getCode());
+            }
+        }
+
+
+        Map<String, GlobalConfigGroup> globalConfig = (Map<String, GlobalConfigGroup>) param.get(StrState.GLOBAL_CONFIG);
+        final String globalConfigDirectories = local + File.separatorChar + StrState.GLOBAL_CONFIG;
+        for (Map.Entry<String, GlobalConfigGroup> entry : globalConfig.entrySet()) {
+            final GlobalConfigGroup globalConfigGroup = entry.getValue();
+            final String name = globalConfigGroup.getName();
+            final String globalConfigGroupDirectories = globalConfigDirectories + File.separatorChar + name;
+            for (GlobalConfig config : globalConfigGroup.getElementList()) {
+                final String fileName = globalConfigGroupDirectories + File.separatorChar + config.getName() + ".vm";
+                FileWriter writer = new FileWriter(fileName);
+                writer.write(config.getValue());
+            }
+        }
+
+        Messages.showInfoMessage("导出完成，请到选定的本地文件夹中查看！", MsgValue.TITLE_INFO);
+
     }
 
     /**
