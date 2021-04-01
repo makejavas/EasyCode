@@ -1,6 +1,7 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.database.psi.DbTable;
+import com.intellij.psi.PsiClass;
 import lombok.Data;
 
 import java.util.List;
@@ -41,4 +42,14 @@ public class CacheDataUtils {
      * 所有选中的表
      */
     private List<DbTable> dbTableList;
+
+    /**
+     * 选中的类
+     */
+    private PsiClass selectPsiClass;
+
+    /**
+     * 所有选中的表
+     */
+    private List<PsiClass> psiClassList;
 }

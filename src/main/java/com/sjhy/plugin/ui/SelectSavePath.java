@@ -122,9 +122,22 @@ public class SelectSavePath extends JDialog {
     private List<Module> moduleList;
 
     /**
+     * 实体模式生成代码
+     */
+    private boolean entityMode;
+
+    /**
      * 构造方法
      */
     public SelectSavePath(Project project) {
+        this(project, false);
+    }
+
+    /**
+     * 构造方法
+     */
+    public SelectSavePath(Project project, boolean entityMode) {
+        this.entityMode = entityMode;
         this.project = project;
         this.tableInfoService = TableInfoService.getInstance(project);
         this.codeGenerateService = CodeGenerateService.getInstance(project);
@@ -217,7 +230,12 @@ public class SelectSavePath extends JDialog {
             }
         }
         // 保存配置
-        TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
+        TableInfo tableInfo = null;
+        if(!entityMode) {
+            tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
+        } else {
+            tableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
+        }
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
@@ -229,7 +247,7 @@ public class SelectSavePath extends JDialog {
         tableInfoService.save(tableInfo);
 
         // 生成代码
-        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected());
+        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
         // 关闭窗口
         dispose();
     }
@@ -341,7 +359,13 @@ public class SelectSavePath extends JDialog {
         });
 
         // 获取选中的表信息（鼠标右键的那张表），并提示未知类型
-        TableInfo tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
+        TableInfo tableInfo = null;
+        if(entityMode) {
+            tableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
+        } else {
+            tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
+        }
+
         // 设置默认配置信息
         if (!StringUtils.isEmpty(tableInfo.getSaveModelName())) {
             moduleComboBox.setSelectedItem(tableInfo.getSaveModelName());

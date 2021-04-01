@@ -28,12 +28,13 @@ public interface CodeGenerateService {
 
     /**
      * 生成代码，并自动保存到对应位置，使用统一配置
-     *
-     * @param templates     模板
+     *  @param templates     模板
      * @param unifiedConfig 是否使用统一配置
      * @param title         是否显示提示
+     * @param entityMode
      */
-    void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title);
+    void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,
+            boolean entityMode);
 
     /**
      * 生成代码

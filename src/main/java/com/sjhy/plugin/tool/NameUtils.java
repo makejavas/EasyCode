@@ -89,7 +89,26 @@ public class NameUtils {
      * @return 类名
      */
     public String getClsNameByFullName(String fullName) {
-        return fullName.substring(fullName.lastIndexOf('.') + 1);
+        int genericIdx = fullName.indexOf('<');
+        if (genericIdx == -1) {
+            return fullName.substring(fullName.lastIndexOf('.') + 1);
+        }
+        String className = fullName.substring(0, genericIdx);
+        return fullName.substring(className.lastIndexOf('.') + 1);
+    }
+
+    /**
+     * 通过java全名获取类名
+     *
+     * @param fullName 全名
+     * @return 类名
+     */
+    public String getClsFullNameRemoveGeneric(String fullName) {
+        int genericIdx = fullName.indexOf('<');
+        if (genericIdx == -1) {
+            return fullName;
+        }
+        return fullName.substring(0, genericIdx);
     }
 
     /**

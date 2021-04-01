@@ -16,9 +16,24 @@ import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.TableInfoService;
-import com.sjhy.plugin.tool.*;
-
-import java.util.*;
+import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.CloneUtils;
+import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.ExtraCodeGenerateUtils;
+import com.sjhy.plugin.tool.GlobalTool;
+import com.sjhy.plugin.tool.ModuleUtils;
+import com.sjhy.plugin.tool.NameUtils;
+import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.tool.TemplateUtils;
+import com.sjhy.plugin.tool.TimeUtils;
+import com.sjhy.plugin.tool.VelocityUtils;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author makejava
@@ -56,37 +71,45 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
 
     /**
      * 生成代码，并自动保存到对应位置，使用统一配置
-     *
-     * @param templates     模板
+     *  @param templates     模板
      * @param unifiedConfig 是否使用统一配置
      * @param title         是否显示提示
+     * @param entityMode
      */
     @Override
-    public void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title) {
+    public void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,
+            boolean entityMode) {
         // 获取选中表信息
-        TableInfo selectedTableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
-        // 获取所有选中的表信息
-        List<TableInfo> tableInfoList = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getDbTableList());
+        TableInfo selectedTableInfo;
+        List<TableInfo> tableInfoList;
+        if(!entityMode) {
+            selectedTableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
+            tableInfoList = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getDbTableList());
+        } else {
+            selectedTableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
+            tableInfoList = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getPsiClassList());
+        }
         // 校验选中表的保存路径是否正确
         if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
             Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", MsgValue.TITLE_INFO);
             return;
         }
         // 将未配置的表进行配置覆盖
+        TableInfo finalSelectedTableInfo = selectedTableInfo;
         tableInfoList.forEach(tableInfo -> {
             if (StringUtils.isEmpty(tableInfo.getSavePath())) {
-                tableInfo.setSaveModelName(selectedTableInfo.getSaveModelName());
-                tableInfo.setSavePackageName(selectedTableInfo.getSavePackageName());
-                tableInfo.setSavePath(selectedTableInfo.getSavePath());
+                tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
+                tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
+                tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
                 tableInfoService.save(tableInfo);
             }
         });
         // 如果使用统一配置，直接全部覆盖
         if (unifiedConfig) {
             tableInfoList.forEach(tableInfo -> {
-                tableInfo.setSaveModelName(selectedTableInfo.getSaveModelName());
-                tableInfo.setSavePackageName(selectedTableInfo.getSavePackageName());
-                tableInfo.setSavePath(selectedTableInfo.getSavePath());
+                tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
+                tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
+                tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
             });
         }
 
@@ -244,7 +267,8 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         Set<String> result = new TreeSet<>();
         tableInfo.getFullColumn().forEach(columnInfo -> {
             if (!columnInfo.getType().startsWith(FILTER_PACKAGE_NAME)) {
-                result.add(columnInfo.getType());
+                String type = NameUtils.getInstance().getClsFullNameRemoveGeneric(columnInfo.getType());
+                result.add(type);
             }
         });
         return result;
