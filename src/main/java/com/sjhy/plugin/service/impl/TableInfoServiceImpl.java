@@ -534,7 +534,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             String schemaName = DasUtil.getSchema(dbTable);
             return schemaName + "-" + dbTable.getName() + ".json";
         } else {
-            return tableInfo.getName() + "_class.json";
+            return tableInfo.getPsiClassObj().getQualifiedName() + ".json";
         }
     }
 
