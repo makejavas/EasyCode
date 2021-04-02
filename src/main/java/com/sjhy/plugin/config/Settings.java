@@ -118,11 +118,11 @@ public class Settings implements PersistentStateComponent<Settings> {
         List<TypeMapper> typeMapperList = new ArrayList<>();
         typeMapperList.add(new TypeMapper("varchar(\\(\\d+\\))?", "java.lang.String"));
         typeMapperList.add(new TypeMapper("char(\\(\\d+\\))?", "java.lang.String"));
-        typeMapperList.add(new TypeMapper("text", "java.lang.String"));
+        typeMapperList.add(new TypeMapper("(tiny|medium|long)*text", "java.lang.String"));
         typeMapperList.add(new TypeMapper("decimal(\\(\\d+\\))?", "java.lang.Double"));
         typeMapperList.add(new TypeMapper("decimal(\\(\\d+,\\d+\\))?", "java.lang.Double"));
         typeMapperList.add(new TypeMapper("integer", "java.lang.Integer"));
-        typeMapperList.add(new TypeMapper("int(\\(\\d+\\))?", "java.lang.Integer"));
+        typeMapperList.add(new TypeMapper("(tiny|small|medium)*int(\\(\\d+\\))?", "java.lang.Integer"));
         typeMapperList.add(new TypeMapper("int4", "java.lang.Integer"));
         typeMapperList.add(new TypeMapper("int8", "java.lang.Long"));
         typeMapperList.add(new TypeMapper("bigint(\\(\\d+\\))?", "java.lang.Long"));
