@@ -24,14 +24,8 @@ import com.sjhy.plugin.entity.SaveFile;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.service.TableInfoService;
-import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.tool.CurrGroupUtils;
-import com.sjhy.plugin.tool.FileUtils;
-import com.sjhy.plugin.tool.MessageDialogUtils;
-import com.sjhy.plugin.tool.NameUtils;
-import com.sjhy.plugin.tool.ProjectUtils;
-import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.tool.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +38,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -396,13 +391,16 @@ public class TableInfoServiceImpl implements TableInfoService {
         tableInfo.setPkColumn(new ArrayList<>());
         tableInfo.setOtherColumn(new ArrayList<>());
         for (PsiField field : psiClass.getAllFields()) {
+            if (PsiClassGenerateUtils.isSkipField(field)) {
+                continue;
+            }
             ColumnInfo columnInfo = new ColumnInfo();
             columnInfo.setName(field.getName());
             columnInfo.setShortType(field.getType().getPresentableText());
             columnInfo.setType(field.getType().getCanonicalText());
             columnInfo.setComment(parsePsiClassComment(field.getDocComment()));
             tableInfo.getFullColumn().add(columnInfo);
-            if ("id".equals(field.getName())) {
+            if (PsiClassGenerateUtils.isPkField(field)) {
                 tableInfo.getPkColumn().add(columnInfo);
             } else {
                 tableInfo.getOtherColumn().add(columnInfo);
@@ -418,6 +416,7 @@ public class TableInfoServiceImpl implements TableInfoService {
         }
         return fullName.substring(0, genericIdx);
     }
+
 
     @Override
     public TableInfo getTableInfoAndConfigByPsiClass(PsiClass selectPsiClass) {

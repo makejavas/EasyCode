@@ -5,25 +5,27 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
-import com.intellij.psi.javadoc.PsiDocComment;
-import com.intellij.psi.javadoc.PsiDocToken;
-import com.sjhy.plugin.entity.ColumnInfo;
-import com.sjhy.plugin.entity.TableInfo;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiModifier;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.ui.SelectSavePath;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 从Java类生成代码菜单
+ *
+ * @author Mario Luo
  */
 public class EasyCodeEntityAction extends AnAction {
 
-    private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
+    private final CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -31,23 +33,47 @@ public class EasyCodeEntityAction extends AnAction {
         if (project == null) {
             return;
         }
-        PsiFile psiFile = event.getData(CommonDataKeys.PSI_FILE);
-        if (!(psiFile instanceof PsiJavaFile)) {
+
+        // 过滤选择Java文件
+        VirtualFile[] psiFiles = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        PsiManager psiManager = PsiManager.getInstance(project);
+        List<PsiJavaFile> psiJavaFiles = Arrays.stream(psiFiles)
+                .map(psiManager::findFile)
+                .filter(f -> f instanceof PsiJavaFile)
+                .map(f -> (PsiJavaFile) f)
+                .collect(Collectors.toList());
+        if (psiJavaFiles.size() == 0) {
             return;
         }
-        PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
-        PsiClass psiClass = Arrays.stream(psiJavaFile.getClasses())
-                .filter(o -> o.getModifierList() != null && o.getModifierList().hasModifierProperty("public"))
-                .findFirst()
-                .orElse(null);
-        if (psiClass == null) {
+
+        // 获取选中的类
+        List<PsiClass> psiClassList = resolvePsiClassByFile(psiJavaFiles);
+        if (psiClassList.size() == 0) {
             return;
         }
-        cacheDataUtils.setSelectPsiClass(psiClass);
-        cacheDataUtils.setPsiClassList(Lists.newArrayList(psiClass));
+
+        // 缓存选中值
+        cacheDataUtils.setSelectPsiClass(psiClassList.get(0));
+        cacheDataUtils.setPsiClassList(psiClassList);
         new SelectSavePath(project, true).open();
     }
 
+    /**
+     * 解析类
+     */
+    private List<PsiClass> resolvePsiClassByFile(List<PsiJavaFile> psiJavaFiles) {
+        List<PsiClass> psiClassList = Lists.newArrayListWithCapacity(psiJavaFiles.size());
+        for (PsiJavaFile psiJavaFile : psiJavaFiles) {
+            PsiClass psiClass = Arrays.stream(psiJavaFile.getClasses())
+                    .filter(o -> o.getModifierList() != null && o.getModifierList().hasModifierProperty(PsiModifier.PUBLIC))
+                    .findFirst()
+                    .orElse(null);
+            if (psiClass != null) {
+                psiClassList.add(psiClass);
+            }
+        }
+        return psiClassList;
+    }
 
 
 }
