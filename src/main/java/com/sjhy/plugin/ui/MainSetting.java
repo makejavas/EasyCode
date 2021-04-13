@@ -73,6 +73,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * 当前版本号
      */
     private JLabel versionLabel;
+    /**
+     * 同步地址，默认
+     */
+    private JTextField syncHost;
 
     /**
      * 重置列表
@@ -267,7 +271,8 @@ public class MainSetting implements Configurable, Configurable.Composite {
         if (token == null) {
             return;
         }
-        String result = HttpUtils.get(String.format("/template?token=%s", token));
+        String url = String.format("%s/template?token=%s", settings.getSyncHost(), token);
+        String result = HttpUtils.get(url);
         if (result == null) {
             return;
         }
@@ -294,7 +299,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 }
             })).forEach(file -> {
                 try {
-                    String content = new FileReader(file).readString().replace("\r","");
+                    String content = new FileReader(file).readString().replace("\r", "");
                     final TypeMapperGroup typeMapperGroup = objectMapper.readValue(content, TypeMapperGroup.class);
                     typeMapper.put(typeMapperGroup.getName(), typeMapperGroup);
                 } catch (IOException e) {
@@ -315,7 +320,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                 }
             })).forEach(file -> {
                 try {
-                    String content = new FileReader(file).readString().replace("\r","");
+                    String content = new FileReader(file).readString().replace("\r", "");
                     final ColumnConfigGroup columnConfigGroup = objectMapper.readValue(content, ColumnConfigGroup.class);
                     columnConfig.put(columnConfigGroup.getName(), columnConfigGroup);
                 } catch (IOException e) {
@@ -347,7 +352,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     Template t = new Template();
                     final String name = f.getName();
                     t.setName(name.substring(0, name.indexOf(".vm")));
-                    t.setCode(new FileReader(f).readString().replace("\r",""));
+                    t.setCode(new FileReader(f).readString().replace("\r", ""));
                     return t;
                 }).collect(Collectors.toList()));
                 if (!templateGroup.getElementList().isEmpty()) {
@@ -380,7 +385,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
                     final GlobalConfig config = new GlobalConfig();
                     final String name = f.getName();
                     config.setName(name.substring(0, name.indexOf(".vm")));
-                    config.setValue(new FileReader(f).readString().replace("\r",""));
+                    config.setValue(new FileReader(f).readString().replace("\r", ""));
                     return config;
                 }).collect(Collectors.toList()));
                 if (!globalConfigGroup.getElementList().isEmpty()) {
@@ -437,7 +442,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
      */
     private void tokenExport(Project project, Map<String, Object> param) {
         // 上传数据
-        String result = HttpUtils.postJson("/template", param);
+        String result = HttpUtils.postJson(settings.getSyncHost() + "/template", param);
         if (result != null) {
             // 提取token
             String token = "error";
@@ -592,6 +597,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
         //初始化数据
         versionLabel.setText(settings.getVersion());
         authorTextField.setText(settings.getAuthor());
+        syncHost.setText(settings.getSyncHost());
     }
 
     /**
@@ -665,7 +671,8 @@ public class MainSetting implements Configurable, Configurable.Composite {
      */
     @Override
     public boolean isModified() {
-        return !settings.getAuthor().equals(authorTextField.getText());
+        return !settings.getAuthor().equals(authorTextField.getText()) ||
+                !settings.getSyncHost().equals(syncHost.getText());
     }
 
     /**
@@ -675,6 +682,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
     public void apply() {
         //保存数据
         settings.setAuthor(authorTextField.getText());
+        settings.setSyncHost(syncHost.getText());
     }
 
     /**

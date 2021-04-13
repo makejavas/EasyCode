@@ -72,6 +72,10 @@ public class Settings implements PersistentStateComponent<Settings> {
      * 作者
      */
     private String author;
+    /**
+     * 同步服务器
+     */
+    private String syncHost;
 
     /**
      * 获取单例实例对象
@@ -95,9 +99,11 @@ public class Settings implements PersistentStateComponent<Settings> {
      */
     public void initDefault() {
         // 版本号
-        this.version = "1.2.5";
+        this.version = "1.2.5-WEI";
         // 作者名称
         this.author = "makejava";
+        // 同步服务器
+        this.syncHost = "http://www.shujuhaiyang.com/easyCode";
         // 当前各项分组名称
         this.currTemplateGroupName = DEFAULT_NAME;
         this.currTypeMapperGroupName = DEFAULT_NAME;
@@ -234,7 +240,6 @@ public class Settings implements PersistentStateComponent<Settings> {
         settings.getTemplateGroupMap().put(newName, oldTemplateGroup);
         // 覆盖
         settings.getTemplateGroupMap().replace(DEFAULT_NAME, templateGroupMap.get(DEFAULT_NAME));
-
 
 
         // 全局配置备份

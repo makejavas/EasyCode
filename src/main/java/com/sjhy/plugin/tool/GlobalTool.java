@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
+import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.entity.DebugField;
 import com.sjhy.plugin.entity.DebugMethod;
 
@@ -29,6 +30,11 @@ public class GlobalTool extends NameUtils {
      * Jackson对象
      */
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * 设置对象
+     */
+    private Settings settings = Settings.getInstance();
 
     /**
      * 私有构造方法
@@ -254,7 +260,7 @@ public class GlobalTool extends NameUtils {
     /**
      * 将对象转json字符串
      *
-     * @param obj 对象
+     * @param obj    对象
      * @param format 是否格式化json
      * @return json字符串
      */
@@ -282,6 +288,7 @@ public class GlobalTool extends NameUtils {
 
     /**
      * 字符串转unicode编码（默认只转换CHINESE_REGEX匹配到的字符）
+     *
      * @param str 字符串
      * @return 转码后的字符串
      */
@@ -291,7 +298,8 @@ public class GlobalTool extends NameUtils {
 
     /**
      * 字符串转unicode编码
-     * @param str 字符串
+     *
+     * @param str      字符串
      * @param transAll true转换所有字符，false只转换CHINESE_REGEX匹配到的字符
      * @return 转码后的字符串
      */
@@ -346,7 +354,7 @@ public class GlobalTool extends NameUtils {
             }
         }
         // 发起请求
-        String result = HttpUtils.postJson(String.format("/service?name=%s", name), map);
+        String result = HttpUtils.postJson(String.format("%s/service?name=%s", settings.getSyncHost(), name), map);
         if (result == null) {
             return null;
         }

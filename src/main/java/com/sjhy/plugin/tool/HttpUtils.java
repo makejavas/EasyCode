@@ -40,10 +40,6 @@ public final class HttpUtils {
      */
     private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
     /**
-     * 服务器地址
-     */
-    private static final String HOST_URL = "http://www.shujuhaiyang.com/easyCode";
-    /**
      * http客户端
      */
     private static final CloseableHttpClient HTTP_CLIENT = HttpClients.createDefault();
@@ -57,6 +53,7 @@ public final class HttpUtils {
      * 状态码
      */
     private static final String STATE_CODE = "code";
+
 
     /**
      * 私有构造方法
@@ -72,7 +69,7 @@ public final class HttpUtils {
      * @return 返回请求结果
      */
     public static String get(String uri) {
-        HttpGet httpGet = new HttpGet(HOST_URL + uri);
+        HttpGet httpGet = new HttpGet(uri);
         httpGet.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
         httpGet.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpGet.setConfig(getDefaultConfig());
@@ -87,7 +84,7 @@ public final class HttpUtils {
      * @return 请求返回结果
      */
     public static String postJson(String uri, Map<String, Object> param) {
-        HttpPost httpPost = new HttpPost(HOST_URL + uri);
+        HttpPost httpPost = new HttpPost(uri);
         httpPost.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpPost.setConfig(getDefaultConfig());
