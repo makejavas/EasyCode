@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import a.f.R;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.file.FileWriter;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +24,7 @@ import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.tool.*;
 import com.sjhy.plugin.ui.base.ImOrExportWayConfirmPanel;
+import com.sjhy.plugin.ui.base.Item;
 import com.sjhy.plugin.ui.base.ListCheckboxPanel;
 import com.sjhy.plugin.ui.base.ListRadioPanel;
 import org.jetbrains.annotations.Nls;
@@ -38,6 +40,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -285,48 +289,34 @@ public class MainSetting implements Configurable, Configurable.Composite {
      * @param local
      */
     private void localImport(String local) {
-        Map<String, Object> param = new HashMap<>();
+        File localGroup = new File(local);
         ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> param = new HashMap<>();
+
         Map<String, TypeMapperGroup> typeMapper = new LinkedHashMap<>();
         param.put(StrState.TYPE_MAPPER, typeMapper);
-        final String typeMapperDirectories = local + File.separatorChar + StrState.TYPE_MAPPER;
-        final File typeMapperDirectoriesFile = new File(typeMapperDirectories);
-        if (typeMapperDirectoriesFile.exists()) {
-            Arrays.stream(typeMapperDirectoriesFile.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return dir.isFile() && name.endsWith(".json");
-                }
-            })).forEach(file -> {
-                try {
-                    String content = new FileReader(file).readString().replace("\r", "");
-                    final TypeMapperGroup typeMapperGroup = objectMapper.readValue(content, TypeMapperGroup.class);
-                    typeMapper.put(typeMapperGroup.getName(), typeMapperGroup);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+        final File typeMapperFile = new File(local + File.separatorChar + StrState.TYPE_MAPPER + ".json");
+        if (typeMapperFile.exists()) {
+            try {
+                String content = new FileReader(typeMapperFile).readString().replace("\r", "");
+                final TypeMapperGroup typeMapperGroup = objectMapper.readValue(content, TypeMapperGroup.class);
+                typeMapper.put(typeMapperGroup.getName(), typeMapperGroup);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         Map<String, ColumnConfigGroup> columnConfig = new LinkedHashMap<>();
         param.put(StrState.COLUMN_CONFIG, columnConfig);
-        final String columnConfigDirectories = local + File.separatorChar + StrState.COLUMN_CONFIG;
-        final File columnConfigDirectoriesFile = new File(columnConfigDirectories);
-        if (columnConfigDirectoriesFile.exists()) {
-            Arrays.stream(columnConfigDirectoriesFile.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return dir.isFile() && name.endsWith(".json");
-                }
-            })).forEach(file -> {
-                try {
-                    String content = new FileReader(file).readString().replace("\r", "");
-                    final ColumnConfigGroup columnConfigGroup = objectMapper.readValue(content, ColumnConfigGroup.class);
-                    columnConfig.put(columnConfigGroup.getName(), columnConfigGroup);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+        final File columnConfigFile = new File(local + File.separatorChar + StrState.COLUMN_CONFIG + ".json");
+        if (columnConfigFile.exists()) {
+            try {
+                String content = new FileReader(columnConfigFile).readString().replace("\r", "");
+                final ColumnConfigGroup columnConfigGroup = objectMapper.readValue(content, ColumnConfigGroup.class);
+                columnConfig.put(columnConfigGroup.getName(), columnConfigGroup);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         Map<String, TemplateGroup> template = new LinkedHashMap<>();
@@ -334,64 +324,35 @@ public class MainSetting implements Configurable, Configurable.Composite {
         final String templateDirectories = local + File.separatorChar + StrState.TEMPLATE;
         final File templateDirectoriesFile = new File(templateDirectories);
         if (templateDirectoriesFile.exists()) {
-            Arrays.stream(templateDirectoriesFile.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory();
-                }
-            })).forEach(file -> {
-                final TemplateGroup templateGroup = new TemplateGroup();
-                templateGroup.setName(file.getName());
-                final Stream<File> fileStream = Arrays.stream(file.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".vm");
-                    }
-                }));
-                templateGroup.setElementList(fileStream.map(f -> {
-                    Template t = new Template();
-                    final String name = f.getName();
-                    t.setName(name.substring(0, name.indexOf(".vm")));
-                    t.setCode(new FileReader(f).readString().replace("\r", ""));
-                    return t;
-                }).collect(Collectors.toList()));
-                if (!templateGroup.getElementList().isEmpty()) {
-                    template.put(templateGroup.getName(), templateGroup);
-                }
+            final TemplateGroup templateGroup = (TemplateGroup) readConfig(templateDirectoriesFile, TemplateGroup.class, f -> {
+                Template t = new Template();
+                final String name = f.getName();
+                t.setName(name.substring(0, name.indexOf(".vm")));
+                t.setCode(new FileReader(f).readString().replace("\r", ""));
+                return t;
             });
+            templateGroup.setName(localGroup.getName());
+            if (!templateGroup.getElementList().isEmpty()) {
+                template.put(templateGroup.getName(), templateGroup);
+            }
         }
-
 
         Map<String, GlobalConfigGroup> globalConfig = new LinkedHashMap<>();
         param.put(StrState.GLOBAL_CONFIG, globalConfig);
         final String globalConfigDirectories = local + File.separatorChar + StrState.GLOBAL_CONFIG;
         final File globalConfigDirectoriesFile = new File(globalConfigDirectories);
         if (globalConfigDirectoriesFile.exists()) {
-            Arrays.stream(globalConfigDirectoriesFile.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory();
-                }
-            })).forEach(file -> {
-                final GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
-                globalConfigGroup.setName(file.getName());
-                final Stream<File> fileStream = Arrays.stream(file.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".vm");
-                    }
-                }));
-                globalConfigGroup.setElementList(fileStream.map(f -> {
-                    final GlobalConfig config = new GlobalConfig();
-                    final String name = f.getName();
-                    config.setName(name.substring(0, name.indexOf(".vm")));
-                    config.setValue(new FileReader(f).readString().replace("\r", ""));
-                    return config;
-                }).collect(Collectors.toList()));
-                if (!globalConfigGroup.getElementList().isEmpty()) {
-                    globalConfig.put(globalConfigGroup.getName(), globalConfigGroup);
-                }
+            final GlobalConfigGroup globalConfigGroup = (GlobalConfigGroup) readConfig(globalConfigDirectoriesFile, GlobalConfigGroup.class, f -> {
+                final GlobalConfig config = new GlobalConfig();
+                final String name = f.getName();
+                config.setName(name.substring(0, name.indexOf(".vm")));
+                config.setValue(new FileReader(f).readString().replace("\r", ""));
+                return config;
             });
+            globalConfigGroup.setName(localGroup.getName());
+            if (!globalConfigGroup.getElementList().isEmpty()) {
+                globalConfig.put(globalConfigGroup.getName(), globalConfigGroup);
+            }
         }
 
         try {
@@ -399,6 +360,23 @@ public class MainSetting implements Configurable, Configurable.Composite {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    private <T> AbstractGroup<T> readConfig(File directories, Class<? extends AbstractGroup<T>> clazz, Function<File, T> supplier) {
+        final AbstractGroup<T> group;
+        try {
+            group = clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(clazz.getName() + "new instance error!");
+        }
+        List<T> collect = Arrays.stream(directories.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".vm");
+            }
+        })).map(supplier).collect(Collectors.toList());
+        group.setElementList(collect);
+        return group;
     }
 
     private void dataImport(String result) {
@@ -465,24 +443,20 @@ public class MainSetting implements Configurable, Configurable.Composite {
     private void localExport(Project project, Map<String, Object> param, String local) {
         // 导出文件夹结构
         // local
-        //      |-- typeMapper
-        //          |-- Default.json
-        //      |-- columnConfig
-        //          |-- Default.json
+        //   |-- Default
+        //      |-- typeMapper.json
+        //      |-- columnConfig.json
         //      |-- globalConfig
-        //          |-- Default
-        //              |-- init.vm
+        //          |-- init.vm
         //      |-- template
-        //          |-- Default
-        //              |-- entity.java.vm
+        //          |-- entity.java.vm
 
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, TypeMapperGroup> typeMapper = (LinkedHashMap<String, TypeMapperGroup>) param.get(StrState.TYPE_MAPPER);
-        final String typeMapperDirectories = local + File.separatorChar + StrState.TYPE_MAPPER;
         for (Map.Entry<String, TypeMapperGroup> entry : typeMapper.entrySet()) {
             final TypeMapperGroup typeMapperGroup = entry.getValue();
             final String name = typeMapperGroup.getName();
-            final String groupFileName = typeMapperDirectories + File.separatorChar + name + ".json";
+            final String groupFileName = local + File.separatorChar + name + File.separatorChar + StrState.TYPE_MAPPER + ".json";
             try {
                 final String string = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(typeMapperGroup);
                 FileWriter writer = new FileWriter(groupFileName);
@@ -493,11 +467,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
         }
 
         Map<String, ColumnConfigGroup> columnConfig = (LinkedHashMap<String, ColumnConfigGroup>) param.get(StrState.COLUMN_CONFIG);
-        final String columnConfigDirectories = local + File.separatorChar + StrState.COLUMN_CONFIG;
         for (Map.Entry<String, ColumnConfigGroup> entry : columnConfig.entrySet()) {
             final ColumnConfigGroup columnConfigGroup = entry.getValue();
             final String name = columnConfigGroup.getName();
-            final String groupFileName = columnConfigDirectories + File.separatorChar + name + ".json";
+            final String groupFileName = local + File.separatorChar + name + File.separatorChar + StrState.COLUMN_CONFIG + ".json";
             try {
                 final String string = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(columnConfigGroup);
                 FileWriter writer = new FileWriter(groupFileName);
@@ -508,11 +481,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
         }
 
         Map<String, TemplateGroup> template = (Map<String, TemplateGroup>) param.get(StrState.TEMPLATE);
-        final String templateDirectories = local + File.separatorChar + StrState.TEMPLATE;
         for (Map.Entry<String, TemplateGroup> entry : template.entrySet()) {
             final TemplateGroup templateGroup = entry.getValue();
             final String name = templateGroup.getName();
-            final String templateGroupDirectories = templateDirectories + File.separatorChar + name;
+            final String templateGroupDirectories = local + File.separatorChar + name + File.separatorChar + StrState.TEMPLATE;
             for (Template t : templateGroup.getElementList()) {
                 final String fileName = templateGroupDirectories + File.separatorChar + t.getName() + ".vm";
                 FileWriter writer = new FileWriter(fileName);
@@ -522,11 +494,10 @@ public class MainSetting implements Configurable, Configurable.Composite {
 
 
         Map<String, GlobalConfigGroup> globalConfig = (Map<String, GlobalConfigGroup>) param.get(StrState.GLOBAL_CONFIG);
-        final String globalConfigDirectories = local + File.separatorChar + StrState.GLOBAL_CONFIG;
         for (Map.Entry<String, GlobalConfigGroup> entry : globalConfig.entrySet()) {
             final GlobalConfigGroup globalConfigGroup = entry.getValue();
             final String name = globalConfigGroup.getName();
-            final String globalConfigGroupDirectories = globalConfigDirectories + File.separatorChar + name;
+            final String globalConfigGroupDirectories = local + File.separatorChar + name + File.separatorChar + StrState.GLOBAL_CONFIG;
             for (GlobalConfig config : globalConfigGroup.getElementList()) {
                 final String fileName = globalConfigGroupDirectories + File.separatorChar + config.getName() + ".vm";
                 FileWriter writer = new FileWriter(fileName);
@@ -535,7 +506,6 @@ public class MainSetting implements Configurable, Configurable.Composite {
         }
 
         Messages.showInfoMessage("导出完成，请到选定的本地文件夹中查看！", MsgValue.TITLE_INFO);
-
     }
 
     /**
