@@ -15,7 +15,7 @@ buildscript {
 // 这两个插件是必备
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.6.0'
+    id 'org.jetbrains.intellij' version '0.7.2'
 }
 
 
@@ -36,7 +36,7 @@ intellij {
     // 沙箱目录位置，用于保存IDEA的设置，默认在build文件下面，防止clean，放在根目录下。
     sandboxDirectory = "${rootProject.rootDir}/idea-sandbox"
     // 开发环境运行时使用的版本
-    version '2020.1.2'
+    version '2020.2.4'
     type 'IU'
     // 各种版本去这里找
     // https://www.jetbrains.com/intellij-repository/releases

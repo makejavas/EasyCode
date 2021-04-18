@@ -22,7 +22,7 @@ public class MainActionGroup extends ActionGroup {
     /**
      * 缓存数据工具类
      */
-    private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
+    private final CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
 
     /**
      * 是否不存在子菜单
