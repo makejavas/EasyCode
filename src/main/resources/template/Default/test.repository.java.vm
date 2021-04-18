@@ -1,0 +1,33 @@
+##定义初始变量
+#set($tableName = $tool.append($tableInfo.name, "RepositoryTest"))
+#set($testTargetName = $tool.append($tableInfo.name, "Repository"))
+#set($entityName = $tableInfo.name)
+##设置回调
+$!callback.setFileName($tool.append($tableName, ".java"))
+$!callback.setSavePath($tool.append($tool.replaceFirst($tableInfo.savePath,"/main/","/test/"), "/repository"))
+
+##拿到主键
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $tableInfo.pkColumn.get(0))
+#end
+
+#if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}repository;
+
+import $!{tableInfo.savePackageName}.entity.$!{tableInfo.name};
+import org.springframework.data.jpa.repository.JpaRepository;
+import javax.annotation.Resource;
+
+
+/**
+ *
+ * @author $!author
+ * @since $!time.currTime()
+ */
+public class  $!{tableName}Test {
+    @Resource
+    private $!testTargetName $!tool.firstLowerCase($!{testTargetName});
+
+    @org.junit.Test
+    public void test() {
+    }
+}

@@ -367,4 +367,26 @@ public class GlobalTool extends NameUtils {
             return null;
         }
     }
+
+    /**
+     * 替换内容工具类
+     *
+     * @param str
+     * @param target
+     * @param replacement
+     * @return
+     */
+    public String replace(String str,String target,String replacement){
+        if(str==null){
+            return "";
+        }
+        return str.replace(target,replacement);
+    }
+
+    public String replaceFirst(String str,String regex,String replacement){
+        if(str==null){
+            return "";
+        }
+        return str.replaceFirst(regex,replacement);
+    }
 }

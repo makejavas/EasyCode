@@ -27,6 +27,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 选择保存路径
@@ -93,13 +96,17 @@ public class SelectSavePath extends JDialog {
      */
     private JComboBox<String> groupComboBox;
     /**
+     * 是否生成测试用例复选框
+     */
+    private JCheckBox generateTest;
+    /**
      * 所有模板复选框
      */
-    private List<JCheckBox> checkBoxList = new ArrayList<>();
+    private final List<JCheckBox> checkBoxList = new ArrayList<>();
     /**
      * 数据缓存工具类
      */
-    private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
+    private final CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
     /**
      * 模板组对象
      */
@@ -107,19 +114,19 @@ public class SelectSavePath extends JDialog {
     /**
      * 表信息服务
      */
-    private TableInfoService tableInfoService;
+    private final TableInfoService tableInfoService;
     /**
      * 项目对象
      */
-    private Project project;
+    private final Project project;
     /**
      * 代码生成服务
      */
-    private CodeGenerateService codeGenerateService;
+    private final CodeGenerateService codeGenerateService;
     /**
      * 当前项目中的module
      */
-    private List<Module> moduleList;
+    private final List<Module> moduleList;
 
     /**
      * 构造方法
@@ -168,6 +175,7 @@ public class SelectSavePath extends JDialog {
      * @return 模板对象集合
      */
     private List<Template> getSelectTemplate() {
+        boolean generateTests = generateTest.isSelected();
         // 获取到已选择的复选框
         List<String> selectTemplateNameList = new ArrayList<>();
         checkBoxList.forEach(jCheckBox -> {
@@ -175,17 +183,14 @@ public class SelectSavePath extends JDialog {
                 selectTemplateNameList.add(jCheckBox.getText());
             }
         });
-        List<Template> selectTemplateList = new ArrayList<>(selectTemplateNameList.size());
-        if (selectTemplateNameList.isEmpty()) {
-            return selectTemplateList;
-        }
-        // 将复选框转换成对应的模板对象
-        templateGroup.getElementList().forEach(template -> {
-            if (selectTemplateNameList.contains(template.getName())) {
-                selectTemplateList.add(template);
+        // 将复选框转换成对应的模板对象，如果勾选了生成测试用例，也加入
+        return selectTemplateNameList.stream().flatMap(name-> {
+            if(generateTests){
+                return Stream.of(templateGroup.getTemplate(name),templateGroup.getTemplate("test."+name));
+            }else{
+                return Stream.of(templateGroup.getTemplate(name));
             }
-        });
-        return selectTemplateList;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**
@@ -221,7 +226,7 @@ public class SelectSavePath extends JDialog {
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
-        tableInfo.setTemplateGroupName((String) groupComboBox.getSelectedItem());
+        tableInfo.setTemplateGroupName((String)groupComboBox.getSelectedItem());
         Module module = getSelectModule();
         if (module != null) {
             tableInfo.setSaveModelName(module.getName());
@@ -229,7 +234,7 @@ public class SelectSavePath extends JDialog {
         tableInfoService.save(tableInfo);
 
         // 生成代码
-        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected());
+        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected(), generateTest.isSelected());
         // 关闭窗口
         dispose();
     }
@@ -250,9 +255,11 @@ public class SelectSavePath extends JDialog {
         templatePanel.removeAll();
         templatePanel.setLayout(new GridLayout(6, 2));
         templateGroup.getElementList().forEach(template -> {
-            JCheckBox checkBox = new JCheckBox(template.getName());
-            checkBoxList.add(checkBox);
-            templatePanel.add(checkBox);
+            if (template.isShow()) {
+                JCheckBox checkBox = new JCheckBox(template.getName());
+                checkBoxList.add(checkBox);
+                templatePanel.add(checkBox);
+            }
         });
         // 移除所有旧事件
         ActionListener[] actionListeners = allCheckBox.getActionListeners();
@@ -299,7 +306,7 @@ public class SelectSavePath extends JDialog {
                     Object psiPackage = getSelectedPackageMethod.invoke(dialog);
                     if (psiPackage != null) {
                         Method getQualifiedNameMethod = psiPackage.getClass().getMethod("getQualifiedName");
-                        String packageName = (String) getQualifiedNameMethod.invoke(psiPackage);
+                        String packageName = (String)getQualifiedNameMethod.invoke(psiPackage);
                         packageField.setText(packageName);
                         // 刷新路径
                         refreshPath();
@@ -367,7 +374,7 @@ public class SelectSavePath extends JDialog {
         }
         groupComboBox.setSelectedItem(groupName);
         groupComboBox.addActionListener(e -> {
-            String selectedItem = (String) groupComboBox.getSelectedItem();
+            String selectedItem = (String)groupComboBox.getSelectedItem();
             if (this.templateGroup.getName().equals(selectedItem)) {
                 return;
             }
@@ -393,7 +400,7 @@ public class SelectSavePath extends JDialog {
      * @return 选中的Module
      */
     private Module getSelectModule() {
-        String name = (String) moduleComboBox.getSelectedItem();
+        String name = (String)moduleComboBox.getSelectedItem();
         if (StringUtils.isEmpty(name)) {
             return null;
         }

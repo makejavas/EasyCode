@@ -4,6 +4,10 @@
 .idea/
 .gradle/
 *.iml
+.settings
+.classpath
+bin/
+.project
 
 gradle.properties
 
@@ -11,3 +15,5 @@ gradle.properties
 out/
 build/
 idea-sandbox
+
+

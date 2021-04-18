@@ -14,10 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 /**
  * 全局配置信息
+ * 如果你添加了新的配置项，没有修改版本号,在测试的时候不能生效，可以试着从系统中删掉easy-code-setting.xml这个文件
  *
  * @author makejava
  * @version 1.0.0
@@ -107,7 +109,8 @@ public class Settings implements PersistentStateComponent<Settings> {
         if (this.templateGroupMap == null) {
             this.templateGroupMap = new LinkedHashMap<>();
         }
-        this.templateGroupMap.put(DEFAULT_NAME, loadTemplateGroup(DEFAULT_NAME, "entity.java", "dao.java", "service.java", "serviceImpl.java", "controller.java", "mapper.xml", "debug.json"));
+        this.templateGroupMap.put(DEFAULT_NAME, loadTemplateGroup(DEFAULT_NAME, "entity.java", "repository.java","test.repository.java", "service.java", "serviceImpl.java", "controller.java", "test.controller.java", "debug.json"));
+        this.templateGroupMap.put("Mybatis", loadTemplateGroup("Mybatis", "entity.java", "dao.java", "service.java", "serviceImpl.java", "controller.java", "mapper.xml", "debug.json"));
         this.templateGroupMap.put("MybatisPlus", loadTemplateGroup("MybatisPlus", "entity", "dao", "service", "serviceImpl", "controller"));
 
         //配置默认类型映射
@@ -159,7 +162,11 @@ public class Settings implements PersistentStateComponent<Settings> {
      */
     private static String loadTemplate(String filePath) {
         try {
-            return UrlUtil.loadText(Settings.class.getResource(filePath)).replace("\r", "");
+            URL url = Settings.class.getResource(filePath);
+            if(url==null){
+                return "";
+            }
+            return UrlUtil.loadText(url).replace("\r", "");
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         }
@@ -179,7 +186,7 @@ public class Settings implements PersistentStateComponent<Settings> {
         templateGroup.setElementList(new ArrayList<>());
         for (String templateName : templateNames) {
             String path = "/template/" + groupName + "/" + templateName + ".vm";
-            templateGroup.getElementList().add(new Template(templateName, loadTemplate(path)));
+            templateGroup.getElementList().add(new Template(templateName, loadTemplate(path),!(templateName.toLowerCase().contains("test"))));
         }
         return templateGroup;
     }

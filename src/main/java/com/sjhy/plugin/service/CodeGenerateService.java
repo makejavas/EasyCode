@@ -32,8 +32,10 @@ public interface CodeGenerateService {
      * @param templates     模板
      * @param unifiedConfig 是否使用统一配置
      * @param title         是否显示提示
+     * @param generateTests 是否生成测试用例
+     *
      */
-    void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title);
+    void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,boolean generateTests);
 
     /**
      * 生成代码

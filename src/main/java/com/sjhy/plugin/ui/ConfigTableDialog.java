@@ -51,11 +51,11 @@ public class ConfigTableDialog extends JDialog {
     /**
      * 缓存数据工具类
      */
-    private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
+    private final CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
     /**
      * 表信息服务
      */
-    private TableInfoService tableInfoService;
+    private final TableInfoService tableInfoService;
     /**
      * 默认的表模型
      */

@@ -26,6 +26,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Conditions;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
@@ -217,8 +218,8 @@ public class TemplateSettingPanel implements Configurable {
             @Override
             protected void addItem(String name) {
                 List<Template> templateList = group.get(currGroupName).getElementList();
-                // 新增模板
-                templateList.add(new Template(name, ""));
+                // 新增模板，名字里面有test的就不会显示在选择列表中
+                templateList.add(new Template(name, "", !StringUtil.contains(StringUtil.toLowerCase(name),"test")));
                 baseItemSelectPanel.reset(templateList, templateList.size() - 1);
             }
 
@@ -357,7 +358,7 @@ public class TemplateSettingPanel implements Configurable {
                     tableInfo.setSavePackageName("com.companyname.modulename");
                 }
                 // 生成代码
-                String code = CodeGenerateService.getInstance(project).generate(new Template("temp", templateEditor.getEditor().getDocument().getText()), tableInfo);
+                String code = CodeGenerateService.getInstance(project).generate(new Template("temp", templateEditor.getEditor().getDocument().getText(),true), tableInfo);
 
                 // 创建编辑框
                 EditorFactory editorFactory = EditorFactory.getInstance();

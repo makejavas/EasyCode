@@ -1,6 +1,5 @@
 ##定义初始变量
 #set($tableName = $tool.append($tableInfo.name, "ServiceImpl"))
-#set($repositoryName = $tool.append($!tool.firstLowerCase($!{tableInfo.name}),"Repository"))
 ##设置回调
 $!callback.setFileName($tool.append($tableName, ".java"))
 $!callback.setSavePath($tool.append($tableInfo.savePath, "/service/impl"))
@@ -13,7 +12,7 @@ $!callback.setSavePath($tool.append($tableInfo.savePath, "/service/impl"))
 #if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}service.impl;
 
 import $!{tableInfo.savePackageName}.entity.$!{tableInfo.name};
-import $!{tableInfo.savePackageName}.repository.$!{tableInfo.name}Repository;
+import $!{tableInfo.savePackageName}.dao.$!{tableInfo.name}Dao;
 import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +27,8 @@ import java.util.List;
  */
 @Service("$!tool.firstLowerCase($!{tableInfo.name})Service")
 public class $!{tableName} implements $!{tableInfo.name}Service {
-
-    private final  $!{tableInfo.name}Repository $!repositoryName;
-
-    public $!{tableName}($!{tableInfo.name}Repository $!repositoryName){
-        this.$!repositoryName  = $!repositoryName;
-    }
+    @Resource
+    private $!{tableInfo.name}Dao $!tool.firstLowerCase($!{tableInfo.name})Dao;
 
     /**
      * 通过ID查询单条数据

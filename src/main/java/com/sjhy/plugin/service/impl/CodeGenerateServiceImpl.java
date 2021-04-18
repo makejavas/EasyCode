@@ -60,9 +60,10 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      * @param templates     模板
      * @param unifiedConfig 是否使用统一配置
      * @param title         是否显示提示
+     * @param generateTests 是否生成测试用例
      */
     @Override
-    public void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title) {
+    public void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,boolean generateTests) {
         // 获取选中表信息
         TableInfo selectedTableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         // 获取所有选中的表信息
@@ -91,7 +92,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         }
 
         // 生成代码
-        generate(templates, tableInfoList, title);
+        generate(templates, tableInfoList, title,generateTests);
     }
 
     /**
@@ -101,8 +102,8 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      * @param tableInfoList 表信息对象
      * @param title         是否显示提示
      */
-    private void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title) {
-        generate(templates, tableInfoList, title, null);
+    private void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title,boolean generateTests) {
+        generate(templates, tableInfoList, title, null,generateTests);
     }
 
     /**
@@ -113,7 +114,19 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      * @param title         是否显示提示
      * @param otherParam    其他参数
      */
-    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title, Map<String, Object> otherParam) {
+    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title, Map<String, Object> otherParam){
+        generate(templates,tableInfoList,title,otherParam,false);
+    }
+
+    /**
+     * 生成代码，并自动保存到对应位置
+     *
+     * @param templates     模板
+     * @param tableInfoList 表信息对象
+     * @param title         是否显示提示
+     * @param otherParam    其他参数
+     */
+    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title, Map<String, Object> otherParam,boolean generateTests) {
         if (CollectionUtil.isEmpty(templates) || CollectionUtil.isEmpty(tableInfoList)) {
             return;
         }
@@ -143,33 +156,37 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
             // 设置额外代码生成服务
             param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, title));
             for (Template template : templates) {
-                Callback callback = new Callback();
-                // 设置回调对象
-                param.put("callback", callback);
-                // 开始生成
-                String code = VelocityUtils.generate(template.getCode(), param);
-                // 清除前面空格
-                StringBuilder sb = new StringBuilder(code);
-                while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
-                    sb.deleteCharAt(0);
-                }
-                code = sb.toString();
-                // 设置一个默认保存路径与默认文件名
-                if (StringUtils.isEmpty(callback.getFileName())) {
-                    callback.setFileName(tableInfo.getName() + "Default.java");
-                }
-                if (StringUtils.isEmpty(callback.getSavePath())) {
-                    callback.setSavePath(tableInfo.getSavePath());
-                }
-                String path = callback.getSavePath();
-                path = path.replace("\\", "/");
-                // 针对相对路径进行处理
-                if (path.startsWith(".")) {
-                    path = project.getBasePath() + path.substring(1);
-                }
-                new SaveFile(project, path, callback.getFileName(), code, callback.isReformat(), title).write();
+                saveFile(param,template,tableInfo,title);
             }
         }
+    }
+
+    private void saveFile(Map<String,Object> param,Template template,TableInfo tableInfo,boolean title){
+        Callback callback = new Callback();
+        // 设置回调对象
+        param.put("callback", callback);
+        // 开始生成
+        String code = VelocityUtils.generate(template.getCode(), param);
+        // 清除前面空格
+        StringBuilder sb = new StringBuilder(code);
+        while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
+            sb.deleteCharAt(0);
+        }
+        code = sb.toString();
+        // 设置一个默认保存路径与默认文件名
+        if (StringUtils.isEmpty(callback.getFileName())) {
+            callback.setFileName(tableInfo.getName() + "Default.java");
+        }
+        if (StringUtils.isEmpty(callback.getSavePath())) {
+            callback.setSavePath(tableInfo.getSavePath());
+        }
+        String path = callback.getSavePath();
+        path = path.replace("\\", "/");
+        // 针对相对路径进行处理
+        if (path.startsWith(".")) {
+            path = project.getBasePath() + path.substring(1);
+        }
+        new SaveFile(project, path, callback.getFileName(), code, callback.isReformat(), title).write();
     }
 
     /**
