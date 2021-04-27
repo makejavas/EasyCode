@@ -1,0 +1,74 @@
+##导入宏定义、设置包名、类名、文件名
+$!define
+#setPackageSuffix("service.impl")
+#setTableSuffix("ServiceImpl")
+#save("/service/impl", "ServiceImpl.java")
+
+##拿到主键
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $tableInfo.pkColumn.get(0))
+#end
+##业务层类名、持久层类名、实体名
+#set($serviceSortType = $!tool.append($!tableInfo.name, "Service"))
+#set($serviceType = $!tool.append($!tableInfo.savePackageName, ".service.", $serviceSortType))
+#set($repositorySortType = $!tool.append($!tableInfo.name, "Repository"))
+#set($repositoryType = $!tool.append($!tableInfo.savePackageName, ".repository.", $repositorySortType))
+#set($repositoryVarName = $!tool.firstLowerCase($!repositorySortType))
+#set($entityShortType = $!tableInfo.name)
+#set($entityType = $!tableInfo.psiClassObj.getQualifiedName())
+#set($entityVarName = $!tool.firstLowerCase($!tableInfo.name))
+#set($pkShortType = $!pk.shortType)
+
+import $entityType;
+import $serviceType;
+import $repositoryType;
+import org.springframework.stereotype.Service;
+import javax.annotation.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+
+/**
+ * $!{tableInfo.comment}业务层
+ *
+ * @author $!author
+ * @since $!time.currTime()
+ */
+@Service
+public class $!{tableName} implements $!serviceSortType {
+
+	@Resource
+    private $repositorySortType $repositoryVarName;
+
+    @Override
+    public void save($entityShortType $entityVarName) {
+        $!{repositoryVarName}.save($entityVarName);
+    }
+
+    @Override
+    public void deleteById($pkShortType id) {
+        $!{repositoryVarName}.delete(id);
+    }
+
+    @Override
+    public $entityShortType findById($pkShortType id) {
+        return $!{repositoryVarName}.findOne(id);
+    }
+
+    @Override
+    public List<$entityShortType> findById(Collection<$pkShortType> ids) {
+        Iterable<$entityShortType> iterable = $!{repositoryVarName}.findAll(ids);
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<$entityShortType> list(Pageable page) {
+        return $!{repositoryVarName}.findAll(page);
+    }
+
+}
