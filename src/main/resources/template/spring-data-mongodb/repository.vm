@@ -10,11 +10,12 @@ $!define
 #end
 ##实体类名、主键类名
 #set($entityShortType = $!tableInfo.name)
+#set($entityType = $!tableInfo.psiClassObj.getQualifiedName())
 #set($pkShortType = $!pk.shortType)
+#set($pkType = $!pk.type)
 
-#if($tableInfo.psiClassObj)
-import $!tableInfo.psiClassObj.getQualifiedName();
-#end
+import $pkType;
+import $entityType;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 

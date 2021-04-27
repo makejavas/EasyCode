@@ -13,7 +13,9 @@ $!define
 #set($entityType = $!tableInfo.psiClassObj.getQualifiedName())
 #set($entityVarName = $!tool.firstLowerCase($!tableInfo.name))
 #set($pkShortType = $!pk.shortType)
+#set($pkType = $!pk.type)
 
+import $pkType;
 import $entityType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +30,7 @@ import java.util.List;
  * @since $!time.currTime()
  */
 public interface $!{tableName} {
-
+	
     void save($entityShortType $entityVarName);
 
     void deleteById($pkShortType id);

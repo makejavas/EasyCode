@@ -18,7 +18,9 @@ $!define
 #set($entityType = $!tableInfo.psiClassObj.getQualifiedName())
 #set($entityVarName = $!tool.firstLowerCase($!tableInfo.name))
 #set($pkShortType = $!pk.shortType)
+#set($pkType = $!pk.type)
 
+import $pkType;
 import $entityType;
 import $serviceType;
 import $repositoryType;
