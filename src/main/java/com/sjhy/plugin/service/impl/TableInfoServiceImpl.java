@@ -446,6 +446,7 @@ public class TableInfoServiceImpl implements TableInfoService {
                 .filter(o -> o instanceof PsiDocToken)
                 .map(PsiElement::getText)
                 .findFirst()
+                .map(String::trim)
                 .orElse(null);
     }
 
