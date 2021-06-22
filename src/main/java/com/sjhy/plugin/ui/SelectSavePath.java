@@ -248,6 +248,7 @@ public class SelectSavePath extends JDialog {
         //添加模板组
         checkBoxList.clear();
         templatePanel.removeAll();
+        templatePanel.repaint();
         templatePanel.setLayout(new GridLayout(6, 2));
         templateGroup.getElementList().forEach(template -> {
             JCheckBox checkBox = new JCheckBox(template.getName());
