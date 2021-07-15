@@ -110,6 +110,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
                 tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
                 tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
+                tableInfo.setPreName(finalSelectedTableInfo.getPreName());
             });
         }
 

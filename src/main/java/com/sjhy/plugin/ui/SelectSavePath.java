@@ -230,7 +230,7 @@ public class SelectSavePath extends JDialog {
             }
         }
         // 保存配置
-        TableInfo tableInfo = null;
+        TableInfo tableInfo;
         if(!entityMode) {
             tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
         } else {

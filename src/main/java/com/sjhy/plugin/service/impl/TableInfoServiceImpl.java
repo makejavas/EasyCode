@@ -382,6 +382,7 @@ public class TableInfoServiceImpl implements TableInfoService {
         new SaveFile(project, dir.getPath(), getConfigFileName(oldTableInfo), content, true, false).write();
     }
 
+    @Override
     public TableInfo getTableInfoByPsiClass(PsiClass psiClass) {
         TableInfo tableInfo = new TableInfo();
         tableInfo.setPsiClassObj(psiClass);
@@ -430,7 +431,7 @@ public class TableInfoServiceImpl implements TableInfoService {
     @Override
     public List<TableInfo> getTableInfoAndConfigByPsiClass(List<PsiClass> psiClassList) {
         if (CollectionUtil.isEmpty(psiClassList)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         List<TableInfo> tableInfoList = new ArrayList<>(psiClassList.size());
         psiClassList.forEach(psiClass -> tableInfoList.add(this.getTableInfoAndConfigByPsiClass(psiClass)));
