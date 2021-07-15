@@ -1,13 +1,10 @@
 package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.util.ExceptionUtil;
+import com.intellij.util.ui.UIUtil;
 import com.sjhy.plugin.constants.MsgValue;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import javax.swing.*;
 
 /**
  * 消息弹框工具类
@@ -37,24 +34,12 @@ public class MessageDialogUtils {
      * @return 是否确认
      */
     public static boolean yesNo(Project project, String msg) {
-        MessageDialogBuilder builder = MessageDialogBuilder.yesNo(MsgValue.TITLE_INFO, msg);
-        Method method;
-        // 新版本兼容
-        try {
-            method = builder.getClass().getMethod("ask", Project.class);
-            return (boolean) method.invoke(builder, project);
-        } catch (NoSuchMethodException e) {
-            // 旧版本兼容
-            try {
-                method = builder.getClass().getMethod("isYes");
-                return (boolean) method.invoke(builder);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e1) {
-                ExceptionUtil.rethrow(e1);
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            ExceptionUtil.rethrow(e);
-        }
-        return false;
+        Object[] options = new Object[]{"Yes", "No"};
+        return JOptionPane.showOptionDialog(null,
+                msg, MsgValue.TITLE_INFO,
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                UIUtil.getQuestionIcon(),
+                options, options[0]) == 0;
     }
 
     /**
@@ -65,28 +50,12 @@ public class MessageDialogUtils {
      * @return 点击按钮
      */
     public static int yesNoCancel(Project project, String msg, String yesText, String noText, String cancelText) {
-        MessageDialogBuilder builder = MessageDialogBuilder
-                .yesNoCancel(MsgValue.TITLE_INFO, msg)
-                .yesText(yesText)
-                .noText(noText)
-                .cancelText(cancelText);
-        Method method;
-        // 新版本兼容
-        try {
-            method = builder.getClass().getMethod("show", Project.class);
-            return (int) method.invoke(builder, project);
-        } catch (NoSuchMethodException e) {
-            // 旧版本兼容
-            try {
-                method = builder.getClass().getMethod("show");
-                return (int) method.invoke(builder);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e1) {
-                ExceptionUtil.rethrow(e1);
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            ExceptionUtil.rethrow(e);
-        }
-        return Messages.NO;
+        Object[] options = new Object[]{"Yes", "No", "Cancel"};
+        return JOptionPane.showOptionDialog(null,
+                msg, MsgValue.TITLE_INFO,
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+                UIUtil.getQuestionIcon(),
+                options, options[0]);
     }
 
 }
