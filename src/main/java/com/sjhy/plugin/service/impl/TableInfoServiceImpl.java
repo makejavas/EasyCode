@@ -11,6 +11,11 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.javadoc.PsiDocComment;
+import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.constants.MsgValue;
@@ -22,9 +27,19 @@ import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author makejava
@@ -32,6 +47,7 @@ import java.util.regex.PatternSyntaxException;
  * @since 2018/09/02 12:13
  */
 public class TableInfoServiceImpl implements TableInfoService {
+
     /**
      * 项目对象
      */
@@ -119,21 +135,23 @@ public class TableInfoServiceImpl implements TableInfoService {
     public TableInfo getTableInfoAndConfig(DbTable dbTable) {
         TableInfo tableInfo = this.getTableInfoByDbTable(dbTable);
         // 加载配置
-        this.loadConfig(tableInfo);
+        String configFileName = getConfigFileName(tableInfo);
+        this.loadConfig(tableInfo, configFileName);
         return tableInfo;
     }
 
     /**
      * 加载单个表信息配置(用户自定义列与扩张选项)
      *
-     * @param tableInfo 表信息对象
+     * @param tableInfo      表信息对象
+     * @param configFileName 配置文件名称
      */
-    private void loadConfig(TableInfo tableInfo) {
+    private void loadConfig(TableInfo tableInfo, String configFileName) {
         if (tableInfo == null) {
             return;
         }
         // 读取配置文件中的表信息
-        TableInfo tableInfoConfig = read(tableInfo);
+        TableInfo tableInfoConfig = read(configFileName);
         // 返回空直接不处理
         if (tableInfoConfig == null) {
             return;
@@ -173,8 +191,10 @@ public class TableInfoServiceImpl implements TableInfoService {
                     if (configColumn.getType() == null) {
                         configColumn.setType(column.getType());
                     }
-                    if (!StringUtils.isEmpty(configColumn.getType())) {
-                        // 短类型
+                    // 短类型
+                    if (!StringUtils.isEmpty(column.getShortType())) {
+                        configColumn.setShortType(column.getShortType());
+                    } else if (!StringUtils.isEmpty(configColumn.getType())) {
                         configColumn.setShortType(nameUtils.getClsNameByFullName(configColumn.getType()));
                     }
                     // 表注释覆盖
@@ -187,10 +207,21 @@ public class TableInfoServiceImpl implements TableInfoService {
                     // 添加至新列表中
                     fullColumn.add(configColumn);
                     // 是否为主键
-                    if (DasUtil.isPrimary(configColumn.getObj())) {
-                        pkColumn.add(configColumn);
+                    if (configColumn.getObj() != null) {
+                        if (DasUtil.isPrimary(configColumn.getObj())) {
+                            pkColumn.add(configColumn);
+                        } else {
+                            otherColumn.add(configColumn);
+                        }
                     } else {
-                        otherColumn.add(configColumn);
+                        boolean isPk = tableInfo.getPkColumn() != null
+                                && tableInfo.getPkColumn().stream()
+                                .anyMatch(c -> Objects.equals(c.getName(), column.getName()));
+                        if (isPk) {
+                            pkColumn.add(configColumn);
+                        } else {
+                            otherColumn.add(configColumn);
+                        }
                     }
                     break;
                 }
@@ -251,12 +282,15 @@ public class TableInfoServiceImpl implements TableInfoService {
             for (TypeMapper typeMapper : typeMapperList) {
                 try {
                     // 不区分大小写查找类型
-                    if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName).matches()) {
+                    if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(typeName)
+                            .matches()) {
                         continue FLAG;
                     }
                 } catch (PatternSyntaxException e) {
                     if (!errorCount.contains(typeMapper.getColumnType())) {
-                        Messages.showWarningDialog("类型映射《" + typeMapper.getColumnType() + "》存在语法错误，请及时修正。报错信息:" + e.getMessage(), MsgValue.TITLE_INFO);
+                        Messages.showWarningDialog(
+                                "类型映射《" + typeMapper.getColumnType() + "》存在语法错误，请及时修正。报错信息:" + e.getMessage(),
+                                MsgValue.TITLE_INFO);
                         errorCount.add(typeMapper.getColumnType());
                     }
                 }
@@ -280,7 +314,12 @@ public class TableInfoServiceImpl implements TableInfoService {
     @Override
     public void save(TableInfo tableInfo) {
         // 获取未修改前的原数据
-        TableInfo oldTableInfo = getTableInfoByDbTable(tableInfo.getObj());
+        TableInfo oldTableInfo;
+        if (tableInfo.getObj() != null) {
+            oldTableInfo = getTableInfoByDbTable(tableInfo.getObj());
+        } else {
+            oldTableInfo = getTableInfoByPsiClass(tableInfo.getPsiClassObj());
+        }
         // 克隆对象，防止串改，同时原始对象丢失
         tableInfo = CloneUtils.cloneByJson(tableInfo, false);
         //排除部分字段，这些字段不进行保存
@@ -340,24 +379,90 @@ public class TableInfoServiceImpl implements TableInfoService {
             return;
         }
         // 获取保存文件
-        new SaveFile(project, dir.getPath(), getConfigFileName(oldTableInfo.getObj()), content, true, false).write();
+        new SaveFile(project, dir.getPath(), getConfigFileName(oldTableInfo), content, true, false).write();
+    }
+
+    public TableInfo getTableInfoByPsiClass(PsiClass psiClass) {
+        TableInfo tableInfo = new TableInfo();
+        tableInfo.setPsiClassObj(psiClass);
+        tableInfo.setName(psiClass.getName());
+        tableInfo.setComment(parsePsiClassComment(psiClass.getDocComment()));
+        tableInfo.setFullColumn(new ArrayList<>());
+        tableInfo.setPkColumn(new ArrayList<>());
+        tableInfo.setOtherColumn(new ArrayList<>());
+        for (PsiField field : psiClass.getAllFields()) {
+            if (PsiClassGenerateUtils.isSkipField(field)) {
+                continue;
+            }
+            ColumnInfo columnInfo = new ColumnInfo();
+            columnInfo.setName(field.getName());
+            columnInfo.setShortType(field.getType().getPresentableText());
+            columnInfo.setType(field.getType().getCanonicalText());
+            columnInfo.setComment(parsePsiClassComment(field.getDocComment()));
+            tableInfo.getFullColumn().add(columnInfo);
+            if (PsiClassGenerateUtils.isPkField(field)) {
+                tableInfo.getPkColumn().add(columnInfo);
+            } else {
+                tableInfo.getOtherColumn().add(columnInfo);
+            }
+        }
+        return tableInfo;
+    }
+
+    private String removeClassNameGeneric(String fullName) {
+        int genericIdx = fullName.indexOf('<');
+        if (genericIdx == -1) {
+            return fullName;
+        }
+        return fullName.substring(0, genericIdx);
+    }
+
+
+    @Override
+    public TableInfo getTableInfoAndConfigByPsiClass(PsiClass selectPsiClass) {
+        TableInfo tableInfo = this.getTableInfoByPsiClass(selectPsiClass);
+        // 加载配置
+        String configFileName = getConfigFileName(tableInfo);
+        this.loadConfig(tableInfo, configFileName);
+        return tableInfo;
+    }
+
+    @Override
+    public List<TableInfo> getTableInfoAndConfigByPsiClass(List<PsiClass> psiClassList) {
+        if (CollectionUtil.isEmpty(psiClassList)) {
+            return Collections.EMPTY_LIST;
+        }
+        List<TableInfo> tableInfoList = new ArrayList<>(psiClassList.size());
+        psiClassList.forEach(psiClass -> tableInfoList.add(this.getTableInfoAndConfigByPsiClass(psiClass)));
+        return tableInfoList;
+    }
+
+    private String parsePsiClassComment(@Nullable PsiDocComment docComment) {
+        if (docComment == null) {
+            return null;
+        }
+        return Arrays.stream(docComment.getDescriptionElements())
+                .filter(o -> o instanceof PsiDocToken)
+                .map(PsiElement::getText)
+                .findFirst()
+                .map(String::trim)
+                .orElse(null);
     }
 
     /**
      * 读取配置文件
      *
-     * @param tableInfo 表信息对象
+     * @param fileName 配置文件名称, 不包含路径
      * @return 读取到的配置信息
      */
-    private TableInfo read(TableInfo tableInfo) {
+    private TableInfo read(String fileName) {
         // 获取保存的目录
         VirtualFile easyCodeConfigDir = getEasyCodeConfigDirectory(project);
         if (easyCodeConfigDir == null) {
             return null;
         }
         // 获取配置文件
-        String fileName = getConfigFileName(tableInfo.getObj());
-        VirtualFile configJsonFile = easyCodeConfigDir.findChild(getConfigFileName(tableInfo.getObj()));
+        VirtualFile configJsonFile = easyCodeConfigDir.findChild(fileName);
         if (configJsonFile == null) {
             return null;
         }
@@ -369,7 +474,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         // 读取并解析文件
         String json = document.getText();
         if (StringUtils.isEmpty(json)) {
-            Messages.showInfoMessage(fileName + "配置文件文件为空，请尝试手动删除" + configJsonFile.getPath() + "文件！", MsgValue.TITLE_INFO);
+            Messages.showInfoMessage(fileName + "配置文件文件为空，请尝试手动删除" + configJsonFile.getPath() + "文件！",
+                    MsgValue.TITLE_INFO);
             return null;
         }
         return parser(json, configJsonFile);
@@ -419,12 +525,17 @@ public class TableInfoServiceImpl implements TableInfoService {
     /**
      * 获取配置文件名称
      *
-     * @param dbTable 表信息对象
+     * @param tableInfo 表信息对象
      * @return 对应的配置文件名称
      */
-    private String getConfigFileName(DbTable dbTable) {
-        String schemaName = DasUtil.getSchema(dbTable);
-        return schemaName + "-" + dbTable.getName() + ".json";
+    private String getConfigFileName(TableInfo tableInfo) {
+        if (tableInfo.getObj() != null) {
+            DbTable dbTable = tableInfo.getObj();
+            String schemaName = DasUtil.getSchema(dbTable);
+            return schemaName + "-" + dbTable.getName() + ".json";
+        } else {
+            return tableInfo.getPsiClassObj().getQualifiedName() + ".json";
+        }
     }
 
     /**
@@ -437,7 +548,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         try {
             return objectMapper.readValue(str, TableInfo.class);
         } catch (IOException e) {
-            Messages.showWarningDialog("读取配置失败，JSON反序列化异常。请尝试手动删除" + originalFile.getPath() + "文件！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("读取配置失败，JSON反序列化异常。请尝试手动删除" + originalFile.getPath() + "文件！",
+                    MsgValue.TITLE_INFO);
             ExceptionUtil.rethrow(e);
         }
         return null;

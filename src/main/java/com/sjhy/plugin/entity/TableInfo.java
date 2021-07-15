@@ -2,6 +2,7 @@ package com.sjhy.plugin.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.intellij.database.psi.DbTable;
+import com.intellij.psi.PsiClass;
 import lombok.Data;
 
 import java.util.List;
@@ -20,6 +21,13 @@ public class TableInfo {
      */
     @JsonIgnore
     private DbTable obj;
+
+    /**
+     * 原始对象（从实体生成）
+     */
+    @JsonIgnore
+    private PsiClass psiClassObj;
+
     /**
      * 表名（首字母大写）
      */

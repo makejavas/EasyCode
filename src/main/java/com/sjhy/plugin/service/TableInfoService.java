@@ -3,6 +3,7 @@ package com.sjhy.plugin.service;
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.tool.CollectionUtil;
 import org.jetbrains.annotations.NotNull;
@@ -92,4 +93,19 @@ public interface TableInfoService {
      * @param tableInfo 表信息对象
      */
     void save(TableInfo tableInfo);
+
+    /**
+     * 获取表信息
+     */
+    TableInfo getTableInfoByPsiClass(PsiClass psiClass);
+
+    /**
+     * 从实体获取表信息包含配置
+     */
+    TableInfo getTableInfoAndConfigByPsiClass(PsiClass selectPsiClass);
+
+    /**
+     * 从实体获取表信息包含配置
+     */
+    List<TableInfo> getTableInfoAndConfigByPsiClass(List<PsiClass> selectPsiClass);
 }
