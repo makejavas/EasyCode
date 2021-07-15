@@ -50,7 +50,7 @@ public class MessageDialogUtils {
      * @return 点击按钮
      */
     public static int yesNoCancel(Project project, String msg, String yesText, String noText, String cancelText) {
-        Object[] options = new Object[]{"Yes", "No", "Cancel"};
+        Object[] options = new Object[]{yesText, noText, cancelText};
         return JOptionPane.showOptionDialog(null,
                 msg, MsgValue.TITLE_INFO,
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
