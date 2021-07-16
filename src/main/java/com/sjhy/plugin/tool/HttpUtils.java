@@ -43,6 +43,7 @@ public final class HttpUtils {
      * 服务器地址
      */
     private static final String HOST_URL = "http://www.shujuhaiyang.com/easyCode";
+
     /**
      * http客户端
      */
@@ -73,6 +74,14 @@ public final class HttpUtils {
      */
     public static String get(String uri) {
         HttpGet httpGet = new HttpGet(HOST_URL + uri);
+        httpGet.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
+        httpGet.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
+        httpGet.setConfig(getDefaultConfig());
+        return handlerRequest(httpGet);
+    }
+
+    public static String getRemoteUrl(String url){
+        HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
         httpGet.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpGet.setConfig(getDefaultConfig());
