@@ -22,12 +22,10 @@ public final class PsiClassGenerateUtils {
         if("id".equals(field.getName())) {
             return true;
         }
-        PsiAnnotation idAnnotation = field.getAnnotation("org.springframework.data.annotation.Id");
-        if (idAnnotation != null) {
+        if (existsAnnotation(field, "org.springframework.data.annotation.Id")) {
             return true;
         }
-        idAnnotation = field.getAnnotation("javax.persistence.Id");
-        if (idAnnotation != null) {
+        if (existsAnnotation(field, "javax.persistence.Id")) {
             return true;
         }
         return false;
@@ -41,14 +39,21 @@ public final class PsiClassGenerateUtils {
         if(modifierList != null && modifierList.hasExplicitModifier(PsiModifier.STATIC)) {
             return true;
         }
-        PsiAnnotation annotation = field.getAnnotation("org.springframework.data.annotation.Transient");
-        if (annotation != null) {
+        if (existsAnnotation(field, "org.springframework.data.annotation.Transient")) {
             return true;
         }
-        annotation = field.getAnnotation("javax.persistence.Transient");
-        if (annotation != null) {
+        if (existsAnnotation(field, "javax.persistence.Transient")) {
             return true;
         }
         return false;
+    }
+
+    private static boolean existsAnnotation(PsiField field, String clsName) {
+        return getAnnotation(field, clsName) != null;
+    }
+
+    private static PsiAnnotation getAnnotation(PsiField field, String clsName) {
+        PsiModifierList list = field.getModifierList();
+        return list == null ? null : list.findAnnotation(clsName);
     }
 }
