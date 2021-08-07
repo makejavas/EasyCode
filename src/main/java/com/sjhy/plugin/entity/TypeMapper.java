@@ -1,5 +1,6 @@
 package com.sjhy.plugin.entity;
 
+import com.sjhy.plugin.enums.MatchType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TypeMapper {
     /**
+     * 匹配类型
+     */
+    private MatchType matchType;
+    /**
      * 列类型
      */
     private String columnType;
@@ -23,6 +28,7 @@ public class TypeMapper {
     private String javaType;
 
     public TypeMapper(String columnType, String javaType) {
+        this.matchType = MatchType.REGEX;
         this.columnType = columnType;
         this.javaType = javaType;
     }

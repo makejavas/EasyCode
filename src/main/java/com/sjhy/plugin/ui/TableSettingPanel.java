@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
 import com.sjhy.plugin.entity.ColumnConfig;
 import com.sjhy.plugin.entity.ColumnConfigGroup;
-import com.sjhy.plugin.entity.ColumnConfigType;
+import com.sjhy.plugin.enums.ColumnConfigType;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.config.Settings;
 import org.jetbrains.annotations.Nls;

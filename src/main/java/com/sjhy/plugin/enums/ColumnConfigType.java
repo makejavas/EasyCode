@@ -1,4 +1,4 @@
-package com.sjhy.plugin.entity;
+package com.sjhy.plugin.enums;
 
 /**
  *  列配置类型

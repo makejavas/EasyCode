@@ -7,6 +7,7 @@ import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.entity.*;
+import com.sjhy.plugin.enums.ColumnConfigType;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.tool.CurrGroupUtils;

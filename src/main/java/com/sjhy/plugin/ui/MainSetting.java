@@ -332,7 +332,7 @@ public class MainSetting implements Configurable, Configurable.Composite {
     @Override
     public Configurable[] getConfigurables() {
         Configurable[] result = new Configurable[4];
-        result[0] = new TypeMapperSetting(settings);
+        result[0] = new TypeMapperSetting();
         result[1] = new TemplateSettingPanel();
         result[2] = new TableSettingPanel();
         result[3] = new GlobalConfigSettingPanel();

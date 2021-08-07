@@ -78,8 +78,8 @@ public class TypeMapperSetting implements Configurable {
     private Settings settings;
 
 
-    public TypeMapperSetting(Settings settings) {
-        this.settings = settings;
+    public TypeMapperSetting() {
+        this.settings = Settings.getInstance();
         this.typeMapperGroupMap = CloneUtils.cloneByJson(settings.getTypeMapperGroupMap(), new TypeReference<Map<String, TypeMapperGroup>>() {});
         this.currGroupName = settings.getCurrTypeMapperGroupName();
         //添加类型

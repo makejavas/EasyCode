@@ -9,6 +9,7 @@ import com.intellij.util.ExceptionUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import com.sjhy.plugin.entity.*;
+import com.sjhy.plugin.enums.ColumnConfigType;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

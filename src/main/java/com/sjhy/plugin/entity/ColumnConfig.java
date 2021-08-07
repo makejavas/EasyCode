@@ -1,5 +1,6 @@
 package com.sjhy.plugin.entity;
 
+import com.sjhy.plugin.enums.ColumnConfigType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
