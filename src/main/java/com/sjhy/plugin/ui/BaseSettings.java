@@ -1,0 +1,45 @@
+package com.sjhy.plugin.ui;
+
+import com.intellij.openapi.options.UnnamedConfigurable;
+import com.sjhy.plugin.dto.SettingsStorageDTO;
+import com.sjhy.plugin.service.SettingsStorageService;
+
+/**
+ * @author makejava
+ * @version 1.0.0
+ * @since 2021/08/07 19:42
+ */
+public interface BaseSettings extends UnnamedConfigurable {
+
+    /**
+     * 重置设置
+     */
+    @Override
+    default void reset() {
+
+    }
+
+    /**
+     * 获取设置信息
+     *
+     * @return 获取设置信息
+     */
+    default SettingsStorageDTO getSettingsStorage() {
+        return SettingsStorageService.getSettingsStorage();
+    }
+
+    /**
+     * 加载配置信息
+     */
+    default void loadSettingsStore() {
+        this.loadSettingsStore(getSettingsStorage());
+    }
+
+    /**
+     * 加载配置信息
+     *
+     * @param settingsStorage 配置信息
+     */
+    void loadSettingsStore(SettingsStorageDTO settingsStorage);
+
+}

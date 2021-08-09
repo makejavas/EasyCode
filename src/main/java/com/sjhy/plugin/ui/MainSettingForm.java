@@ -4,7 +4,6 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
-import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.tool.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,11 +16,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @date 2021/08/07 09:22
  */
-public class MainSettingForm implements Configurable, Configurable.Composite {
-    /**
-     * 设置储存传输对象
-     */
-    private SettingsStorageDTO settingsStorage;
+public class MainSettingForm implements Configurable, Configurable.Composite, BaseSettings {
     private JLabel versionLabel;
     private JButton resetBtn;
     private JButton pushBtn;
@@ -39,25 +34,12 @@ public class MainSettingForm implements Configurable, Configurable.Composite {
     public MainSettingForm() {
     }
 
-    private void loadStorageValue() {
-        this.versionLabel.setText(this.settingsStorage.getVersion());
-        this.authorEditor.setText(this.settingsStorage.getAuthor());
-        this.userSecureEditor.setText(this.settingsStorage.getUserSecure());
-        if (StringUtils.isEmpty(this.settingsStorage.getUserSecure())) {
-            this.pullBtn.setEnabled(false);
-            this.pushBtn.setEnabled(false);
-        } else {
-            this.pullBtn.setEnabled(true);
-            this.pushBtn.setEnabled(true);
-        }
-    }
-
     private void initEvent() {
         this.resetBtn.addActionListener(e -> JBPopupFactory.getInstance()
                 .createConfirmation("确认恢复默认设置，所有Default分组配置将被重置？", () -> {
                     // 重置默认值后重新加载配置
-                    settingsStorage.resetDefaultVal();
-                    this.loadStorageValue();
+                    getSettingsStorage().resetDefaultVal();
+                    this.loadSettingsStore();
                 }, 0)
                 .showInFocusCenter()
         );
@@ -86,21 +68,26 @@ public class MainSettingForm implements Configurable, Configurable.Composite {
     }
 
     @Override
-    public @NotNull Configurable[] getConfigurables() {
+    public Configurable @NotNull [] getConfigurables() {
         Configurable[] result = new Configurable[]{
                 new TypeMapperSettingForm(),
 //                new TemplateSettingPanel(),
 //                new TableSettingPanel(),
 //                new GlobalConfigSettingPanel()
         };
+        // 初始装置配置信息
+        for (Configurable configurable : result) {
+            if (configurable instanceof BaseSettings) {
+                ((BaseSettings) configurable).loadSettingsStore();
+            }
+        }
         return result;
     }
 
     @Override
     public @Nullable JComponent createComponent() {
-        this.settingsStorage = SettingsStorageService.getSettingsStorage();
         // 加载储存数据
-        this.loadStorageValue();
+        this.loadSettingsStore();
         // 初始化事件
         this.initEvent();
         return mainPanel;
@@ -108,18 +95,13 @@ public class MainSettingForm implements Configurable, Configurable.Composite {
 
     @Override
     public boolean isModified() {
-        if (!Objects.equals(this.authorEditor.getText(), settingsStorage.getAuthor())) {
+        if (!Objects.equals(this.authorEditor.getText(), getSettingsStorage().getAuthor())) {
             return true;
         }
-        if (!Objects.equals(this.userSecureEditor.getText(), settingsStorage.getUserSecure())) {
+        if (!Objects.equals(this.userSecureEditor.getText(), getSettingsStorage().getUserSecure())) {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void reset() {
-        this.loadStorageValue();
     }
 
     @Override
@@ -128,8 +110,27 @@ public class MainSettingForm implements Configurable, Configurable.Composite {
         if (StringUtils.isEmpty(author)) {
             throw new ConfigurationException("作者名称不能为空");
         }
-        this.settingsStorage.setAuthor(author);
+        getSettingsStorage().setAuthor(author);
         String userSecure = this.userSecureEditor.getText();
-        this.settingsStorage.setUserSecure(userSecure);
+        getSettingsStorage().setUserSecure(userSecure);
+    }
+
+    /**
+     * 加载配置信息
+     *
+     * @param settingsStorage 配置信息
+     */
+    @Override
+    public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
+        this.versionLabel.setText(settingsStorage.getVersion());
+        this.authorEditor.setText(settingsStorage.getAuthor());
+        this.userSecureEditor.setText(settingsStorage.getUserSecure());
+        if (StringUtils.isEmpty(settingsStorage.getUserSecure())) {
+            this.pullBtn.setEnabled(false);
+            this.pushBtn.setEnabled(false);
+        } else {
+            this.pullBtn.setEnabled(true);
+            this.pushBtn.setEnabled(true);
+        }
     }
 }
