@@ -26,11 +26,11 @@ public class ProjectUtils {
      * @return 当前项目对象
      */
     public static Project getCurrProject() {
-
         ProjectManager projectManager = ProjectManager.getInstance();
         Project[] openProjects = projectManager.getOpenProjects();
         if (openProjects.length == 0) {
-            return projectManager.getDefaultProject();//正常情况下不会发生
+            // 在未打开任何项目，进入到设置页面时会出现
+            return projectManager.getDefaultProject();
         } else if (openProjects.length == 1) {
             // 只存在一个打开的项目则使用打开的项目
             return openProjects[0];
