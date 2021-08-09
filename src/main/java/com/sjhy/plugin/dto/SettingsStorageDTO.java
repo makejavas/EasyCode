@@ -102,8 +102,4 @@ public class SettingsStorageDTO {
      * 全局配置组
      */
     private Map<String, GlobalConfigGroup> globalConfigGroupMap;
-
-    public TypeMapperGroup currentTypeMapperGroup() {
-        return typeMapperGroupMap.get(currColumnConfigGroupName);
-    }
 }

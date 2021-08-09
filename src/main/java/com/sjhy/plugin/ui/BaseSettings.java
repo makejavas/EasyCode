@@ -16,7 +16,7 @@ public interface BaseSettings extends UnnamedConfigurable {
      */
     @Override
     default void reset() {
-
+        loadSettingsStore();
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.sjhy.plugin.entity;
 
-import com.intellij.util.ui.EditableModel;
 import com.sjhy.plugin.comm.AbstractTableModel;
 import com.sjhy.plugin.enums.MatchType;
 
@@ -11,9 +10,9 @@ import com.sjhy.plugin.enums.MatchType;
  * @version 1.0.0
  * @since 2018/07/17 13:10
  */
-public class TypeMapperModel extends AbstractTableModel<TypeMapper> implements EditableModel {
+public class TypeMapperModel extends AbstractTableModel<TypeMapper> {
     @Override
-    protected String[] initColumnName() {
+    public String[] initColumnName() {
         return new String[]{"matchType", "columnType", "javaType"};
     }
 
@@ -34,17 +33,7 @@ public class TypeMapperModel extends AbstractTableModel<TypeMapper> implements E
     }
 
     @Override
-    public void addRow() {
-        addRow(new TypeMapper("demo", "java.lang.String"));
-    }
-
-    @Override
-    public void exchangeRows(int oldIndex, int newIndex) {
-
-    }
-
-    @Override
-    public boolean canExchangeRows(int oldIndex, int newIndex) {
-        return false;
+    protected TypeMapper defaultVal() {
+        return new TypeMapper("demo", "java.lang.String");
     }
 }

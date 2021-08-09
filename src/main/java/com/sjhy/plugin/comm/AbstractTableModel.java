@@ -1,5 +1,6 @@
 package com.sjhy.plugin.comm;
 
+import com.intellij.util.ui.EditableModel;
 import com.sjhy.plugin.tool.CollectionUtil;
 
 import javax.swing.table.DefaultTableModel;
@@ -12,7 +13,7 @@ import java.util.List;
  * @version 1.0.0
  * @since 2018/07/17 13:10
  */
-public abstract class AbstractTableModel<T> extends DefaultTableModel {
+public abstract class AbstractTableModel<T> extends DefaultTableModel implements EditableModel {
     /**
      * 数据
      */
@@ -114,4 +115,31 @@ public abstract class AbstractTableModel<T> extends DefaultTableModel {
      * @param val         值
      */
     protected abstract void setVal(T obj, int columnIndex, Object val);
+
+    /**
+     * 默认值
+     *
+     * @return 默认值
+     */
+    protected abstract T defaultVal();
+
+    /**
+     * 添加行
+     */
+    @Override
+    public void addRow() {
+        addRow(defaultVal());
+    }
+
+    @Override
+    public void exchangeRows(int oldIndex, int newIndex) {
+        super.moveRow(oldIndex, oldIndex, newIndex);
+        T remove = this.data.remove(oldIndex);
+        this.data.add(newIndex, remove);
+    }
+
+    @Override
+    public boolean canExchangeRows(int oldIndex, int newIndex) {
+        return true;
+    }
 }
