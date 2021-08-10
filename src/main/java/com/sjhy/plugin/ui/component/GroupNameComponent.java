@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBLabel;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.tool.StringUtils;
 import lombok.Getter;
@@ -116,13 +117,14 @@ public class GroupNameComponent {
     }
 
     private void init() {
-        panel = new JPanel(new BorderLayout());
+        panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        this.panel.add(new JBLabel("Group Name:"));
+        this.groupComboBox = new ComboBox<>(this.allGroupNames.toArray(new String[0]));
+        this.panel.add(this.groupComboBox);
         // 分组操作
         DefaultActionGroup groupAction = new DefaultActionGroup(Arrays.asList(this.copyAction(), this.addAction(), this.removeAction()));
         ActionToolbar groupActionToolbar = ActionManager.getInstance().createActionToolbar("Group Toolbar", groupAction, true);
-        this.panel.add(groupActionToolbar.getComponent(), BorderLayout.EAST);
-        this.groupComboBox = new ComboBox<>(this.allGroupNames.toArray(new String[0]));
-        this.panel.add(this.groupComboBox, BorderLayout.CENTER);
+        this.panel.add(groupActionToolbar.getComponent());
         this.groupComboBox.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {

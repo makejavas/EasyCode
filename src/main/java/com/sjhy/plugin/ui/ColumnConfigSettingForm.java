@@ -30,7 +30,6 @@ import java.util.function.Consumer;
  */
 public class ColumnConfigSettingForm implements Configurable, BaseSettings {
     private JPanel mainPanel;
-    private JPanel groupOperatorPanel;
     /**
      * 列配置
      */
@@ -47,6 +46,10 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
      * 分组操作组件
      */
     private GroupNameComponent groupNameComponent;
+
+    public ColumnConfigSettingForm() {
+        this.mainPanel = new JPanel(new BorderLayout());
+    }
 
     private void initTable() {
         // 第一列，类型
@@ -97,7 +100,7 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
         };
 
         this.groupNameComponent = new GroupNameComponent(copyOperator, addOperator, deleteOperator, switchGroupOperator);
-        this.groupOperatorPanel.add(groupNameComponent.getPanel());
+        this.mainPanel.add(groupNameComponent.getPanel(), BorderLayout.NORTH);
     }
 
     private void initPanel() {
