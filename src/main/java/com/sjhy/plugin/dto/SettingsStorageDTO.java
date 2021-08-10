@@ -2,6 +2,7 @@ package com.sjhy.plugin.dto;
 
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.*;
+import com.sjhy.plugin.enums.ColumnConfigType;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -39,12 +40,16 @@ public class SettingsStorageDTO {
         typeMapperGroup.setElementList(Arrays.asList(new TypeMapper("varchar", "java.lang.String"), new TypeMapper("varchar\\(\\)", "java.lang.String")));
         storage.typeMapperGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, typeMapperGroup);
 
+        ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
+        columnConfigGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
+        columnConfigGroup.setElementList(Arrays.asList(new ColumnConfig("disable", ColumnConfigType.BOOLEAN), new ColumnConfig("operator", ColumnConfigType.SELECT, "insert,update,delete,select")));
+        storage.columnConfigGroupMap = new HashMap<>(16);
+        storage.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, columnConfigGroup);
+
         storage.globalConfigGroupMap = new HashMap<>(16);
         storage.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new GlobalConfigGroup());
         storage.templateGroupMap = new HashMap<>(16);
         storage.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new TemplateGroup());
-        storage.columnConfigGroupMap = new HashMap<>(16);
-        storage.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new ColumnConfigGroup());
         return storage;
     }
 
