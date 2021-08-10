@@ -11,11 +11,10 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.ui.table.JBTable;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
+import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.entity.TypeMapperGroup;
-import com.sjhy.plugin.entity.TypeMapperModel;
 import com.sjhy.plugin.enums.MatchType;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.StringUtils;
@@ -24,9 +23,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -48,25 +50,22 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
      */
     private TypeMapperGroup currTypeMapperGroup;
     /**
-     * 表格
+     * 表格组件
      */
-    private JBTable table;
+    private TableComponent<TypeMapper> tableComponent;
 
-    private TypeMapperModel typeMapperModel;
+    private boolean refresh;
 
     private void initPanel(SettingsStorageDTO settingsStorage) {
-        this.typeMapperModel = new TypeMapperModel();
-        this.loadSettingsStore(settingsStorage);
-        table = new JBTable(typeMapperModel);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // 第一列仅适用下拉框
         ComboBox<String> matchTypeField = new ComboBox<>(Stream.of(MatchType.values()).map(Enum::name).toArray(value -> new String[2]));
         if (matchTypeField.getPopup() != null) {
             matchTypeField.getPopup().getList().setBackground(JBColor.WHITE);
             matchTypeField.getPopup().getList().setForeground(JBColor.GREEN);
         }
-        DefaultCellEditor matchTypeCellEditor = new DefaultCellEditor(matchTypeField);
-        table.getColumn(typeMapperModel.initColumnName()[0]).setCellEditor(matchTypeCellEditor);
+        TableComponent.Column<TypeMapper> matchTypeColumn = new TableComponent.Column<>("matchType", item -> item.getMatchType().name(), (entity, val) -> {
+            entity.setMatchType(MatchType.valueOf(val));
+        }, new DefaultCellEditor(matchTypeField));
         // 第二列监听输入状态，及时修改属性值
         JBTextField textField = new JBTextField();
         textField.addFocusListener(new FocusListener() {
@@ -80,9 +79,7 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
                 textField.getActionListeners()[0].actionPerformed(null);
             }
         });
-        DefaultCellEditor textFieldCellEditor = new DefaultCellEditor(textField);
-        table.getColumn(typeMapperModel.initColumnName()[1]).setCellEditor(textFieldCellEditor);
-
+        TableComponent.Column<TypeMapper> columnTypeColumn = new TableComponent.Column<>("columnType", TypeMapper::getColumnType, TypeMapper::setColumnType, new DefaultCellEditor(textField));
         // 第三列支持下拉框
         ComboBox<String> javaTypeField = new ComboBox<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST);
         if (javaTypeField.getPopup() != null) {
@@ -90,9 +87,10 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
             javaTypeField.getPopup().getList().setForeground(JBColor.GREEN);
         }
         javaTypeField.setEditable(true);
-        DefaultCellEditor javaTypeCellEditor = new DefaultCellEditor(javaTypeField);
-        table.getColumn(typeMapperModel.initColumnName()[2]).setCellEditor(javaTypeCellEditor);
-        final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table);
+        TableComponent.Column<TypeMapper> javaTypeColumn = new TableComponent.Column<>("javaType", TypeMapper::getJavaType, TypeMapper::setJavaType, new DefaultCellEditor(javaTypeField));
+        List<TableComponent.Column<TypeMapper>> columns = Arrays.asList(matchTypeColumn, columnTypeColumn, javaTypeColumn);
+        this.tableComponent = new TableComponent<>(columns, Collections.emptyList(), () -> new TypeMapper("demo", "java.lang.String"));
+        final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this.tableComponent.getTable());
         // 表格初始化
         this.mainPanel.add(decorator.createPanel(), BorderLayout.CENTER);
         // 分组操作
@@ -117,17 +115,35 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
                 TypeMapperGroup typeMapperGroup = CloneUtils.cloneByJson(typeMapperGroupMap.get(currTypeMapperGroup.getName()));
                 typeMapperGroup.setName(value);
                 settingsStorage.getTypeMapperGroupMap().put(value, typeMapperGroup);
+                typeMapperGroupMap.put(value, typeMapperGroup);
                 currTypeMapperGroup = typeMapperGroup;
                 refreshUiVal();
             }
         }, new AnAction(AllIcons.General.Remove) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-
+                typeMapperGroupMap.remove(currTypeMapperGroup.getName());
+                currTypeMapperGroup = typeMapperGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+                refreshUiVal();
             }
         }));
         ActionToolbar groupActionToolbar = ActionManager.getInstance().createActionToolbar("Group Toolbar", groupAction, true);
         this.groupOperatorPanel.add(groupActionToolbar.getComponent());
+        this.groupComboBox.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (refresh) {
+                    return;
+                }
+                String groupName = (String) groupComboBox.getSelectedItem();
+                if (StringUtils.isEmpty(groupName)) {
+                    return;
+                }
+                currTypeMapperGroup = typeMapperGroupMap.get(groupName);
+                refreshUiVal();
+            }
+        });
+        this.loadSettingsStore(settingsStorage);
     }
 
     @Override
@@ -149,7 +165,8 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
 
     @Override
     public boolean isModified() {
-        return !this.typeMapperGroupMap.equals(getSettingsStorage().getTypeMapperGroupMap());
+        return !this.typeMapperGroupMap.equals(getSettingsStorage().getTypeMapperGroupMap())
+                || !getSettingsStorage().getCurrTypeMapperGroupName().equals(this.currTypeMapperGroup.getName());
     }
 
     @Override
@@ -175,13 +192,15 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
     }
 
     private void refreshUiVal() {
-        if (this.typeMapperModel != null) {
-            this.typeMapperModel.init(this.currTypeMapperGroup.getElementList());
+        this.refresh = true;
+        if (this.tableComponent != null) {
+            this.tableComponent.setDataList(this.currTypeMapperGroup.getElementList());
         }
         this.groupComboBox.removeAllItems();
         for (String key : this.typeMapperGroupMap.keySet()) {
             this.groupComboBox.addItem(key);
         }
         this.groupComboBox.setSelectedItem(this.currTypeMapperGroup.getName());
+        this.refresh = false;
     }
 }
