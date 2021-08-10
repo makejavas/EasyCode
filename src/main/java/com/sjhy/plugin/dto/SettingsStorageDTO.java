@@ -38,6 +38,13 @@ public class SettingsStorageDTO {
         typeMapperGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
         typeMapperGroup.setElementList(Arrays.asList(new TypeMapper("varchar", "java.lang.String"), new TypeMapper("varchar\\(\\)", "java.lang.String")));
         storage.typeMapperGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, typeMapperGroup);
+
+        storage.globalConfigGroupMap = new HashMap<>(16);
+        storage.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new GlobalConfigGroup());
+        storage.templateGroupMap = new HashMap<>(16);
+        storage.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new TemplateGroup());
+        storage.columnConfigGroupMap = new HashMap<>(16);
+        storage.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new ColumnConfigGroup());
         return storage;
     }
 
@@ -48,14 +55,14 @@ public class SettingsStorageDTO {
         SettingsStorageDTO defaultVal = defaultVal();
         this.setAuthor(defaultVal.getAuthor());
         this.setVersion(defaultVal.getVersion());
-        this.setCurrColumnConfigGroupName(defaultVal.getCurrColumnConfigGroupName());
-        this.setCurrTemplateGroupName(defaultVal.getCurrTemplateGroupName());
-        this.setCurrGlobalConfigGroupName(defaultVal.getCurrGlobalConfigGroupName());
-        this.setCurrTypeMapperGroupName(defaultVal.getCurrTypeMapperGroupName());
-        this.setGlobalConfigGroupMap(defaultVal.getGlobalConfigGroupMap());
-        this.setColumnConfigGroupMap(defaultVal.getColumnConfigGroupMap());
-        this.setTypeMapperGroupMap(defaultVal.getTypeMapperGroupMap());
-        this.setTemplateGroupMap(defaultVal.getTemplateGroupMap());
+        this.setCurrColumnConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        this.getColumnConfigGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getColumnConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        this.setCurrTemplateGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        this.getTemplateGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTemplateGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        this.setCurrGlobalConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        this.getGlobalConfigGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        this.setCurrTypeMapperGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        this.getTypeMapperGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
     }
 
     /**

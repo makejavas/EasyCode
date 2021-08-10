@@ -56,7 +56,7 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
 
     private boolean refresh;
 
-    private void initPanel(SettingsStorageDTO settingsStorage) {
+    private void initTable() {
         // 第一列仅适用下拉框
         ComboBox<String> matchTypeField = new ComboBox<>(Stream.of(MatchType.values()).map(Enum::name).toArray(value -> new String[2]));
         if (matchTypeField.getPopup() != null) {
@@ -93,6 +93,11 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
         final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this.tableComponent.getTable());
         // 表格初始化
         this.mainPanel.add(decorator.createPanel(), BorderLayout.CENTER);
+    }
+
+    private void initPanel(SettingsStorageDTO settingsStorage) {
+        // 初始化表格
+        this.initTable();
         // 分组操作
         DefaultActionGroup groupAction = new DefaultActionGroup(Arrays.asList(new AnAction(AllIcons.Actions.Copy) {
             @Override

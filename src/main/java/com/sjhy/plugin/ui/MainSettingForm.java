@@ -31,6 +31,11 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     private JTextField userSecureEditor;
     private JTextField authorEditor;
 
+    /**
+     * 子配置
+     */
+    private Configurable[] childConfigurableArray;
+
     public MainSettingForm() {
     }
 
@@ -40,6 +45,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
                     // 重置默认值后重新加载配置
                     getSettingsStorage().resetDefaultVal();
                     this.loadSettingsStore();
+                    this.loadChildSettingsStore();
                 }, 0)
                 .showInFocusCenter()
         );
@@ -69,19 +75,23 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
 
     @Override
     public Configurable @NotNull [] getConfigurables() {
-        Configurable[] result = new Configurable[]{
+        this.childConfigurableArray = new Configurable[]{
                 new TypeMapperSettingForm(),
 //                new TemplateSettingPanel(),
 //                new TableSettingPanel(),
 //                new GlobalConfigSettingPanel()
         };
+        this.loadChildSettingsStore();
+        return this.childConfigurableArray;
+    }
+
+    private void loadChildSettingsStore() {
         // 初始装置配置信息
-        for (Configurable configurable : result) {
+        for (Configurable configurable : this.childConfigurableArray) {
             if (configurable instanceof BaseSettings) {
                 ((BaseSettings) configurable).loadSettingsStore();
             }
         }
-        return result;
     }
 
     @Override
