@@ -1,12 +1,8 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.ToolbarDecorator;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
@@ -15,18 +11,17 @@ import com.sjhy.plugin.entity.TypeMapperGroup;
 import com.sjhy.plugin.enums.MatchType;
 import com.sjhy.plugin.factory.CellEditorFactory;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.StringUtils;
-import org.jetbrains.annotations.NotNull;
+import com.sjhy.plugin.ui.component.GroupNameComponent;
+import com.sjhy.plugin.ui.component.TableComponent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author makejava
@@ -35,7 +30,6 @@ import java.util.Map;
  */
 public class TypeMapperSettingForm implements Configurable, BaseSettings {
     private JPanel mainPanel;
-    private JComboBox<String> groupComboBox;
     private JPanel groupOperatorPanel;
     /**
      * 类型映射配置
@@ -49,8 +43,10 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
      * 表格组件
      */
     private TableComponent<TypeMapper> tableComponent;
-
-    private boolean refresh;
+    /**
+     * 分组操作组件
+     */
+    private GroupNameComponent groupNameComponent;
 
     private void initTable() {
         // 第一列仅适用下拉框
@@ -67,66 +63,51 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
         TableCellEditor javaTypeEditor = CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST);
         TableComponent.Column<TypeMapper> javaTypeColumn = new TableComponent.Column<>("javaType", TypeMapper::getJavaType, TypeMapper::setJavaType, javaTypeEditor);
         List<TableComponent.Column<TypeMapper>> columns = Arrays.asList(matchTypeColumn, columnTypeColumn, javaTypeColumn);
-        this.tableComponent = new TableComponent<>(columns, Collections.emptyList(), () -> new TypeMapper("demo", "java.lang.String"));
+        this.tableComponent = new TableComponent<>(columns, Collections.emptyList(), TypeMapper::defaultVal);
         final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this.tableComponent.getTable());
         // 表格初始化
         this.mainPanel.add(decorator.createPanel(), BorderLayout.CENTER);
     }
 
-    private void initPanel(SettingsStorageDTO settingsStorage) {
+    private void initGroupName() {
+        BiConsumer<String, String> copyOperator = (groupName, oldGroupName) -> {
+            // 克隆对象
+            TypeMapperGroup typeMapperGroup = CloneUtils.cloneByJson(typeMapperGroupMap.get(oldGroupName));
+            typeMapperGroup.setName(groupName);
+            typeMapperGroupMap.put(groupName, typeMapperGroup);
+            currTypeMapperGroup = typeMapperGroup;
+            refreshUiVal();
+        };
+
+        Consumer<String> addOperator = groupName -> {
+            TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
+            typeMapperGroup.setName(groupName);
+            typeMapperGroup.setElementList(new ArrayList<>());
+            typeMapperGroup.getElementList().add(TypeMapper.defaultVal());
+            typeMapperGroupMap.put(groupName, typeMapperGroup);
+            currTypeMapperGroup = typeMapperGroup;
+            refreshUiVal();
+        };
+
+        Consumer<String> deleteOperator = groupName -> {
+            typeMapperGroupMap.remove(currTypeMapperGroup.getName());
+            currTypeMapperGroup = typeMapperGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+            refreshUiVal();
+        };
+
+        Consumer<String> switchGroupOperator = groupName -> {
+            currTypeMapperGroup = typeMapperGroupMap.get(groupName);
+            refreshUiVal();
+        };
+
+        this.groupNameComponent = new GroupNameComponent(copyOperator, addOperator, deleteOperator, switchGroupOperator);
+        this.groupOperatorPanel.add(groupNameComponent.getPanel());
+    }
+
+    private void initPanel() {
         // 初始化表格
         this.initTable();
-        // 分组操作
-        DefaultActionGroup groupAction = new DefaultActionGroup(Arrays.asList(new AnAction(AllIcons.Actions.Copy) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                String value = Messages.showInputDialog("Group Name:", "Input Group Name:", Messages.getQuestionIcon(), currTypeMapperGroup.getName() + " Copy", new InputValidator() {
-                    @Override
-                    public boolean checkInput(String inputString) {
-                        return !StringUtils.isEmpty(inputString) && !typeMapperGroupMap.containsKey(inputString);
-                    }
-
-                    @Override
-                    public boolean canClose(String inputString) {
-                        return this.checkInput(inputString);
-                    }
-                });
-                if (value == null) {
-                    return;
-                }
-                // 克隆对象
-                TypeMapperGroup typeMapperGroup = CloneUtils.cloneByJson(typeMapperGroupMap.get(currTypeMapperGroup.getName()));
-                typeMapperGroup.setName(value);
-                settingsStorage.getTypeMapperGroupMap().put(value, typeMapperGroup);
-                typeMapperGroupMap.put(value, typeMapperGroup);
-                currTypeMapperGroup = typeMapperGroup;
-                refreshUiVal();
-            }
-        }, new AnAction(AllIcons.General.Remove) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                typeMapperGroupMap.remove(currTypeMapperGroup.getName());
-                currTypeMapperGroup = typeMapperGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
-                refreshUiVal();
-            }
-        }));
-        ActionToolbar groupActionToolbar = ActionManager.getInstance().createActionToolbar("Group Toolbar", groupAction, true);
-        this.groupOperatorPanel.add(groupActionToolbar.getComponent());
-        this.groupComboBox.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (refresh) {
-                    return;
-                }
-                String groupName = (String) groupComboBox.getSelectedItem();
-                if (StringUtils.isEmpty(groupName)) {
-                    return;
-                }
-                currTypeMapperGroup = typeMapperGroupMap.get(groupName);
-                refreshUiVal();
-            }
-        });
-        this.loadSettingsStore(settingsStorage);
+        this.initGroupName();
     }
 
     @Override
@@ -142,7 +123,8 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
 
     @Override
     public @Nullable JComponent createComponent() {
-        this.initPanel(getSettingsStorage());
+        this.initPanel();
+        this.loadSettingsStore(getSettingsStorage());
         return mainPanel;
     }
 
@@ -171,19 +153,19 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
         this.typeMapperGroupMap = CloneUtils.cloneByJson(settingsStorage.getTypeMapperGroupMap(), new TypeReference<Map<String, TypeMapperGroup>>() {
         });
         this.currTypeMapperGroup = this.typeMapperGroupMap.get(settingsStorage.getCurrTypeMapperGroupName());
+        if (this.currTypeMapperGroup == null) {
+            this.currTypeMapperGroup = this.typeMapperGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+        }
         this.refreshUiVal();
     }
 
     private void refreshUiVal() {
-        this.refresh = true;
         if (this.tableComponent != null) {
             this.tableComponent.setDataList(this.currTypeMapperGroup.getElementList());
         }
-        this.groupComboBox.removeAllItems();
-        for (String key : this.typeMapperGroupMap.keySet()) {
-            this.groupComboBox.addItem(key);
+        if (this.groupNameComponent != null) {
+            this.groupNameComponent.setAllGroupNames(this.typeMapperGroupMap.keySet());
+            this.groupNameComponent.setCurrGroupName(this.currTypeMapperGroup.getName());
         }
-        this.groupComboBox.setSelectedItem(this.currTypeMapperGroup.getName());
-        this.refresh = false;
     }
 }

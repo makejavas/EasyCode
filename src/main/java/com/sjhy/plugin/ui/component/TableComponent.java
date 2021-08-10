@@ -1,4 +1,4 @@
-package com.sjhy.plugin.ui;
+package com.sjhy.plugin.ui.component;
 
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.EditableModel;
@@ -10,6 +10,7 @@ import lombok.NonNull;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.BiConsumer;
@@ -41,6 +42,10 @@ public class TableComponent<T> extends DefaultTableModel implements EditableMode
      */
     @Getter
     private JBTable table;
+
+    public TableComponent(@NonNull List<Column<T>> columns, @NonNull Supplier<T> defaultValFun) {
+        this(columns, Collections.emptyList(), defaultValFun);
+    }
 
     public TableComponent(@NonNull List<Column<T>> columns, @NonNull List<T> dataList, @NonNull Supplier<T> defaultValFun) {
         this.columns = columns;
@@ -85,9 +90,11 @@ public class TableComponent<T> extends DefaultTableModel implements EditableMode
 
     @Override
     public void setValueAt(Object value, int row, int column) {
-        super.setValueAt(value, row, column);
-        T obj = this.dataList.get(row);
-        this.columns.get(column).getSetFun().accept(obj, (String) value);
+        if (row < this.dataList.size()) {
+            super.setValueAt(value, row, column);
+            T obj = this.dataList.get(row);
+            this.columns.get(column).getSetFun().accept(obj, (String) value);
+        }
     }
 
     /**

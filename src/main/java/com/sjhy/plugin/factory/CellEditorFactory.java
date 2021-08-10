@@ -46,6 +46,9 @@ public class CellEditorFactory {
             comboBox.getPopup().getList().setBackground(JBColor.WHITE);
             comboBox.getPopup().getList().setForeground(JBColor.GREEN);
         }
+        if (!editable) {
+            transmitFocusEvent(comboBox);
+        }
         return new DefaultCellEditor(comboBox);
     }
 
@@ -56,16 +59,26 @@ public class CellEditorFactory {
      */
     public static TableCellEditor createTextFieldEditor() {
         JBTextField textField = new JBTextField();
-        // 添加失去焦点事件
-        textField.addFocusListener(new FocusListener() {
+        transmitFocusEvent(textField);
+        return new DefaultCellEditor(textField);
+    }
+
+    /**
+     * 传递失去焦点事件
+     *
+     * @param component 组件
+     */
+    private static void transmitFocusEvent(JComponent component) {
+        component.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
+
             }
 
             @Override
             public void focusLost(FocusEvent e) {
                 // 失去焦点时向上层发起事件通知，使table的值能够正常回写
-                ActionListener[] actionListeners = textField.getActionListeners();
+                ActionListener[] actionListeners = component.getListeners(ActionListener.class);
                 if (actionListeners == null) {
                     return;
                 }
@@ -74,7 +87,6 @@ public class CellEditorFactory {
                 }
             }
         });
-        return new DefaultCellEditor(textField);
     }
 
 }

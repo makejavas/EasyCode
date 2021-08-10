@@ -32,4 +32,8 @@ public class TypeMapper {
         this.columnType = columnType;
         this.javaType = javaType;
     }
+
+    public static TypeMapper defaultVal() {
+        return new TypeMapper("demo", "java.lang.String");
+    }
 }

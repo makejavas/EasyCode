@@ -37,4 +37,8 @@ public class ColumnConfig {
         this.type = type;
         this.selectValue = selectValue;
     }
+
+    public static ColumnConfig defaultVal() {
+        return new ColumnConfig("demo", ColumnConfigType.TEXT);
+    }
 }
