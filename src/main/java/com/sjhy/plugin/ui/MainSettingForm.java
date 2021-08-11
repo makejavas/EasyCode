@@ -4,11 +4,13 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
+import com.sjhy.plugin.service.impl.LocalFileExportImportSettingsServiceImpl;
 import com.sjhy.plugin.tool.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.util.Objects;
 
 /**
@@ -37,6 +39,15 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     private Configurable[] childConfigurableArray;
 
     public MainSettingForm() {
+    }
+
+    private void initLocalExportEvent() {
+        this.exportByFileBtn.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new LocalFileExportImportSettingsServiceImpl().exportConfig(getSettingsStorage());
+            }
+        });
     }
 
     private void initEvent() {
@@ -100,6 +111,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
         this.loadSettingsStore();
         // 初始化事件
         this.initEvent();
+        this.initLocalExportEvent();
         return mainPanel;
     }
 
