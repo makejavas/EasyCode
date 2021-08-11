@@ -7,7 +7,7 @@ package com.sjhy.plugin.entity;
  * @version 1.0.0
  * @date 2021/08/11 13:45
  */
-public interface AbstractEditorItem {
+public interface AbstractEditorItem<T extends AbstractItem> extends AbstractItem<T> {
     /**
      * 更改文件名称
      *

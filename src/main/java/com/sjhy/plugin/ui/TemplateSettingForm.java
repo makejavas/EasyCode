@@ -3,7 +3,6 @@ package com.sjhy.plugin.ui;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
@@ -20,9 +19,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author makejava
@@ -66,7 +63,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
     /**
      * 编辑列表框
      */
-    private EditListComponent editListComponent;
+    private EditListComponent<Template> editListComponent;
 
 
     public TemplateSettingForm() {
@@ -85,30 +82,12 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
     }
 
     private void initEditList() {
-        BiConsumer<String, String> copyItemFun = (newName, oldName) -> {
-            Template template = currTemplateGroup.getElementList().stream().filter(item -> item.getName().equals(oldName)).findFirst().orElse(null);
-            template = CloneUtils.cloneByJson(template);
-            if (template != null) {
-                template.setName(newName);
-                currTemplateGroup.getElementList().add(template);
-            }
+        Consumer<Template> switchItemFun = template -> {
             refreshUiVal();
+            this.editListComponent.setCurrentItem(template.getName());
+            editorComponent.setFile(template);
         };
-        Consumer<String> createItemFun = name -> {
-            Template template = new Template(name, "");
-            currTemplateGroup.getElementList().add(template);
-            refreshUiVal();
-        };
-
-        Consumer<String> deleteItemFun = name -> {
-            Template template = currTemplateGroup.getElementList().stream().filter(item -> item.getName().equals(name)).findFirst().orElse(null);
-            currTemplateGroup.getElementList().remove(template);
-            refreshUiVal();
-        };
-        Consumer<String> switchItemFun = name -> {
-            editorComponent.setFile(currTemplateGroup.getElementList().stream().filter(item -> item.getName().equals(name)).findFirst().orElse(null));
-        };
-        this.editListComponent = new EditListComponent(copyItemFun, createItemFun, deleteItemFun, switchItemFun, "Template Name:");
+        this.editListComponent = new EditListComponent<>(switchItemFun, "Template Name:", Template.class, this.currTemplateGroup.getElementList());
     }
 
     private void initEditor() {
@@ -164,7 +143,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
     }
 
     @Override
-    public void apply() throws ConfigurationException {
+    public void apply() {
         getSettingsStorage().setTemplateGroupMap(this.templateGroupMap);
         getSettingsStorage().setCurrTypeMapperGroupName(this.currTemplateGroup.getName());
         // 保存包后重新加载配置
@@ -177,7 +156,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
             this.groupNameComponent.setCurrGroupName(this.currTemplateGroup.getName());
         }
         if (this.editListComponent != null) {
-            this.editListComponent.setItemList(this.currTemplateGroup.getElementList().stream().map(Template::getName).collect(Collectors.toList()));
+            this.editListComponent.setElementList(this.currTemplateGroup.getElementList());
         }
         if (this.editorComponent != null) {
             this.editorComponent.setFile(null);

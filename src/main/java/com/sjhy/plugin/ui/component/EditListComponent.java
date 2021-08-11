@@ -6,7 +6,9 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBList;
-import com.sjhy.plugin.entity.AbstractGroup;
+import com.sjhy.plugin.entity.AbstractEditorItem;
+import com.sjhy.plugin.factory.AbstractItemFactory;
+import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.tool.StringUtils;
 import com.sjhy.plugin.ui.base.InputExistsValidator;
 import lombok.Getter;
@@ -14,10 +16,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * 编辑列表组件
@@ -26,24 +28,11 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @date 2021/08/10 16:57
  */
-public class EditListComponent<T extends AbstractGroup> {
+public class EditListComponent<E extends AbstractEditorItem<E>> {
     @Getter
     private JPanel mainPanel;
-    /**
-     * 复制分组，param1=新分组名  param2=旧分组名
-     */
-    private BiConsumer<String, String> copyItemFun;
 
-    private Consumer<String> createItemFun;
-
-    private Consumer<String> deleteItemFun;
-
-    private Consumer<String> switchItemFun;
-    /**
-     * 所有列表项
-     */
-    @Getter
-    private List<String> itemList;
+    private Consumer<E> switchItemFun;
     /**
      * 当前选中项
      */
@@ -53,13 +42,20 @@ public class EditListComponent<T extends AbstractGroup> {
 
     private JBList<String> jbList;
 
-    public EditListComponent(BiConsumer<String, String> copyItemFun, Consumer<String> createItemFun, Consumer<String> deleteItemFun, Consumer<String> switchItemFun, String label) {
-        this.copyItemFun = copyItemFun;
-        this.createItemFun = createItemFun;
-        this.deleteItemFun = deleteItemFun;
+    private Class<E> cls;
+
+    /**
+     * 分组Map
+     */
+    private List<E> elementList;
+
+    private boolean refresh;
+
+    public EditListComponent(Consumer<E> switchItemFun, String label, Class<E> cls, List<E> elementList) {
         this.switchItemFun = switchItemFun;
         this.label = label;
-        this.itemList = new ArrayList<>();
+        this.cls = cls;
+        this.elementList = elementList;
         this.init();
     }
 
@@ -73,7 +69,7 @@ public class EditListComponent<T extends AbstractGroup> {
     }
 
     private void inputItemName(String initValue, Consumer<String> consumer) {
-        String value = Messages.showInputDialog(label, "Input " + label, Messages.getQuestionIcon(), initValue, new InputExistsValidator(itemList));
+        String value = Messages.showInputDialog(label, "Input " + label, Messages.getQuestionIcon(), initValue, new InputExistsValidator(getAllItemName()));
         if (StringUtils.isEmpty(value)) {
             return;
         }
@@ -84,12 +80,20 @@ public class EditListComponent<T extends AbstractGroup> {
         return new AnAction(AllIcons.Actions.Copy) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                inputItemName(currentItem + "Copy", itemName -> copyItemFun.accept(itemName, currentItem));
+                inputItemName(jbList.getSelectedValue() + "Copy", itemName -> elementList.stream()
+                        .filter(item -> Objects.equals(item.fileName(), jbList.getSelectedValue()))
+                        .findFirst()
+                        .ifPresent(item -> {
+                            E cloneObj = item.cloneObj();
+                            cloneObj.changeFileName(itemName);
+                            elementList.add(cloneObj);
+                            switchItemFun.accept(cloneObj);
+                        }));
             }
 
             @Override
             public void update(@NotNull AnActionEvent e) {
-                e.getPresentation().setEnabled(!StringUtils.isEmpty(jbList.getSelectedValue()));
+                e.getPresentation().setEnabled(!CollectionUtil.isEmpty(elementList) && !StringUtils.isEmpty(currentItem));
             }
         };
     }
@@ -98,7 +102,12 @@ public class EditListComponent<T extends AbstractGroup> {
         return new AnAction(AllIcons.General.Add) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                inputItemName("demo", createItemFun);
+                inputItemName("demo", itemName -> {
+                    E defaultVal = AbstractItemFactory.createDefaultVal(cls);
+                    defaultVal.changeFileName(itemName);
+                    elementList.add(defaultVal);
+                    switchItemFun.accept(defaultVal);
+                });
             }
         };
     }
@@ -107,7 +116,13 @@ public class EditListComponent<T extends AbstractGroup> {
         return new AnAction(AllIcons.General.Remove) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                deleteItemFun.accept(currentItem);
+                elementList.removeIf(item -> Objects.equals(item.fileName(), jbList.getSelectedValue()));
+                switchItemFun.accept(elementList.stream().findFirst().orElse(null));
+            }
+
+            @Override
+            public void update(@NotNull AnActionEvent e) {
+                e.getPresentation().setEnabled(!CollectionUtil.isEmpty(elementList) && !StringUtils.isEmpty(currentItem));
             }
         };
     }
@@ -116,19 +131,21 @@ public class EditListComponent<T extends AbstractGroup> {
         return new AnAction(AllIcons.Actions.MoveUp) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                int index = itemList.indexOf(currentItem);
+                E selectItem = findByName(currentItem);
+                int index = elementList.indexOf(selectItem);
                 if (index <= 0) {
                     return;
                 }
-                String target = itemList.remove(index);
-                itemList.add(index - 1, target);
-                setItemList(itemList);
-                setCurrentItem(currentItem);
+                E target = elementList.remove(index);
+                elementList.add(index - 1, target);
+                switchItemFun.accept(target);
             }
 
             @Override
             public void update(@NotNull AnActionEvent e) {
-                e.getPresentation().setEnabled(itemList.indexOf(currentItem) > 0);
+                E selectItem = findByName(currentItem);
+                boolean enabled = selectItem != null && elementList.indexOf(selectItem) > 0;
+                e.getPresentation().setEnabled(enabled);
             }
         };
     }
@@ -137,20 +154,21 @@ public class EditListComponent<T extends AbstractGroup> {
         return new AnAction(AllIcons.Actions.MoveDown) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                int index = itemList.indexOf(currentItem);
-                if (index < 0 || index >= itemList.size() - 1) {
+                E selectItem = findByName(currentItem);
+                int index = elementList.indexOf(selectItem);
+                if (index < 0 || index >= elementList.size() - 1) {
                     return;
                 }
-                String target = itemList.remove(index);
-                itemList.add(index + 1, target);
-                setItemList(itemList);
-                setCurrentItem(currentItem);
+                E target = elementList.remove(index);
+                elementList.add(index + 1, target);
+                switchItemFun.accept(target);
             }
 
             @Override
             public void update(@NotNull AnActionEvent e) {
-                int index = itemList.indexOf(currentItem);
-                e.getPresentation().setEnabled(index >= 0 && index < itemList.size() - 1);
+                E selectItem = findByName(currentItem);
+                boolean enabled = selectItem != null && elementList.indexOf(selectItem) < elementList.size() - 1;
+                e.getPresentation().setEnabled(enabled);
             }
         };
     }
@@ -172,27 +190,53 @@ public class EditListComponent<T extends AbstractGroup> {
     }
 
     private void initList() {
-        this.jbList = new JBList<>(itemList);
+        this.jbList = new JBList<>(getAllItemName());
         this.mainPanel.add(this.jbList, BorderLayout.CENTER);
         this.jbList.addListSelectionListener(e -> {
+            if (this.refresh) {
+                return;
+            }
             String selectedValue = jbList.getSelectedValue();
             if (StringUtils.isEmpty(selectedValue)) {
                 return;
             }
-            switchItemFun.accept(currentItem = selectedValue);
+            this.currentItem = selectedValue;
+            switchItemFun.accept(findByName(selectedValue));
         });
     }
 
-    public void setItemList(List<String> itemList) {
-        this.itemList = itemList;
-        if (StringUtils.isEmpty(this.currentItem) && itemList != null && itemList.size() > 0) {
-            setCurrentItem(itemList.get(0));
+    private E findByName(String name) {
+        return this.elementList.stream().filter(item -> Objects.equals(item.fileName(), name)).findFirst().orElse(null);
+    }
+
+    private List<String> getAllItemName() {
+        return elementList.stream().map(AbstractEditorItem::fileName).collect(Collectors.toList());
+    }
+
+    public void setElementList(List<E> elementList) {
+        this.elementList = elementList;
+        try {
+            this.refresh = true;
+            this.jbList.setModel(new CollectionListModel<>(getAllItemName()));
+        } finally {
+            this.refresh = false;
         }
-        this.jbList.setModel(new CollectionListModel<>(this.itemList));
+        if (StringUtils.isEmpty(this.currentItem) && elementList != null && elementList.size() > 0) {
+            setCurrentItem(elementList.get(0).fileName());
+        }
     }
 
     public void setCurrentItem(String currentItem) {
         this.currentItem = currentItem;
-        this.jbList.setSelectedIndex(this.itemList.indexOf(this.currentItem));
+        E element = findByName(this.currentItem);
+        int index = this.elementList.indexOf(element);
+        if (index >= 0) {
+            try {
+                this.refresh = true;
+                this.jbList.setSelectedIndex(index);
+            } finally {
+                this.refresh = false;
+            }
+        }
     }
 }

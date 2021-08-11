@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Template implements AbstractItem<Template>, AbstractEditorItem, Item {
+public class Template implements AbstractEditorItem<Template>, Item {
     /**
      * 模板名称
      */

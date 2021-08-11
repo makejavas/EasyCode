@@ -1,6 +1,7 @@
 package com.sjhy.plugin.ui.component;
 
 import com.intellij.ide.IdeBundle;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -17,6 +18,7 @@ import com.intellij.ui.SeparatorFactory;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.sjhy.plugin.entity.AbstractEditorItem;
+import com.sjhy.plugin.tool.ProjectUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,7 +84,9 @@ public class EditorComponent<T extends AbstractEditorItem> {
         this.editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(@NotNull DocumentEvent event) {
-                file.changeFileContent(editor.getDocument().getText());
+                if (file != null) {
+                    file.changeFileContent(editor.getDocument().getText());
+                }
             }
         });
         // 初始化描述面板
@@ -126,12 +130,14 @@ public class EditorComponent<T extends AbstractEditorItem> {
     private void refreshUI() {
         if (this.file == null) {
             ((EditorImpl)this.editor).setViewer(true);
-            this.editor.getDocument().setText("");
+            // 重置文本内容
+            WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> this.editor.getDocument().setText(""));
             ((EditorEx)editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(null, "demo.java.vm"));
         } else {
             ((EditorImpl)this.editor).setViewer(false);
-            this.editor.getDocument().setText(this.file.fileContent());
-            ((EditorEx)editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(null, this.file.fileName()));
+            // 重置文本内容
+            WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> this.editor.getDocument().setText(this.file.fileContent()));
+            ((EditorEx)editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(ProjectUtils.getCurrProject(), this.file.fileName()));
         }
     }
 }
