@@ -12,7 +12,7 @@ import java.util.List;
  * @since 2018/07/18 09:33
  */
 @Data
-public class ColumnConfigGroup implements AbstractGroup<ColumnConfig> {
+public class ColumnConfigGroup implements AbstractGroup<ColumnConfigGroup, ColumnConfig> {
     /**
      * 分组名称
      */

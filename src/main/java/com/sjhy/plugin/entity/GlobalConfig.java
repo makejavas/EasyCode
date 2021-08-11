@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GlobalConfig implements Item {
+public class GlobalConfig implements AbstractItem<GlobalConfig>, Item {
     /**
      * 名称
      */
@@ -24,4 +24,9 @@ public class GlobalConfig implements Item {
      * 值
      */
     private String value;
+
+    @Override
+    public GlobalConfig defaultVal() {
+        return new GlobalConfig("demo", "value");
+    }
 }

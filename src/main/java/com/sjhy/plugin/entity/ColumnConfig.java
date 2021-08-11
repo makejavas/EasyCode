@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class ColumnConfig {
+public class ColumnConfig implements AbstractItem<ColumnConfig> {
     /**
      * 标题
      */
@@ -38,7 +38,8 @@ public class ColumnConfig {
         this.selectValue = selectValue;
     }
 
-    public static ColumnConfig defaultVal() {
+    @Override
+    public ColumnConfig defaultVal() {
         return new ColumnConfig("demo", ColumnConfigType.TEXT);
     }
 }

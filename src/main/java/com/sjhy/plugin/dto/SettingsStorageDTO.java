@@ -46,10 +46,14 @@ public class SettingsStorageDTO {
         storage.columnConfigGroupMap = new HashMap<>(16);
         storage.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, columnConfigGroup);
 
+        TemplateGroup templateGroup = new TemplateGroup();
+        templateGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
+        templateGroup.setElementList(Arrays.asList(new Template("demo", "template"), new Template("entity.java", "public")));
+        storage.templateGroupMap = new HashMap<>(16);
+        storage.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, templateGroup);
+
         storage.globalConfigGroupMap = new HashMap<>(16);
         storage.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new GlobalConfigGroup());
-        storage.templateGroupMap = new HashMap<>(16);
-        storage.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new TemplateGroup());
         return storage;
     }
 

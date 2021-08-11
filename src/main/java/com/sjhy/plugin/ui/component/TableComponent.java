@@ -1,7 +1,10 @@
 package com.sjhy.plugin.ui.component;
 
+import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.EditableModel;
+import com.sjhy.plugin.entity.AbstractItem;
+import com.sjhy.plugin.factory.AbstractItemFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -15,7 +18,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 表格组件
@@ -24,7 +26,7 @@ import java.util.function.Supplier;
  * @version 1.0.0
  * @date 2021/08/10 09:52
  */
-public class TableComponent<T> extends DefaultTableModel implements EditableModel {
+public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel implements EditableModel {
     /**
      * 列信息
      */
@@ -34,26 +36,25 @@ public class TableComponent<T> extends DefaultTableModel implements EditableMode
      */
     private List<T> dataList;
     /**
-     * 默认值方法
-     */
-    private Supplier<T> defaultValFun;
-    /**
      * 表格
      */
     @Getter
     private JBTable table;
 
-    public TableComponent(@NonNull List<Column<T>> columns, @NonNull Supplier<T> defaultValFun) {
-        this(columns, Collections.emptyList(), defaultValFun);
-    }
+    private Class<T> cls;
 
-    public TableComponent(@NonNull List<Column<T>> columns, @NonNull List<T> dataList, @NonNull Supplier<T> defaultValFun) {
+    public TableComponent(@NonNull List<Column<T>> columns, @NonNull List<T> dataList, Class<T> cls) {
         this.columns = columns;
         this.dataList = dataList;
-        this.defaultValFun = defaultValFun;
+        this.cls = cls;
         this.initColumnName();
         this.initTable();
         this.setDataList(dataList);
+    }
+
+    public JComponent createPanel() {
+        final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this.table);
+        return decorator.createPanel();
     }
 
     private void initColumnName() {
@@ -119,7 +120,7 @@ public class TableComponent<T> extends DefaultTableModel implements EditableMode
 
     @Override
     public void addRow() {
-        T entity = defaultValFun.get();
+        T entity = AbstractItemFactory.createDefaultVal(cls);
         this.dataList.add(entity);
         addRow(entity);
     }

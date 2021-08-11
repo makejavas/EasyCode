@@ -1,9 +1,6 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.ToolbarDecorator;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TypeMapper;
@@ -18,9 +15,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -28,7 +25,7 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @date 2021/08/07 15:33
  */
-public class TypeMapperSettingForm implements Configurable, BaseSettings {
+public class TypeMapperSettingForm implements BaseSettings {
     private JPanel mainPanel;
     /**
      * 类型映射配置
@@ -45,7 +42,7 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
     /**
      * 分组操作组件
      */
-    private GroupNameComponent groupNameComponent;
+    private GroupNameComponent<TypeMapper, TypeMapperGroup> groupNameComponent;
 
     public TypeMapperSettingForm() {
         this.mainPanel = new JPanel(new BorderLayout());
@@ -66,48 +63,23 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
         TableCellEditor javaTypeEditor = CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST);
         TableComponent.Column<TypeMapper> javaTypeColumn = new TableComponent.Column<>("javaType", TypeMapper::getJavaType, TypeMapper::setJavaType, javaTypeEditor);
         List<TableComponent.Column<TypeMapper>> columns = Arrays.asList(matchTypeColumn, columnTypeColumn, javaTypeColumn);
-        this.tableComponent = new TableComponent<>(columns, Collections.emptyList(), TypeMapper::defaultVal);
-        final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this.tableComponent.getTable());
         // 表格初始化
-        this.mainPanel.add(decorator.createPanel(), BorderLayout.CENTER);
+        this.tableComponent = new TableComponent<>(columns, this.currTypeMapperGroup.getElementList(), TypeMapper.class);
+        this.mainPanel.add(this.tableComponent.createPanel(), BorderLayout.CENTER);
     }
 
     private void initGroupName() {
-        BiConsumer<String, String> copyOperator = (groupName, oldGroupName) -> {
-            // 克隆对象
-            TypeMapperGroup typeMapperGroup = CloneUtils.cloneByJson(typeMapperGroupMap.get(oldGroupName));
-            typeMapperGroup.setName(groupName);
-            typeMapperGroupMap.put(groupName, typeMapperGroup);
-            currTypeMapperGroup = typeMapperGroup;
+        // 切换分组操作
+        Consumer<TypeMapperGroup> switchGroupOperator = typeMapperGroupMap -> {
+            this.currTypeMapperGroup = typeMapperGroupMap;
             refreshUiVal();
         };
-
-        Consumer<String> addOperator = groupName -> {
-            TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
-            typeMapperGroup.setName(groupName);
-            typeMapperGroup.setElementList(new ArrayList<>());
-            typeMapperGroup.getElementList().add(TypeMapper.defaultVal());
-            typeMapperGroupMap.put(groupName, typeMapperGroup);
-            currTypeMapperGroup = typeMapperGroup;
-            refreshUiVal();
-        };
-
-        Consumer<String> deleteOperator = groupName -> {
-            typeMapperGroupMap.remove(currTypeMapperGroup.getName());
-            currTypeMapperGroup = typeMapperGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
-            refreshUiVal();
-        };
-
-        Consumer<String> switchGroupOperator = groupName -> {
-            currTypeMapperGroup = typeMapperGroupMap.get(groupName);
-            refreshUiVal();
-        };
-
-        this.groupNameComponent = new GroupNameComponent(copyOperator, addOperator, deleteOperator, switchGroupOperator);
+        this.groupNameComponent = new GroupNameComponent<>(switchGroupOperator, this.typeMapperGroupMap);
         this.mainPanel.add(groupNameComponent.getPanel(), BorderLayout.NORTH);
     }
 
     private void initPanel() {
+        this.loadSettingsStore(getSettingsStorage());
         // 初始化表格
         this.initTable();
         this.initGroupName();
@@ -118,16 +90,9 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
         return "Type Mapper";
     }
 
-    @Nullable
-    @Override
-    public String getHelpTopic() {
-        return getDisplayName();
-    }
-
     @Override
     public @Nullable JComponent createComponent() {
         this.initPanel();
-        this.loadSettingsStore(getSettingsStorage());
         return mainPanel;
     }
 
@@ -138,7 +103,7 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
     }
 
     @Override
-    public void apply() throws ConfigurationException {
+    public void apply() {
         getSettingsStorage().setTypeMapperGroupMap(this.typeMapperGroupMap);
         getSettingsStorage().setCurrTypeMapperGroupName(this.currTypeMapperGroup.getName());
         // 保存包后重新加载配置
@@ -167,7 +132,7 @@ public class TypeMapperSettingForm implements Configurable, BaseSettings {
             this.tableComponent.setDataList(this.currTypeMapperGroup.getElementList());
         }
         if (this.groupNameComponent != null) {
-            this.groupNameComponent.setAllGroupNames(this.typeMapperGroupMap.keySet());
+            this.groupNameComponent.setGroupMap(this.typeMapperGroupMap);
             this.groupNameComponent.setCurrGroupName(this.currTypeMapperGroup.getName());
         }
     }

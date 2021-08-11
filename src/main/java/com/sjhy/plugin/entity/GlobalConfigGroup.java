@@ -12,7 +12,7 @@ import java.util.List;
  * @since 2018/07/27 13:10
  */
 @Data
-public class GlobalConfigGroup implements AbstractGroup<GlobalConfig> {
+public class GlobalConfigGroup implements AbstractGroup<GlobalConfigGroup, GlobalConfig> {
     /**
      * 分组名称
      */

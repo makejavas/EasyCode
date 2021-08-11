@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class TypeMapper {
+public class TypeMapper implements AbstractItem<TypeMapper> {
     /**
      * 匹配类型
      */
@@ -33,7 +33,8 @@ public class TypeMapper {
         this.javaType = javaType;
     }
 
-    public static TypeMapper defaultVal() {
+    @Override
+    public TypeMapper defaultVal() {
         return new TypeMapper("demo", "java.lang.String");
     }
 }

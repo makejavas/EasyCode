@@ -12,7 +12,7 @@ import java.util.List;
  * @since 2018/07/18 09:33
  */
 @Data
-public class TemplateGroup implements AbstractGroup<Template> {
+public class TemplateGroup implements AbstractGroup<TemplateGroup, Template> {
     /**
      * 分组名称
      */

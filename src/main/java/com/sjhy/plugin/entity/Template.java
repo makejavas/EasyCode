@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Template implements Item {
+public class Template implements AbstractItem<Template>, Item {
     /**
      * 模板名称
      */
@@ -24,4 +24,9 @@ public class Template implements Item {
      * 模板代码
      */
     private String code;
+
+    @Override
+    public Template defaultVal() {
+        return new Template("demo", "template");
+    }
 }

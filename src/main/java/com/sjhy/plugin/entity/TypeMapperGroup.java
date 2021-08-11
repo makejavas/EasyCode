@@ -12,7 +12,7 @@ import java.util.List;
  * @since 2018/07/17 13:10
  */
 @Data
-public class TypeMapperGroup implements AbstractGroup<TypeMapper> {
+public class TypeMapperGroup implements AbstractGroup<TypeMapperGroup, TypeMapper> {
     /**
      * 分组名称
      */

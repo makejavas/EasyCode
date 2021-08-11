@@ -24,7 +24,7 @@ import java.util.*;
  * @version 1.0.0
  * @since 2018/07/17 13:10
  */
-public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
+public abstract class AbstractTableGroupPanel<T extends AbstractGroup, E> {
     /**
      * 主面板
      */
@@ -141,7 +141,7 @@ public abstract class AbstractTableGroupPanel<T extends AbstractGroup<E>, E> {
         }
         //初始化数据
         getCurrGroup().getElementList().forEach(e -> {
-            tableModel.addRow(toRow(e));
+            tableModel.addRow(toRow((E) e));
         });
         table.setModel(tableModel);
         refreshEditorType();

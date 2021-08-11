@@ -2,8 +2,6 @@ package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.ToolbarDecorator;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.ColumnConfig;
@@ -18,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -45,7 +43,7 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
     /**
      * 分组操作组件
      */
-    private GroupNameComponent groupNameComponent;
+    private GroupNameComponent<ColumnConfig, ColumnConfigGroup> groupNameComponent;
 
     public ColumnConfigSettingForm() {
         this.mainPanel = new JPanel(new BorderLayout());
@@ -62,48 +60,26 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
         TableCellEditor selectValueEditor = CellEditorFactory.createTextFieldEditor();
         TableComponent.Column<ColumnConfig> selectValueColumn = new TableComponent.Column<>("selectValue", ColumnConfig::getSelectValue, ColumnConfig::setSelectValue, selectValueEditor);
         List<TableComponent.Column<ColumnConfig>> columns = Arrays.asList(typeColumn, titleColumn, selectValueColumn);
-        this.tableComponent = new TableComponent<>(columns, ColumnConfig::defaultVal);
-        final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this.tableComponent.getTable());
+
         // 表格初始化
-        this.mainPanel.add(decorator.createPanel(), BorderLayout.CENTER);
+        this.tableComponent = new TableComponent<>(columns, this.currColumnConfigGroup.getElementList(), ColumnConfig.class);
+        this.mainPanel.add(this.tableComponent.createPanel(), BorderLayout.CENTER);
     }
 
     private void initGroupName() {
-        BiConsumer<String, String> copyOperator = (groupName, oldGroupName) -> {
-            // 克隆对象
-            ColumnConfigGroup columnConfigGroup = CloneUtils.cloneByJson(columnConfigGroupMap.get(oldGroupName));
-            columnConfigGroup.setName(groupName);
-            columnConfigGroupMap.put(groupName, columnConfigGroup);
-            currColumnConfigGroup = columnConfigGroup;
+
+        // 切换分组操作
+        Consumer<ColumnConfigGroup> switchGroupOperator = typeColumnConfigGroupMap -> {
+            this.currColumnConfigGroup = typeColumnConfigGroupMap;
             refreshUiVal();
         };
 
-        Consumer<String> addOperator = groupName -> {
-            ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
-            columnConfigGroup.setName(groupName);
-            columnConfigGroup.setElementList(new ArrayList<>());
-            columnConfigGroup.getElementList().add(ColumnConfig.defaultVal());
-            columnConfigGroupMap.put(groupName, columnConfigGroup);
-            currColumnConfigGroup = columnConfigGroup;
-            refreshUiVal();
-        };
-
-        Consumer<String> switchGroupOperator = groupName -> {
-            currColumnConfigGroup = columnConfigGroupMap.get(groupName);
-            refreshUiVal();
-        };
-
-        Consumer<String> deleteOperator = groupName -> {
-            columnConfigGroupMap.remove(currColumnConfigGroup.getName());
-            currColumnConfigGroup = columnConfigGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
-            refreshUiVal();
-        };
-
-        this.groupNameComponent = new GroupNameComponent(copyOperator, addOperator, deleteOperator, switchGroupOperator);
+        this.groupNameComponent = new GroupNameComponent<>(switchGroupOperator, this.columnConfigGroupMap);
         this.mainPanel.add(groupNameComponent.getPanel(), BorderLayout.NORTH);
     }
 
     private void initPanel() {
+        this.loadSettingsStore(getSettingsStorage());
         // 初始化表格
         this.initTable();
         this.initGroupName();
@@ -123,7 +99,6 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
     @Override
     public @Nullable JComponent createComponent() {
         this.initPanel();
-        this.loadSettingsStore(getSettingsStorage());
         return mainPanel;
     }
 
@@ -134,7 +109,7 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
     }
 
     @Override
-    public void apply() throws ConfigurationException {
+    public void apply() {
         getSettingsStorage().setColumnConfigGroupMap(this.columnConfigGroupMap);
         getSettingsStorage().setCurrColumnConfigGroupName(this.currColumnConfigGroup.getName());
         // 保存包后重新加载配置
@@ -163,7 +138,7 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
             this.tableComponent.setDataList(this.currColumnConfigGroup.getElementList());
         }
         if (this.groupNameComponent != null) {
-            this.groupNameComponent.setAllGroupNames(this.columnConfigGroupMap.keySet());
+            this.groupNameComponent.setGroupMap(this.columnConfigGroupMap);
             this.groupNameComponent.setCurrGroupName(this.currColumnConfigGroup.getName());
         }
     }
