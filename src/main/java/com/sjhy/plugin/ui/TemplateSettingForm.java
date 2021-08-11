@@ -131,11 +131,11 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
         if (this.currTemplateGroup == null) {
             this.currTemplateGroup = this.templateGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
         }
-        this.refreshUiVal();
         // 解决reset后编辑框未清空BUG
         if (this.editorComponent != null) {
             this.editorComponent.setFile(null);
         }
+        this.refreshUiVal();
     }
 
     @Override

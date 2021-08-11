@@ -131,11 +131,11 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
         if (this.currGlobalConfigGroup == null) {
             this.currGlobalConfigGroup = this.globalConfigGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
         }
-        this.refreshUiVal();
         // 解决reset后编辑框未清空BUG
         if (this.editorComponent != null) {
             this.editorComponent.setFile(null);
         }
+        this.refreshUiVal();
     }
 
     @Override
