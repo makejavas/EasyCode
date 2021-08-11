@@ -77,7 +77,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     public Configurable @NotNull [] getConfigurables() {
         this.childConfigurableArray = new Configurable[]{
                 new TypeMapperSettingForm(),
-//                new TemplateSettingForm(),
+                new TemplateSettingForm(),
                 new ColumnConfigSettingForm(),
 //                new GlobalConfigSettingPanel()
         };

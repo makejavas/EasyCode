@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Template implements AbstractItem<Template>, Item {
+public class Template implements AbstractItem<Template>, AbstractEditorItem, Item {
     /**
      * 模板名称
      */
@@ -28,5 +28,25 @@ public class Template implements AbstractItem<Template>, Item {
     @Override
     public Template defaultVal() {
         return new Template("demo", "template");
+    }
+
+    @Override
+    public void changeFileName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String fileName() {
+        return this.name;
+    }
+
+    @Override
+    public void changeFileContent(String content) {
+        this.code = content;
+    }
+
+    @Override
+    public String fileContent() {
+        return this.code;
     }
 }
