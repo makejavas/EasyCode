@@ -79,7 +79,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
                 new TypeMapperSettingForm(),
                 new TemplateSettingForm(),
                 new ColumnConfigSettingForm(),
-//                new GlobalConfigSettingPanel()
+                new GlobalConfigSettingForm(),
         };
         this.loadChildSettingsStore();
         return this.childConfigurableArray;

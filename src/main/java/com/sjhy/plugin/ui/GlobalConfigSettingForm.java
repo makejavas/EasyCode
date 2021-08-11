@@ -6,8 +6,8 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
-import com.sjhy.plugin.entity.Template;
-import com.sjhy.plugin.entity.TemplateGroup;
+import com.sjhy.plugin.entity.GlobalConfig;
+import com.sjhy.plugin.entity.GlobalConfigGroup;
 import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.ui.component.EditListComponent;
 import com.sjhy.plugin.ui.component.EditorComponent;
@@ -26,16 +26,16 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @date 2021/08/10 16:14
  */
-public class TemplateSettingForm implements Configurable, BaseSettings {
+public class GlobalConfigSettingForm implements Configurable, BaseSettings {
     /**
-     * 模板描述信息，说明文档
+     * 全局变量描述信息，说明文档
      */
     private static final String TEMPLATE_DESCRIPTION_INFO;
 
     static {
         String descriptionInfo = "";
         try {
-            descriptionInfo = UrlUtil.loadText(TemplateSettingForm.class.getResource("/description/templateDescription.html"));
+            descriptionInfo = UrlUtil.loadText(GlobalConfigSettingForm.class.getResource("/description/globalConfigDescription.html"));
         } catch (IOException e) {
             ExceptionUtil.rethrow(e);
         } finally {
@@ -47,51 +47,51 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
     /**
      * 类型映射配置
      */
-    private Map<String, TemplateGroup> templateGroupMap;
+    private Map<String, GlobalConfigGroup> globalConfigGroupMap;
     /**
      * 当前分组名
      */
-    private TemplateGroup currTemplateGroup;
+    private GlobalConfigGroup currGlobalConfigGroup;
     /**
      * 编辑框组件
      */
-    private EditorComponent<Template> editorComponent;
+    private EditorComponent<GlobalConfig> editorComponent;
     /**
      * 分组操作组件
      */
-    private GroupNameComponent<Template, TemplateGroup> groupNameComponent;
+    private GroupNameComponent<GlobalConfig, GlobalConfigGroup> groupNameComponent;
     /**
      * 编辑列表框
      */
-    private EditListComponent<Template> editListComponent;
+    private EditListComponent<GlobalConfig> editListComponent;
 
 
-    public TemplateSettingForm() {
+    public GlobalConfigSettingForm() {
         this.mainPanel = new JPanel(new BorderLayout());
     }
 
 
     private void initGroupName() {
-        Consumer<TemplateGroup> switchGroupOperator = templateGroup -> {
-            this.currTemplateGroup = templateGroup;
+        Consumer<GlobalConfigGroup> switchGroupOperator = globalConfigGroup -> {
+            this.currGlobalConfigGroup = globalConfigGroup;
             refreshUiVal();
             // 切换分组情况编辑框
             this.editorComponent.setFile(null);
         };
 
-        this.groupNameComponent = new GroupNameComponent<>(switchGroupOperator, this.templateGroupMap);
+        this.groupNameComponent = new GroupNameComponent<>(switchGroupOperator, this.globalConfigGroupMap);
         this.mainPanel.add(groupNameComponent.getPanel(), BorderLayout.NORTH);
     }
 
     private void initEditList() {
-        Consumer<Template> switchItemFun = template -> {
+        Consumer<GlobalConfig> switchItemFun = globalConfig -> {
             refreshUiVal();
-            if (template != null) {
-                this.editListComponent.setCurrentItem(template.getName());
+            if (globalConfig != null) {
+                this.editListComponent.setCurrentItem(globalConfig.getName());
             }
-            editorComponent.setFile(template);
+            editorComponent.setFile(globalConfig);
         };
-        this.editListComponent = new EditListComponent<>(switchItemFun, "Template Name:", Template.class, this.currTemplateGroup.getElementList());
+        this.editListComponent = new EditListComponent<>(switchItemFun, "GlobalConfig Name:", GlobalConfig.class, this.currGlobalConfigGroup.getElementList());
     }
 
     private void initEditor() {
@@ -113,7 +113,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
 
     @Override
     public String getDisplayName() {
-        return "Template";
+        return "Global Config";
     }
 
     @Nullable
@@ -125,11 +125,11 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
     @Override
     public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
         // 复制配置，防止篡改
-        this.templateGroupMap = CloneUtils.cloneByJson(settingsStorage.getTemplateGroupMap(), new TypeReference<Map<String, TemplateGroup>>() {
+        this.globalConfigGroupMap = CloneUtils.cloneByJson(settingsStorage.getGlobalConfigGroupMap(), new TypeReference<Map<String, GlobalConfigGroup>>() {
         });
-        this.currTemplateGroup = this.templateGroupMap.get(settingsStorage.getCurrTypeMapperGroupName());
-        if (this.currTemplateGroup == null) {
-            this.currTemplateGroup = this.templateGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
+        this.currGlobalConfigGroup = this.globalConfigGroupMap.get(settingsStorage.getCurrTypeMapperGroupName());
+        if (this.currGlobalConfigGroup == null) {
+            this.currGlobalConfigGroup = this.globalConfigGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
         }
         this.refreshUiVal();
         // 解决reset后编辑框未清空BUG
@@ -146,25 +146,25 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
 
     @Override
     public boolean isModified() {
-        return !this.templateGroupMap.equals(getSettingsStorage().getTemplateGroupMap())
-                || !getSettingsStorage().getCurrTemplateGroupName().equals(this.currTemplateGroup.getName());
+        return !this.globalConfigGroupMap.equals(getSettingsStorage().getGlobalConfigGroupMap())
+                || !getSettingsStorage().getCurrGlobalConfigGroupName().equals(this.currGlobalConfigGroup.getName());
     }
 
     @Override
     public void apply() {
-        getSettingsStorage().setTemplateGroupMap(this.templateGroupMap);
-        getSettingsStorage().setCurrTypeMapperGroupName(this.currTemplateGroup.getName());
+        getSettingsStorage().setGlobalConfigGroupMap(this.globalConfigGroupMap);
+        getSettingsStorage().setCurrTypeMapperGroupName(this.currGlobalConfigGroup.getName());
         // 保存包后重新加载配置
         this.loadSettingsStore(getSettingsStorage());
     }
 
     private void refreshUiVal() {
         if (this.groupNameComponent != null) {
-            this.groupNameComponent.setGroupMap(this.templateGroupMap);
-            this.groupNameComponent.setCurrGroupName(this.currTemplateGroup.getName());
+            this.groupNameComponent.setGroupMap(this.globalConfigGroupMap);
+            this.groupNameComponent.setCurrGroupName(this.currGlobalConfigGroup.getName());
         }
         if (this.editListComponent != null) {
-            this.editListComponent.setElementList(this.currTemplateGroup.getElementList());
+            this.editListComponent.setElementList(this.currGlobalConfigGroup.getElementList());
         }
     }
 }

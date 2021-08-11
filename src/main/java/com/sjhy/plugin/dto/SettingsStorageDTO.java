@@ -52,8 +52,11 @@ public class SettingsStorageDTO {
         storage.templateGroupMap = new HashMap<>(16);
         storage.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, templateGroup);
 
+        GlobalConfigGroup globalConfigGroup = new GlobalConfigGroup();
+        globalConfigGroup.setName(GlobalDict.DEFAULT_GROUP_NAME);
+        globalConfigGroup.setElementList(Arrays.asList(new GlobalConfig("test", "abc"), new GlobalConfig("demo", "value")));
         storage.globalConfigGroupMap = new HashMap<>(16);
-        storage.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, new GlobalConfigGroup());
+        storage.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, globalConfigGroup);
         return storage;
     }
 

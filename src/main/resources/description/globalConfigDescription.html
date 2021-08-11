@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>全局变量说明</title>
+  <meta charset="UTF-8">
+  <title>全局变量说明</title>
 </head>
 <body>
-<h4>说明文档：</h4>
+<h3>说明文档：</h3>
+<h4>使用案例一(简单)</h4>
 <p>
-    不仅仅是简单的全局变量，完全的自由发挥。<br>
-    <span style="color: #ffb224; background: gray">注意：</span>全局变量具有优先处理权限，会影响到模板中的任意同名变量，<br>
-    <span style="color: #ff4c41">所以在模板中一定不要定义与全局变量同名的变量。</span>
+  名称为变量名，内容为变量值<br>
+  使用示例：在模板中直接使用${变量名}引用变量
 </p>
-<h4>使用方式：</h4>
+<h4>使用案例二(复杂)</h4>
 <p>
-    使用全局变量时，直接在模板中当普通变量引入即可。<br>
+  名称为变量名，内容为模板内容<br>
+  使用示例：在模板任意位置直接使用${变量名}引入模板
 </p>
-<h4>作用：</h4>
 <p>
-    通常用于定义宏，初始化操作，定义字符串变量，等等。
+<span style="color: #ffb224; background: gray">注意：</span>全局变量具有优先处理权限，会影响到模板中的任意同名变量，<br>
+<span style="color: #ff4c41">所以在模板中一定不要定义与全局变量同名的变量。</span>
 </p>
 </body>
 </html>

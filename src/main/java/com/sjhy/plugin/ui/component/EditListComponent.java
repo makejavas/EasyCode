@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -210,6 +211,9 @@ public class EditListComponent<E extends AbstractEditorItem<E>> {
     }
 
     private List<String> getAllItemName() {
+        if (CollectionUtil.isEmpty(elementList)) {
+            return Collections.emptyList();
+        }
         return elementList.stream().map(AbstractEditorItem::fileName).collect(Collectors.toList());
     }
 
@@ -223,6 +227,7 @@ public class EditListComponent<E extends AbstractEditorItem<E>> {
         }
         if (StringUtils.isEmpty(this.currentItem) && elementList != null && elementList.size() > 0) {
             setCurrentItem(elementList.get(0).fileName());
+            switchItemFun.accept(findByName(this.currentItem));
         }
     }
 
