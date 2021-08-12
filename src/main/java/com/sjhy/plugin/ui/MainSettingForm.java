@@ -6,11 +6,11 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.impl.LocalFileExportImportSettingsServiceImpl;
 import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.ui.component.ExportImportComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.util.Objects;
 
 /**
@@ -42,12 +42,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     }
 
     private void initLocalExportEvent() {
-        this.exportByFileBtn.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new LocalFileExportImportSettingsServiceImpl().exportConfig(getSettingsStorage());
-            }
-        });
+        new ExportImportComponent(this.exportByFileBtn, this.importByFileBtn, new LocalFileExportImportSettingsServiceImpl(), this::loadChildSettingsStore);
     }
 
     private void initEvent() {

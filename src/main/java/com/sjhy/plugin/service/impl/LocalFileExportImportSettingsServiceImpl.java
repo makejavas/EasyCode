@@ -1,15 +1,27 @@
 package com.sjhy.plugin.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intellij.openapi.fileChooser.FileChooserFactory;
-import com.intellij.openapi.fileChooser.FileSaverDescriptor;
-import com.intellij.openapi.fileChooser.FileSaverDialog;
+import com.intellij.ide.actions.OpenFileAction;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.fileChooser.*;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.util.ExceptionUtil;
+import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 import com.sjhy.plugin.tool.ProjectUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,18 +43,42 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
     public void exportConfig(SettingsStorageDTO settingsStorage) {
         // 1.选择储存位置
         FileSaverDialog saveFileDialog = FileChooserFactory.getInstance().createSaveFileDialog(new FileSaverDescriptor("Save Config As Json", "Save to"), ProjectUtils.getCurrProject());
-        VirtualFileWrapper saveFile = saveFileDialog.save(null, "EasyConfig.json");
+        VirtualFileWrapper saveFile = saveFileDialog.save(null, "EasyCodeConfig.json");
         if (saveFile == null) {
             return;
         }
         File file = saveFile.getFile();
         // 2.执行导出
-        try {
-            FileUtil.writeToFile(file, new ObjectMapper().writeValueAsBytes(settingsStorage));
-        } catch (IOException e) {
-            ExceptionUtil.rethrow(e);
-        }
+        FileUtil.createIfDoesntExist(file);
+        WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> {
+            try {
+                byte[] bytes = new ObjectMapper().writeValueAsBytes(settingsStorage);
+                VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
+                if (virtualFile != null) {
+                    virtualFile.setBinaryContent(bytes);
+                    FileDocumentManager.getInstance().reloadFiles(virtualFile);
+                }
 
+                // 发起通知
+                Notification notification = new Notification(
+                        Notifications.SYSTEM_MESSAGES_GROUP_ID,
+                        "Easy code notify",
+                        "Easy code config file export to",
+                        NotificationType.INFORMATION);
+                notification.addAction(new AnAction(file.getName()) {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e) {
+                        // 打开文件
+                        if (virtualFile != null) {
+                            OpenFileAction.openFile(virtualFile, ProjectUtils.getCurrProject());
+                        }
+                    }
+                });
+                Notifications.Bus.notify(notification, ProjectUtils.getCurrProject());
+            } catch (IOException e) {
+                ExceptionUtil.rethrow(e);
+            }
+        });
     }
 
     /**
@@ -52,6 +88,18 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
      */
     @Override
     public SettingsStorageDTO importConfig() {
-        return null;
+        VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFileDescriptor("json"), ProjectUtils.getCurrProject(), null);
+        if (virtualFile == null) {
+            Messages.showWarningDialog("config file not found！", MsgValue.TITLE_INFO);
+            return null;
+        }
+        String json = LoadTextUtil.loadText(virtualFile).toString();
+        try {
+            return new ObjectMapper().readValue(json, SettingsStorageDTO.class);
+        } catch (IOException e) {
+            // 导入失败
+            Messages.showWarningDialog("config file error！", MsgValue.TITLE_INFO);
+            return null;
+        }
     }
 }
