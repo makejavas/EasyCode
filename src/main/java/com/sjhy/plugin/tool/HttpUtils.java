@@ -86,16 +86,14 @@ public final class HttpUtils {
      * @param param 参数
      * @return 请求返回结果
      */
-    public static String postJson(String uri, Map<String, Object> param) {
+    public static String postJson(String uri, Object param) {
         HttpPost httpPost = new HttpPost(HOST_URL + uri);
         httpPost.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpPost.setConfig(getDefaultConfig());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            if (!CollectionUtil.isEmpty(param)) {
-                httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(param), "utf-8"));
-            }
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(param), "utf-8"));
             return handlerRequest(httpPost);
         } catch (JsonProcessingException e) {
             Messages.showWarningDialog("JSON解析出错！", MsgValue.TITLE_INFO);

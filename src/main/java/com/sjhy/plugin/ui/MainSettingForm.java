@@ -5,6 +5,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.impl.LocalFileExportImportSettingsServiceImpl;
+import com.sjhy.plugin.service.impl.NetworkExportImportSettingsServiceImpl;
 import com.sjhy.plugin.tool.StringUtils;
 import com.sjhy.plugin.ui.component.ExportImportComponent;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +44,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
 
     private void initLocalExportEvent() {
         new ExportImportComponent(this.exportByFileBtn, this.importByFileBtn, new LocalFileExportImportSettingsServiceImpl(), this::loadChildSettingsStore);
+        new ExportImportComponent(this.exportByNetBtn, this.importByNetBtn, new NetworkExportImportSettingsServiceImpl(), this::loadChildSettingsStore);
     }
 
     private void initEvent() {
