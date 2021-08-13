@@ -14,7 +14,6 @@ import com.sjhy.plugin.tool.CloneUtils;
 import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.tool.StringUtils;
-import com.sjhy.plugin.ui.base.ListCheckboxPanel;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -85,16 +84,16 @@ public class ExportImportComponent {
         // 创建一行四列的主面板
         JPanel mainPanel = new JPanel(new GridLayout(1, 4));
         // Type Mapper
-        ListCheckboxPanel typeMapperPanel = new ListCheckboxPanel("Type Mapper", settingsStorage.getTypeMapperGroupMap().keySet());
+        ListCheckboxComponent typeMapperPanel = new ListCheckboxComponent("Type Mapper", settingsStorage.getTypeMapperGroupMap().keySet());
         mainPanel.add(typeMapperPanel);
         // Template
-        ListCheckboxPanel templatePanel = new ListCheckboxPanel("Template", settingsStorage.getTemplateGroupMap().keySet());
+        ListCheckboxComponent templatePanel = new ListCheckboxComponent("Template", settingsStorage.getTemplateGroupMap().keySet());
         mainPanel.add(templatePanel);
         // Column Config
-        ListCheckboxPanel columnConfigPanel = new ListCheckboxPanel("Column Config", settingsStorage.getColumnConfigGroupMap().keySet());
+        ListCheckboxComponent columnConfigPanel = new ListCheckboxComponent("Column Config", settingsStorage.getColumnConfigGroupMap().keySet());
         mainPanel.add(columnConfigPanel);
         // GlobalConfig
-        ListCheckboxPanel globalConfigPanel = new ListCheckboxPanel("Global Config", settingsStorage.getGlobalConfigGroupMap().keySet());
+        ListCheckboxComponent globalConfigPanel = new ListCheckboxComponent("Global Config", settingsStorage.getGlobalConfigGroupMap().keySet());
         mainPanel.add(globalConfigPanel);
         // 构建dialog
         DialogBuilder dialogBuilder = new DialogBuilder(ProjectUtils.getCurrProject());
@@ -128,8 +127,8 @@ public class ExportImportComponent {
      * @param checkboxPanels 复选框面板
      * @return 是否选中
      */
-    private boolean isSelected(@NotNull ListCheckboxPanel... checkboxPanels) {
-        for (ListCheckboxPanel checkboxPanel : checkboxPanels) {
+    private boolean isSelected(@NotNull ListCheckboxComponent... checkboxPanels) {
+        for (ListCheckboxComponent checkboxPanel : checkboxPanels) {
             if (!CollectionUtil.isEmpty(checkboxPanel.getSelectedItems())) {
                 return true;
             }
@@ -143,7 +142,7 @@ public class ExportImportComponent {
      * @param checkboxPanel 选中面板
      * @param map           需要过滤的map
      */
-    private void filterSelected(ListCheckboxPanel checkboxPanel, Map<String, ?> map) {
+    private void filterSelected(ListCheckboxComponent checkboxPanel, Map<String, ?> map) {
         List<String> selectedItems = checkboxPanel.getSelectedItems();
         map.keySet().removeIf(item -> !selectedItems.contains(item));
     }

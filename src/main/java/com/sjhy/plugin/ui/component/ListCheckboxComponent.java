@@ -1,4 +1,4 @@
-package com.sjhy.plugin.ui.base;
+package com.sjhy.plugin.ui.component;
 
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.ui.components.JBCheckBox;
@@ -11,11 +11,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 列表复选框组件
+ *
  * @author makejava
  * @version 1.0.0
  * @since 2018/09/03 17:12
  */
-public class ListCheckboxPanel extends JPanel {
+public class ListCheckboxComponent extends JPanel {
     /**
      * 标题
      */
@@ -32,7 +34,7 @@ public class ListCheckboxPanel extends JPanel {
     /**
      * 默认构造方法
      */
-    public ListCheckboxPanel(String title, Collection<String> items) {
+    public ListCheckboxComponent(String title, Collection<String> items) {
         // 使用垂直流式布局
         super(new VerticalFlowLayout());
         this.title = title;
