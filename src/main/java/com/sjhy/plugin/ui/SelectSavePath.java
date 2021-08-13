@@ -8,13 +8,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
 import com.sjhy.plugin.constants.StrState;
+import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.service.CodeGenerateService;
+import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
 
@@ -377,7 +378,7 @@ public class SelectSavePath extends JDialog {
         if (!StringUtils.isEmpty(tableInfo.getPreName())) {
             preField.setText(tableInfo.getPreName());
         }
-        Settings settings = Settings.getInstance();
+        SettingsStorageDTO settings = SettingsStorageService.getSettingsStorage();
         String groupName = settings.getCurrTemplateGroupName();
         if (!StringUtils.isEmpty(tableInfo.getTemplateGroupName())) {
             if (settings.getTemplateGroupMap().containsKey(tableInfo.getTemplateGroupName())) {

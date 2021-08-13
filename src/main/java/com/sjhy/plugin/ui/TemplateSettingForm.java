@@ -9,10 +9,7 @@ import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.ui.component.EditListComponent;
-import com.sjhy.plugin.ui.component.EditorComponent;
-import com.sjhy.plugin.ui.component.GroupNameComponent;
-import com.sjhy.plugin.ui.component.LeftRightComponent;
+import com.sjhy.plugin.ui.component.*;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -106,9 +103,16 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
         this.initEditList();
         // 初始化编辑框组件
         this.initEditor();
+        // 初始化实时调试
+        this.initRealtimeDebug();
         // 左右组件
         LeftRightComponent leftRightComponent = new LeftRightComponent(editListComponent.getMainPanel(), this.editorComponent.getMainPanel());
         this.mainPanel.add(leftRightComponent.getMainPanel(), BorderLayout.CENTER);
+    }
+
+    private void initRealtimeDebug() {
+        RealtimeDebugComponent realtimeDebugComponent = new RealtimeDebugComponent(editorComponent);
+        groupNameComponent.getPanel().add(realtimeDebugComponent.getMainPanel());
     }
 
     @Override

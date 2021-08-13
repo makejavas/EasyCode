@@ -8,32 +8,18 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ReflectionUtil;
-import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.SaveFile;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
+import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.service.TableInfoService;
-import com.sjhy.plugin.tool.CacheDataUtils;
-import com.sjhy.plugin.tool.CloneUtils;
-import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.tool.ExtraCodeGenerateUtils;
-import com.sjhy.plugin.tool.GlobalTool;
-import com.sjhy.plugin.tool.ModuleUtils;
-import com.sjhy.plugin.tool.NameUtils;
-import com.sjhy.plugin.tool.StringUtils;
-import com.sjhy.plugin.tool.TemplateUtils;
-import com.sjhy.plugin.tool.TimeUtils;
-import com.sjhy.plugin.tool.VelocityUtils;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import com.sjhy.plugin.tool.*;
+
+import java.util.*;
 
 /**
  * @author makejava
@@ -242,7 +228,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      */
     private Map<String, Object> getDefaultParam() {
         // 系统设置
-        Settings settings = Settings.getInstance();
+        SettingsStorageDTO settings = SettingsStorageService.getSettingsStorage();
         Map<String, Object> param = new HashMap<>(20);
         // 作者
         param.put("author", settings.getAuthor());

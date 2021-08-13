@@ -5,7 +5,6 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -19,6 +18,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.sjhy.plugin.entity.AbstractEditorItem;
 import com.sjhy.plugin.tool.ProjectUtils;
+import com.sjhy.plugin.ui.base.EditorSettingsInit;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,6 +41,7 @@ public class EditorComponent<T extends AbstractEditorItem> {
     /**
      * 被编辑的文件
      */
+    @Getter
     private T file;
     /**
      * 描述信息
@@ -64,22 +65,8 @@ public class EditorComponent<T extends AbstractEditorItem> {
         Document document = editorFactory.createDocument("");
         this.editor = editorFactory.createEditor(document);
         this.refreshUI();
-        EditorSettings editorSettings = editor.getSettings();
-        // 关闭虚拟空间
-        editorSettings.setVirtualSpace(false);
-        // 关闭标记位置（断点位置）
-        editorSettings.setLineMarkerAreaShown(false);
-        // 关闭缩减指南
-        editorSettings.setIndentGuidesShown(false);
-        // 显示行号
-        editorSettings.setLineNumbersShown(true);
-        // 支持代码折叠
-        editorSettings.setFoldingOutlineShown(true);
-        // 附加行，附加列（提高视野）
-        editorSettings.setAdditionalColumnsCount(3);
-        editorSettings.setAdditionalLinesCount(3);
-        // 不显示换行符号
-        editorSettings.setCaretRowShown(false);
+        // 初始默认设置
+        EditorSettingsInit.init(this.editor);
         // 添加监控事件
         this.editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override

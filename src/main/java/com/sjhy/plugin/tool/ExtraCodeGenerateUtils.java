@@ -1,6 +1,5 @@
 package com.sjhy.plugin.tool;
 
-import com.sjhy.plugin.config.Settings;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.impl.CodeGenerateServiceImpl;
@@ -30,12 +29,6 @@ public class ExtraCodeGenerateUtils {
      */
     private Boolean title;
 
-    /**
-     * 设置实例对象
-     */
-    private Settings settings = Settings.getInstance();
-
-
     public ExtraCodeGenerateUtils(CodeGenerateServiceImpl codeGenerateService, TableInfo tableInfo, Boolean title) {
         this.codeGenerateService = codeGenerateService;
         this.tableInfo = tableInfo;
@@ -51,7 +44,7 @@ public class ExtraCodeGenerateUtils {
     public void run(String templateName, Map<String, Object> param) {
         // 获取到模板
         Template currTemplate = null;
-        for (Template template : settings.getTemplateGroupMap().get(settings.getCurrTemplateGroupName()).getElementList()) {
+        for (Template template : CurrGroupUtils.getCurrTemplateGroup().getElementList()) {
             if (Objects.equals(template.getName(), templateName)) {
                 currTemplate = template;
             }

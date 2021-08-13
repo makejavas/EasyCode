@@ -52,7 +52,7 @@ public class TypeMapperSettingForm implements BaseSettings {
         // 第一列仅适用下拉框
         TableCellEditor matchTypeEditor = CellEditorFactory.createComboBoxEditor(false, MatchType.class);
         TableComponent.Column<TypeMapper> matchTypeColumn = new TableComponent.Column<>("matchType",
-                item -> item.getMatchType().name(),
+                item -> item.getMatchType() != null ? item.getMatchType().name() : MatchType.REGEX.name(),
                 (entity, val) -> entity.setMatchType(MatchType.valueOf(val)),
                 matchTypeEditor
         );

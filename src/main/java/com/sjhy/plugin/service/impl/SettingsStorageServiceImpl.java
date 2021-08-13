@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * @date 2021/08/07 11:32
  */
 @Data
-@State(name = "EasyCodeSetting", storages = @Storage("easy-code-setting2.xml"))
+@State(name = "EasyCodeSetting", storages = @Storage("easy-code-setting.xml"))
 public class SettingsStorageServiceImpl implements SettingsStorageService {
 
     private SettingsStorageDTO settingsStorage = SettingsStorageDTO.defaultVal();
@@ -39,6 +39,8 @@ public class SettingsStorageServiceImpl implements SettingsStorageService {
      */
     @Override
     public void loadState(@NotNull SettingsStorageDTO state) {
+        // 加载配置后填充默认值，避免版本升级导致的配置信息不完善问题
+        state.fillDefaultVal();
         this.settingsStorage = state;
     }
 }

@@ -3,6 +3,8 @@ package com.sjhy.plugin.dto;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.enums.ColumnConfigType;
+import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.StringUtils;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -121,4 +123,54 @@ public class SettingsStorageDTO {
      * 全局配置组
      */
     private Map<String, GlobalConfigGroup> globalConfigGroupMap;
+
+    public void fillDefaultVal() {
+        SettingsStorageDTO defaultVal = defaultVal();
+        if (CollectionUtil.isEmpty(this.typeMapperGroupMap)) {
+            this.typeMapperGroupMap = defaultVal.getTypeMapperGroupMap();
+        }
+        if (!this.typeMapperGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
+            this.typeMapperGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        }
+        if (StringUtils.isEmpty(this.currTypeMapperGroupName)) {
+            this.setCurrTypeMapperGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        }
+
+
+        if (CollectionUtil.isEmpty(this.templateGroupMap)) {
+            this.templateGroupMap = defaultVal.getTemplateGroupMap();
+        }
+        if (!this.templateGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
+            this.templateGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTemplateGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        }
+        if (StringUtils.isEmpty(this.currTemplateGroupName)) {
+            this.setCurrTemplateGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        }
+
+
+        if (CollectionUtil.isEmpty(this.columnConfigGroupMap)) {
+            this.columnConfigGroupMap = defaultVal.getColumnConfigGroupMap();
+        }
+        if (!this.columnConfigGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
+            this.columnConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getColumnConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        }
+        if (StringUtils.isEmpty(this.currColumnConfigGroupName)) {
+            this.setCurrColumnConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        }
+
+
+        if (CollectionUtil.isEmpty(this.globalConfigGroupMap)) {
+            this.globalConfigGroupMap = defaultVal.getGlobalConfigGroupMap();
+        }
+        if (!this.globalConfigGroupMap.containsKey(GlobalDict.DEFAULT_GROUP_NAME)) {
+            this.globalConfigGroupMap.put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        }
+        if (StringUtils.isEmpty(this.currGlobalConfigGroupName)) {
+            this.setCurrGlobalConfigGroupName(GlobalDict.DEFAULT_GROUP_NAME);
+        }
+
+        if (StringUtils.isEmpty(this.version)) {
+            this.setVersion(defaultVal.getVersion());
+        }
+    }
 }
