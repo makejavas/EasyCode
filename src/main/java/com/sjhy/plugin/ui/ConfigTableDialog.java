@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.util.ui.ComboBoxCellEditor;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.enums.ColumnConfigType;
 import com.sjhy.plugin.service.TableInfoService;
@@ -175,7 +175,7 @@ public class ConfigTableDialog extends JDialog {
             if (column == 0) {
                 for (ColumnInfo info : tableInfo.getFullColumn()) {
                     if (info.getName().equals(val) && !info.getName().equals(columnInfo.getName())) {
-                        Messages.showWarningDialog("Column Name Already exist!", MsgValue.TITLE_INFO);
+                        Messages.showWarningDialog("Column Name Already exist!", GlobalDict.TITLE_INFO);
                         // 输入的名称已经存在时，直接还原
                         tableModel.setValueAt(columnInfo.getName(), row, column);
                         return;

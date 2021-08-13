@@ -17,7 +17,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 import com.sjhy.plugin.tool.ProjectUtils;
@@ -90,7 +90,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
     public SettingsStorageDTO importConfig() {
         VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFileDescriptor("json"), ProjectUtils.getCurrProject(), null);
         if (virtualFile == null) {
-            Messages.showWarningDialog("config file not found！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("config file not found！", GlobalDict.TITLE_INFO);
             return null;
         }
         String json = LoadTextUtil.loadText(virtualFile).toString();
@@ -98,7 +98,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
             return new ObjectMapper().readValue(json, SettingsStorageDTO.class);
         } catch (IOException e) {
             // 导入失败
-            Messages.showWarningDialog("config file error！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("config file error！", GlobalDict.TITLE_INFO);
             return null;
         }
     }

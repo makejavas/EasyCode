@@ -18,7 +18,7 @@ import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.containers.JBIterable;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.SaveFile;
 import com.sjhy.plugin.entity.TableInfo;
@@ -290,7 +290,7 @@ public class TableInfoServiceImpl implements TableInfoService {
                     if (!errorCount.contains(typeMapper.getColumnType())) {
                         Messages.showWarningDialog(
                                 "类型映射《" + typeMapper.getColumnType() + "》存在语法错误，请及时修正。报错信息:" + e.getMessage(),
-                                MsgValue.TITLE_INFO);
+                                GlobalDict.TITLE_INFO);
                         errorCount.add(typeMapper.getColumnType());
                     }
                 }
@@ -370,7 +370,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             ExceptionUtil.rethrow(e);
         }
         if (content == null) {
-            Messages.showWarningDialog("保存失败，JSON序列化错误。", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("保存失败，JSON序列化错误。", GlobalDict.TITLE_INFO);
             return;
         }
         // 获取或创建保存目录
@@ -469,14 +469,14 @@ public class TableInfoServiceImpl implements TableInfoService {
         }
         Document document = FileDocumentManager.getInstance().getDocument(configJsonFile);
         if (document == null) {
-            Messages.showInfoMessage(fileName + "转文档对象失败", MsgValue.TITLE_INFO);
+            Messages.showInfoMessage(fileName + "转文档对象失败", GlobalDict.TITLE_INFO);
             return null;
         }
         // 读取并解析文件
         String json = document.getText();
         if (StringUtils.isEmpty(json)) {
             Messages.showInfoMessage(fileName + "配置文件文件为空，请尝试手动删除" + configJsonFile.getPath() + "文件！",
-                    MsgValue.TITLE_INFO);
+                    GlobalDict.TITLE_INFO);
             return null;
         }
         return parser(json, configJsonFile);
@@ -491,7 +491,7 @@ public class TableInfoServiceImpl implements TableInfoService {
     private VirtualFile getEasyCodeConfigDirectory(Project project) {
         VirtualFile baseDir = ProjectUtils.getBaseDir(project);
         if (baseDir == null) {
-            Messages.showInfoMessage("无法获取项目路径", MsgValue.TITLE_INFO);
+            Messages.showInfoMessage("无法获取项目路径", GlobalDict.TITLE_INFO);
             return null;
         }
         // 获取.idea路径
@@ -510,7 +510,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             ideaDir = tmpDir.findChild(".idea");
         }
         if (ideaDir == null) {
-            Messages.showInfoMessage(".idea路径获取失败", MsgValue.TITLE_INFO);
+            Messages.showInfoMessage(".idea路径获取失败", GlobalDict.TITLE_INFO);
             String errorMsg = String.format("baseDir:%s, not found .idea child directory", baseDir.getPath());
             ExceptionUtil.rethrow(new IllegalStateException(errorMsg));
             return null;
@@ -550,7 +550,7 @@ public class TableInfoServiceImpl implements TableInfoService {
             return objectMapper.readValue(str, TableInfo.class);
         } catch (IOException e) {
             Messages.showWarningDialog("读取配置失败，JSON反序列化异常。请尝试手动删除" + originalFile.getPath() + "文件！",
-                    MsgValue.TITLE_INFO);
+                    GlobalDict.TITLE_INFO);
             ExceptionUtil.rethrow(e);
         }
         return null;

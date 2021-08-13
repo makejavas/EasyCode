@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -96,7 +96,7 @@ public final class HttpUtils {
             httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(param), "utf-8"));
             return handlerRequest(httpPost);
         } catch (JsonProcessingException e) {
-            Messages.showWarningDialog("JSON解析出错！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("JSON解析出错！", GlobalDict.TITLE_INFO);
             ExceptionUtil.rethrow(e);
         }
         return null;
@@ -117,7 +117,7 @@ public final class HttpUtils {
             CloseableHttpResponse response = HTTP_CLIENT.execute(request);
             String body = EntityUtils.toString(response.getEntity());
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Messages.showWarningDialog("连接到服务器错误！", MsgValue.TITLE_INFO);
+                Messages.showWarningDialog("连接到服务器错误！", GlobalDict.TITLE_INFO);
                 return null;
             }
             HttpClientUtils.closeQuietly(response);
@@ -133,9 +133,9 @@ public final class HttpUtils {
             }
             // 获取错误消息
             String msg = jsonNode.get("msg").asText();
-            Messages.showWarningDialog(msg, MsgValue.TITLE_INFO);
+            Messages.showWarningDialog(msg, GlobalDict.TITLE_INFO);
         } catch (IOException e) {
-            Messages.showWarningDialog("无法连接到服务器！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("无法连接到服务器！", GlobalDict.TITLE_INFO);
             ExceptionUtil.rethrow(e);
         }
         return null;

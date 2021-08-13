@@ -7,7 +7,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
@@ -50,7 +50,7 @@ public final class ModuleUtils {
         }
         VirtualFile dir = VirtualFileManager.getInstance().findFileByUrl(String.format("file://%s", modulePath));
         if (dir == null) {
-            Messages.showInfoMessage("无法获取Module路径, path=" + modulePath, MsgValue.TITLE_INFO);
+            Messages.showInfoMessage("无法获取Module路径, path=" + modulePath, GlobalDict.TITLE_INFO);
         }
         return dir;
     }

@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.AbstractGroup;
 import com.sjhy.plugin.service.ExportImportSettingsService;
@@ -97,14 +97,14 @@ public class ExportImportComponent {
         mainPanel.add(globalConfigPanel);
         // 构建dialog
         DialogBuilder dialogBuilder = new DialogBuilder(ProjectUtils.getCurrProject());
-        dialogBuilder.setTitle(MsgValue.TITLE_INFO);
+        dialogBuilder.setTitle(GlobalDict.TITLE_INFO);
         dialogBuilder.setNorthPanel(new MultiLineLabel("请选择要导出的配置分组："));
         dialogBuilder.setCenterPanel(mainPanel);
         dialogBuilder.addActionDescriptor(dialogWrapper -> new AbstractAction("OK") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isSelected(typeMapperPanel, templatePanel, columnConfigPanel, globalConfigPanel)) {
-                    Messages.showWarningDialog("至少选择一个模板组！", MsgValue.TITLE_INFO);
+                    Messages.showWarningDialog("至少选择一个模板组！", GlobalDict.TITLE_INFO);
                     return;
                 }
                 // 过滤数据
@@ -168,7 +168,7 @@ public class ExportImportComponent {
         }
         // 构建dialog
         DialogBuilder dialogBuilder = new DialogBuilder(ProjectUtils.getCurrProject());
-        dialogBuilder.setTitle(MsgValue.TITLE_INFO);
+        dialogBuilder.setTitle(GlobalDict.TITLE_INFO);
         dialogBuilder.setNorthPanel(new MultiLineLabel("请选择重复配置的处理方式："));
         dialogBuilder.setCenterPanel(mainPanel);
         dialogBuilder.addActionDescriptor(dialogWrapper -> new AbstractAction("OK") {

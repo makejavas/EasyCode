@@ -17,7 +17,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -66,7 +66,7 @@ public class FileUtils {
             try {
                 return VfsUtil.createDirectoryIfMissing(parent, dirName);
             } catch (IOException e) {
-                Messages.showWarningDialog("目录创建失败：" + dirName, MsgValue.TITLE_INFO);
+                Messages.showWarningDialog("目录创建失败：" + dirName, GlobalDict.TITLE_INFO);
                 return null;
             }
         });
@@ -91,7 +91,7 @@ public class FileUtils {
                 }
                 return parent.createChildData(new Object(), fileName);
             } catch (IOException e) {
-                Messages.showWarningDialog("文件创建失败：" + fileName, MsgValue.TITLE_INFO);
+                Messages.showWarningDialog("文件创建失败：" + fileName, GlobalDict.TITLE_INFO);
                 return null;
             }
         });

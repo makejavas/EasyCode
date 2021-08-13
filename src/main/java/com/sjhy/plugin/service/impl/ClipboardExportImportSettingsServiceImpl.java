@@ -6,7 +6,7 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ui.TextTransferable;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 
@@ -31,7 +31,7 @@ public class ClipboardExportImportSettingsServiceImpl implements ExportImportSet
         try {
             String json = new ObjectMapper().writeValueAsString(settingsStorage);
             CopyPasteManager.getInstance().setContents(new TextTransferable(json));
-            Messages.showInfoMessage("Config info success write to clipboard！", MsgValue.TITLE_INFO);
+            Messages.showInfoMessage("Config info success write to clipboard！", GlobalDict.TITLE_INFO);
         } catch (JsonProcessingException e) {
             ExceptionUtil.rethrow(e);
         }
@@ -49,7 +49,7 @@ public class ClipboardExportImportSettingsServiceImpl implements ExportImportSet
             return new ObjectMapper().readValue(json, SettingsStorageDTO.class);
         } catch (IOException e) {
             // 导入失败
-            Messages.showWarningDialog("Config info error by clipboard！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("Config info error by clipboard！", GlobalDict.TITLE_INFO);
             return null;
         }
     }

@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 import com.sjhy.plugin.tool.HttpUtils;
@@ -45,7 +45,7 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
                 token = matcher.group();
             }
             // 显示token
-            Messages.showInputDialog(ProjectUtils.getCurrProject(), result, MsgValue.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator());
+            Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator());
         }
     }
 
@@ -56,7 +56,7 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
      */
     @Override
     public SettingsStorageDTO importConfig() {
-        String token = Messages.showInputDialog("Token:", MsgValue.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
+        String token = Messages.showInputDialog("Token:", GlobalDict.TITLE_INFO, AllIcons.General.Tip, "", new InputValidator() {
             @Override
             public boolean checkInput(String inputString) {
                 return !StringUtils.isEmpty(inputString);

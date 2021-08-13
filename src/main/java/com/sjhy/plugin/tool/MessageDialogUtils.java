@@ -2,7 +2,7 @@ package com.sjhy.plugin.tool;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 
 import javax.swing.*;
 
@@ -36,7 +36,7 @@ public class MessageDialogUtils {
     public static boolean yesNo(Project project, String msg) {
         Object[] options = new Object[]{"Yes", "No"};
         return JOptionPane.showOptionDialog(null,
-                msg, MsgValue.TITLE_INFO,
+                msg, GlobalDict.TITLE_INFO,
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                 UIUtil.getQuestionIcon(),
                 options, options[0]) == 0;
@@ -52,7 +52,7 @@ public class MessageDialogUtils {
     public static int yesNoCancel(Project project, String msg, String yesText, String noText, String cancelText) {
         Object[] options = new Object[]{yesText, noText, cancelText};
         return JOptionPane.showOptionDialog(null,
-                msg, MsgValue.TITLE_INFO,
+                msg, GlobalDict.TITLE_INFO,
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
                 UIUtil.getQuestionIcon(),
                 options, options[0]);

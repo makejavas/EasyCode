@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TableInfo;
@@ -154,7 +154,7 @@ public class SelectSavePath extends JDialog {
             }
         }
         init();
-        setTitle(MsgValue.TITLE_INFO);
+        setTitle(GlobalDict.TITLE_INFO);
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -209,12 +209,12 @@ public class SelectSavePath extends JDialog {
         List<Template> selectTemplateList = getSelectTemplate();
         // 如果选择的模板是空的
         if (selectTemplateList.isEmpty()) {
-            Messages.showWarningDialog("Can't Select Template!", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("Can't Select Template!", GlobalDict.TITLE_INFO);
             return;
         }
         String savePath = pathField.getText();
         if (StringUtils.isEmpty(savePath)) {
-            Messages.showWarningDialog("Can't Select Save Path!", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("Can't Select Save Path!", GlobalDict.TITLE_INFO);
             return;
         }
         // 针对Linux系统路径做处理
@@ -435,7 +435,7 @@ public class SelectSavePath extends JDialog {
         Module module = getSelectModule();
         VirtualFile baseVirtualFile = ProjectUtils.getBaseDir(project);
         if (baseVirtualFile == null) {
-            Messages.showWarningDialog("无法获取到项目基本路径！", MsgValue.TITLE_INFO);
+            Messages.showWarningDialog("无法获取到项目基本路径！", GlobalDict.TITLE_INFO);
             return "";
         }
         String baseDir = baseVirtualFile.getPath();

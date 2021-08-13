@@ -9,6 +9,10 @@ package com.sjhy.plugin.dict;
  */
 public interface GlobalDict {
     /**
+     * 提示信息
+     */
+    String TITLE_INFO = "EasyCode Title Info";
+    /**
      * 版本号
      */
     String VERSION = "1.2.4";

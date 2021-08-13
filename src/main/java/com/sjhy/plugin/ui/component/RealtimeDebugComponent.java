@@ -27,7 +27,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 import com.intellij.util.containers.JBIterable;
-import com.sjhy.plugin.constants.MsgValue;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
@@ -105,7 +105,7 @@ public class RealtimeDebugComponent {
         } else {
             Method method = ReflectionUtil.getMethod(DbPsiFacade.class, "findElement", DasObject.class);
             if (method == null) {
-                Messages.showWarningDialog("findElement method not found", MsgValue.TITLE_INFO);
+                Messages.showWarningDialog("findElement method not found", GlobalDict.TITLE_INFO);
                 return;
             }
             try {
@@ -129,7 +129,7 @@ public class RealtimeDebugComponent {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(ProjectUtils.getCurrProject());
         String fileName = editorComponent.getFile().getName();
         FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(fileName);
-        PsiFile psiFile = psiFileFactory.createFileFromText(fileName, fileType, code);
+        PsiFile psiFile = psiFileFactory.createFileFromText(fileName, fileType, code, 0, true);
         // 标识为模板，让velocity跳过语法校验
         psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(ProjectUtils.getCurrProject()).getDefaultProperties());
         Document document = PsiDocumentManager.getInstance(ProjectUtils.getCurrProject()).getDocument(psiFile);
@@ -140,7 +140,7 @@ public class RealtimeDebugComponent {
         ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(ProjectUtils.getCurrProject(), fileName));
         // 构建dialog
         DialogBuilder dialogBuilder = new DialogBuilder(ProjectUtils.getCurrProject());
-        dialogBuilder.setTitle(MsgValue.TITLE_INFO);
+        dialogBuilder.setTitle(GlobalDict.TITLE_INFO);
         JComponent component = editor.getComponent();
         component.setPreferredSize(new Dimension(800, 600));
         dialogBuilder.setCenterPanel(component);
