@@ -20,6 +20,18 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.4-RELEASE</p>
+      <ul>
+        <li>1.Optimize GUI interface</li>
+        <li>2.Multiple import and export methods are provided</li>
+        <li>3.Support code generation through entity classes</li>
+      </ul>
+      <ul>
+        <li>1.优化GUI界面</li>
+        <li>2.提供多种导入导出方式</li>
+        <li>3.修复大量已知BUG</li>
+        <li>4.支持通过实体类生成代码</li>
+      </ul>
       <p>1.2.4-RC4</p>
       <ul>
         <li>1.compatible with PyCharm,WebStorm,GoLand,DataGrip,PhpStorm</li>
