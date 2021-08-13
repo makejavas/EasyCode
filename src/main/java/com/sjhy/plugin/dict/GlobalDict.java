@@ -42,6 +42,8 @@ public interface GlobalDict {
             "java.lang.Character",
             "java.math.BigDecimal",
             "java.math.BigInteger",
+            "java.lang.Double",
+            "java.lang.Float",
             "java.lang.String[]",
             "java.util.List",
             "java.util.Set",
