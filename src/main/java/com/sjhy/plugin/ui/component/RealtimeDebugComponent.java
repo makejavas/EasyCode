@@ -86,6 +86,12 @@ public class RealtimeDebugComponent {
             public void actionPerformed(@NotNull AnActionEvent e) {
                 runDebug();
             }
+
+            @Override
+            public void update(@NotNull AnActionEvent e) {
+                String selectVal = (String) comboBox.getSelectedItem();
+                e.getPresentation().setEnabled(allTables != null && allTables.containsKey(selectVal));
+            }
         });
         ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("Template Debug", actionGroup, true);
         this.mainPanel.add(actionToolbar.getComponent());
