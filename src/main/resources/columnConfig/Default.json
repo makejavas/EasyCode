@@ -1,0 +1,12 @@
+[
+  {
+    "title": "disable",
+    "type": "BOOLEAN",
+    "selectValue": ""
+  },
+  {
+    "title": "support",
+    "type": "SELECT",
+    "selectValue": "add,edit,query,del,ui"
+  }
+]

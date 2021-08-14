@@ -1,0 +1,30 @@
+##导入宏定义、设置包名、类名、文件名##导入宏定义
+$!define
+#setPackageSuffix("repository")
+#setTableSuffix("Repository")
+#save("/repository", "Repository.java")
+
+##拿到主键
+#if(!$tableInfo.pkColumn.isEmpty())
+    #set($pk = $tableInfo.pkColumn.get(0))
+#end
+##实体类名、主键类名
+#set($entityShortType = $!tableInfo.name)
+#set($entityType = $!tableInfo.psiClassObj.getQualifiedName())
+#set($pkShortType = $!pk.shortType)
+#set($pkType = $!pk.type)
+
+import $pkType;
+import $entityType;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+
+/**
+ * $!{tableInfo.comment}持久层
+ *
+ * @author $!author
+ * @since $!time.currTime()
+ */
+public interface $!{tableName} extends MongoRepository<$entityShortType, $pkShortType> {
+
+}

@@ -1,9 +1,12 @@
 package com.sjhy.plugin.dto;
 
+import com.intellij.ide.fileTemplates.impl.UrlUtil;
+import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.*;
 import com.sjhy.plugin.enums.ColumnConfigType;
 import com.sjhy.plugin.tool.CollectionUtil;
+import com.sjhy.plugin.tool.JSON;
 import com.sjhy.plugin.tool.StringUtils;
 import lombok.Data;
 
@@ -26,6 +29,14 @@ public class SettingsStorageDTO {
      * @return 储存对象
      */
     public static SettingsStorageDTO defaultVal() {
+        try {
+            // 从配置文件中加载配置
+            String json = UrlUtil.loadText(SettingsStorageDTO.class.getResource("/defaultConfig.json"));
+            return JSON.parse(json, SettingsStorageDTO.class);
+        } catch (Exception e) {
+            ExceptionUtil.rethrow(e);
+        }
+        // 配置文件加载失败，直接创建配置
         SettingsStorageDTO storage = new SettingsStorageDTO();
         storage.author = GlobalDict.AUTHOR;
         storage.version = GlobalDict.VERSION;
