@@ -238,13 +238,12 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <!--实例化配置信息服务-->
-        <applicationService serviceImplementation="com.sjhy.plugin.config.Settings"/>
         <applicationService serviceImplementation="com.sjhy.plugin.service.impl.SettingsStorageServiceImpl"/>
         <!--项目服务-->
+        <projectService serviceImplementation="com.sjhy.plugin.service.impl.TableInfoSettingsServiceImpl"/>
         <projectService serviceInterface="com.sjhy.plugin.service.TableInfoService" serviceImplementation="com.sjhy.plugin.service.impl.TableInfoServiceImpl"/>
         <projectService serviceInterface="com.sjhy.plugin.service.CodeGenerateService" serviceImplementation="com.sjhy.plugin.service.impl.CodeGenerateServiceImpl"/>
         <!--系统设置面板-->
-        <!--<applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSetting"/>-->
         <applicationConfigurable dynamic="true" instance="com.sjhy.plugin.ui.MainSettingForm"/>
     </extensions>
 
