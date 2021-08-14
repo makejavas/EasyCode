@@ -1,6 +1,5 @@
 package com.sjhy.plugin.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -20,6 +19,7 @@ import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
+import com.sjhy.plugin.tool.JSON;
 import com.sjhy.plugin.tool.ProjectUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +52,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
         FileUtil.createIfDoesntExist(file);
         WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> {
             try {
-                byte[] bytes = new ObjectMapper().writeValueAsBytes(settingsStorage);
+                byte[] bytes = JSON.toJson(settingsStorage).getBytes();
                 VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
                 if (virtualFile != null) {
                     virtualFile.setBinaryContent(bytes);
@@ -94,12 +94,6 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
             return null;
         }
         String json = LoadTextUtil.loadText(virtualFile).toString();
-        try {
-            return new ObjectMapper().readValue(json, SettingsStorageDTO.class);
-        } catch (IOException e) {
-            // 导入失败
-            Messages.showWarningDialog("config file error！", GlobalDict.TITLE_INFO);
-            return null;
-        }
+        return JSON.parse(json, SettingsStorageDTO.class);
     }
 }

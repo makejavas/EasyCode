@@ -1,14 +1,11 @@
 package com.sjhy.plugin.tool;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.entity.DebugField;
 import com.sjhy.plugin.entity.DebugMethod;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,11 +21,6 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class GlobalTool extends NameUtils {
     private static volatile GlobalTool globalTool;
-
-    /**
-     * Jackson对象
-     */
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 私有构造方法
@@ -133,12 +125,11 @@ public class GlobalTool extends NameUtils {
      * @param obj 对象
      * @return 调式JSON结果
      */
-    public String debug(Object obj) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public String debug(Object obj) {
         Map<String, Object> result = new LinkedHashMap<>();
         if (obj == null) {
             result.put("title", "调试对象为null");
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            return JSON.toJsonByFormat(result);
         }
         // 获取类
         Class<?> cls = obj.getClass();
@@ -196,7 +187,7 @@ public class GlobalTool extends NameUtils {
             debugFieldList.add(debugField);
         });
         result.put("fieldList", debugFieldList);
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result).replace("\r\n", "\n");
+        return JSON.toJsonByFormat(result).replace("\r\n", "\n");
     }
 
     private static final long MAX = 100000000000000000L;
@@ -235,8 +226,8 @@ public class GlobalTool extends NameUtils {
             return null;
         }
         try {
-            return objectMapper.readValue(json, Map.class);
-        } catch (IOException e) {
+            return JSON.parse(json, Map.class);
+        } catch (Exception e) {
             return Collections.emptyMap();
         }
     }
@@ -265,19 +256,17 @@ public class GlobalTool extends NameUtils {
         if (format == null) {
             format = false;
         }
-        try {
-            // 是否格式化输出json
-            if (format) {
-                return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
-            } else {
-                return objectMapper.writeValueAsString(obj);
-            }
-        } catch (JsonProcessingException e) {
-            return null;
+        // 是否格式化输出json
+        if (format) {
+            return JSON.toJsonByFormat(obj);
+        } else {
+            return JSON.toJson(obj);
         }
     }
 
-    // 中文及中文符号正则表达式
+    /**
+     * 中文及中文符号正则表达式
+     */
     public static final String CHINESE_REGEX = "[\u4e00-\u9fa5–—‘’“”…、。〈〉《》「」『』【】〔〕！（），．：；？]";
 
     /**
@@ -306,7 +295,7 @@ public class GlobalTool extends NameUtils {
             transAll = false;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (transAll) {
             for (char c : str.toCharArray()) {
                 sb.append(String.format("\\u%04x", (int) c));
@@ -332,13 +321,12 @@ public class GlobalTool extends NameUtils {
      * @param param 请求参数
      * @return 结果
      */
-    @SuppressWarnings("unchecked")
     public Object service(String name, Object... param) {
         if (StringUtils.isEmpty(name)) {
             return null;
         }
         // 组装参数
-        Map<String, Object> map = Collections.EMPTY_MAP;
+        Map<String, Object> map = Collections.emptyMap();
         if (param != null && param.length > 0) {
             map = new LinkedHashMap<>(param.length);
             for (int i = 0; i < param.length; i++) {
@@ -350,20 +338,19 @@ public class GlobalTool extends NameUtils {
         if (result == null) {
             return null;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             // 处理结果
-            JsonNode jsonNode = objectMapper.readTree(result);
+            JsonNode jsonNode = JSON.readTree(result);
             String type = jsonNode.get("type").asText();
             JsonNode data = jsonNode.get("data");
-            Class cls = Class.forName(type);
+            Class<?> cls = Class.forName(type);
             // 字符串类型
             if (String.class.equals(cls)) {
                 return data.asText();
             }
             // 其他类型
-            return objectMapper.readValue(data.toString(), cls);
-        } catch (IOException | ClassNotFoundException e) {
+            return JSON.parse(data.toString(), cls);
+        } catch (ClassNotFoundException e) {
             return null;
         }
     }

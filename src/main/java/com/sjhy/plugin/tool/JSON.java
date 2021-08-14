@@ -4,10 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 
 /**
@@ -88,6 +92,41 @@ public class JSON {
         try {
             return INSTANCE.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * 将json对象转换成json字符串
+     *
+     * @param obj 对象
+     * @return json字符串
+     */
+    public static String toJsonByFormat(Object obj) {
+        try {
+            return INSTANCE.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static JsonNode readTree(Object obj) {
+        try {
+            if (obj instanceof String) {
+                return INSTANCE.readTree((String) obj);
+            } else if (obj instanceof byte[]) {
+                return INSTANCE.readTree((byte[]) obj);
+            } else if (obj instanceof InputStream) {
+                return INSTANCE.readTree((InputStream) obj);
+            } else if (obj instanceof URL) {
+                return INSTANCE.readTree((URL) obj);
+            } else if (obj instanceof File) {
+                return INSTANCE.readTree((File) obj);
+            } else {
+                // 其他对象，转字符串再转JsonNode
+                return INSTANCE.readTree(toJson(obj));
+            }
+        } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }

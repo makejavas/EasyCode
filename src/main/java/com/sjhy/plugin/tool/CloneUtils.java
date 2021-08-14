@@ -2,13 +2,11 @@ package com.sjhy.plugin.tool;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.TableInfo;
 
-import java.io.*;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
@@ -27,45 +25,6 @@ public final class CloneUtils {
      */
     private CloneUtils() {
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * 通过java序列化方式进行克隆
-     *
-     * @param entity 实体对象
-     * @return 克隆后的实体对象
-     */
-    public static <E> E cloneBySerial(E entity) {
-        if (entity == null) {
-            return null;
-        }
-        // 没有实现序列化统一使用json方式序列化
-        if (!(entity instanceof Serializable)) {
-            return cloneByJson(entity, false);
-        }
-        // 定义一个缓冲输出流对象
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        ObjectInputStream input = null;
-        try (ObjectOutputStream out = new ObjectOutputStream(buffer)) {
-            // 将对象输出到缓冲区
-            out.writeObject(entity);
-            // 重新从缓冲区读取对象
-            input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            return (E) input.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            ExceptionUtil.rethrow(e);
-        } finally {
-            // 关闭流
-            try {
-                buffer.close();
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 
     /**
@@ -112,30 +71,24 @@ public final class CloneUtils {
         if (entity == null) {
             return null;
         }
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            // 进行序列化
-            String json = objectMapper.writeValueAsString(entity);
-            // 进行反序列化
-            E result;
-            if (typeReference == null) {
-                result = (E) objectMapper.readValue(json, entity.getClass());
-            } else {
-                result = objectMapper.readValue(json, typeReference);
-            }
-            // 复制被忽略的属性
-            if (copy) {
-                copyIgnoreProp(entity, result);
-                // 针对TableInfo对象做特殊处理
-                if (entity instanceof TableInfo) {
-                    handlerTableInfo((TableInfo) entity, (TableInfo) result);
-                }
-            }
-            return result;
-        } catch (IOException e) {
-            ExceptionUtil.rethrow(e);
+        // 进行序列化
+        String json = JSON.toJson(entity);
+        // 进行反序列化
+        E result;
+        if (typeReference == null) {
+            result = (E) JSON.parse(json, entity.getClass());
+        } else {
+            result = JSON.parse(json, typeReference);
         }
-        return null;
+        // 复制被忽略的属性
+        if (copy) {
+            copyIgnoreProp(entity, result);
+            // 针对TableInfo对象做特殊处理
+            if (entity instanceof TableInfo) {
+                handlerTableInfo((TableInfo) entity, (TableInfo) result);
+            }
+        }
+        return result;
     }
 
     /**

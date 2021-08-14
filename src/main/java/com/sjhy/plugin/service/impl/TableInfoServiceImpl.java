@@ -1,7 +1,5 @@
 package com.sjhy.plugin.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
@@ -25,21 +23,11 @@ import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @author makejava
@@ -58,10 +46,6 @@ public class TableInfoServiceImpl implements TableInfoService {
      */
     private NameUtils nameUtils;
     /**
-     * jackson格式化工具
-     */
-    private ObjectMapper objectMapper;
-    /**
      * 文件工具类
      */
     private FileUtils fileUtils;
@@ -69,7 +53,6 @@ public class TableInfoServiceImpl implements TableInfoService {
     public TableInfoServiceImpl(Project project) {
         this.project = project;
         this.nameUtils = NameUtils.getInstance();
-        this.objectMapper = new ObjectMapper();
         this.fileUtils = FileUtils.getInstance();
     }
 
@@ -365,8 +348,8 @@ public class TableInfoServiceImpl implements TableInfoService {
         // 获取优雅格式的JSON字符串
         String content = null;
         try {
-            content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tableInfo);
-        } catch (JsonProcessingException e) {
+            content = JSON.toJsonByFormat(tableInfo);
+        } catch (Exception e) {
             ExceptionUtil.rethrow(e);
         }
         if (content == null) {
@@ -547,8 +530,8 @@ public class TableInfoServiceImpl implements TableInfoService {
      */
     private TableInfo parser(String str, VirtualFile originalFile) {
         try {
-            return objectMapper.readValue(str, TableInfo.class);
-        } catch (IOException e) {
+            return JSON.parse(str, TableInfo.class);
+        } catch (Exception e) {
             Messages.showWarningDialog("读取配置失败，JSON反序列化异常。请尝试手动删除" + originalFile.getPath() + "文件！",
                     GlobalDict.TITLE_INFO);
             ExceptionUtil.rethrow(e);

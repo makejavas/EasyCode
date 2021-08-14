@@ -1,19 +1,17 @@
 package com.sjhy.plugin.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
-import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
 import com.sjhy.plugin.tool.HttpUtils;
+import com.sjhy.plugin.tool.JSON;
 import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,11 +73,6 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
             return null;
         }
         // 解析数据
-        try {
-            return new ObjectMapper().readValue(result, SettingsStorageDTO.class);
-        } catch (IOException e) {
-            ExceptionUtil.rethrow(e);
-            return null;
-        }
+        return JSON.parse(result, SettingsStorageDTO.class);
     }
 }

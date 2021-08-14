@@ -91,15 +91,8 @@ public final class HttpUtils {
         httpPost.setHeader(HttpHeaders.USER_AGENT, USER_AGENT);
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         httpPost.setConfig(getDefaultConfig());
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(param), "utf-8"));
-            return handlerRequest(httpPost);
-        } catch (JsonProcessingException e) {
-            Messages.showWarningDialog("JSON解析出错！", GlobalDict.TITLE_INFO);
-            ExceptionUtil.rethrow(e);
-        }
-        return null;
+        httpPost.setEntity(new StringEntity(JSON.toJson(param), "utf-8"));
+        return handlerRequest(httpPost);
     }
 
     private static RequestConfig getDefaultConfig() {
@@ -122,7 +115,7 @@ public final class HttpUtils {
             }
             HttpClientUtils.closeQuietly(response);
             // 解析JSON数据
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = JSON.getInstance();
             JsonNode jsonNode = objectMapper.readTree(body);
             if (jsonNode.get(STATE_CODE).asInt() == 0) {
                 JsonNode data = jsonNode.get("data");
