@@ -35,6 +35,6 @@ public class ConfigAction extends AnAction {
         if (project == null) {
             return;
         }
-        new ConfigTableDialog(project).open();
+        new ConfigTableDialog().show();
     }
 }

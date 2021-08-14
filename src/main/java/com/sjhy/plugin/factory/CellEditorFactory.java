@@ -1,6 +1,7 @@
 package com.sjhy.plugin.factory;
 
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTextField;
 
@@ -50,6 +51,10 @@ public class CellEditorFactory {
             transmitFocusEvent(comboBox);
         }
         return new DefaultCellEditor(comboBox);
+    }
+
+    public static TableCellEditor createBooleanEditor() {
+        return new BooleanTableCellEditor();
     }
 
     /**
