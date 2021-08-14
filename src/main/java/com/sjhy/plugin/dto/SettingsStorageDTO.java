@@ -88,6 +88,27 @@ public class SettingsStorageDTO {
         this.getGlobalConfigGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getGlobalConfigGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
         this.setCurrTypeMapperGroupName(GlobalDict.DEFAULT_GROUP_NAME);
         this.getTypeMapperGroupMap().put(GlobalDict.DEFAULT_GROUP_NAME, defaultVal.getTypeMapperGroupMap().get(GlobalDict.DEFAULT_GROUP_NAME));
+        // 恢复已被删除的分组
+        defaultVal.getTemplateGroupMap().forEach((k, v) -> {
+            if (!getTemplateGroupMap().containsKey(k)) {
+                getTemplateGroupMap().put(k,v );
+            }
+        });
+        defaultVal.getGlobalConfigGroupMap().forEach((k, v) -> {
+            if (!getGlobalConfigGroupMap().containsKey(k)) {
+                getGlobalConfigGroupMap().put(k,v );
+            }
+        });
+        defaultVal.getColumnConfigGroupMap().forEach((k, v) -> {
+            if (!getColumnConfigGroupMap().containsKey(k)) {
+                getColumnConfigGroupMap().put(k,v );
+            }
+        });
+        defaultVal.getTypeMapperGroupMap().forEach((k, v) -> {
+            if (!getTypeMapperGroupMap().containsKey(k)) {
+                getTypeMapperGroupMap().put(k,v );
+            }
+        });
     }
 
     /**

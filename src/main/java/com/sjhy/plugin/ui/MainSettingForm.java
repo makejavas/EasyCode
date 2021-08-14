@@ -1,12 +1,15 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.MessageUtil;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.impl.ClipboardExportImportSettingsServiceImpl;
 import com.sjhy.plugin.service.impl.LocalFileExportImportSettingsServiceImpl;
 import com.sjhy.plugin.service.impl.NetworkExportImportSettingsServiceImpl;
+import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.tool.StringUtils;
 import com.sjhy.plugin.ui.component.ExportImportComponent;
 import org.jetbrains.annotations.NotNull;
@@ -50,15 +53,15 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     }
 
     private void initEvent() {
-        this.resetBtn.addActionListener(e -> JBPopupFactory.getInstance()
-                .createConfirmation("确认恢复默认设置，所有Default分组配置将被重置？", () -> {
-                    // 重置默认值后重新加载配置
-                    getSettingsStorage().resetDefaultVal();
-                    this.loadSettingsStore();
-                    this.loadChildSettingsStore();
-                }, 0)
-                .showInFocusCenter()
-        );
+        this.resetBtn.addActionListener(e -> {
+            boolean result = MessageUtil.showOkNoDialog(GlobalDict.TITLE_INFO, "确认恢复默认设置，所有Default分组配置将被重置，并且已删除的默认分组将被还原。确认继续？", ProjectUtils.getCurrProject(), "Ok", "No", AllIcons.General.Warning);
+            if (result) {
+                // 重置默认值后重新加载配置
+                getSettingsStorage().resetDefaultVal();
+                this.loadSettingsStore();
+                this.loadChildSettingsStore();
+            }
+        });
 
         this.userSecureEditor.addCaretListener(e -> {
             String userSecure = this.userSecureEditor.getText();
