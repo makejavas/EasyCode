@@ -96,7 +96,7 @@ public class GenerateDefaultConfigTest {
         settingsStorage.setTypeMapperGroupMap(new HashMap<>(root.listFiles().length));
         for (File file : root.listFiles()) {
             TypeMapperGroup typeMapperGroup = new TypeMapperGroup();
-            typeMapperGroup.setName(file.getName());
+            typeMapperGroup.setName(file.getName().replace(".json", ""));
             if (file.isFile()) {
                 String json = FileUtilRt.loadFile(file);
                 typeMapperGroup.setElementList(JSON.parse(json, new TypeReference<List<TypeMapper>>() {
@@ -111,7 +111,7 @@ public class GenerateDefaultConfigTest {
         settingsStorage.setColumnConfigGroupMap(new HashMap<>(root.listFiles().length));
         for (File file : root.listFiles()) {
             ColumnConfigGroup columnConfigGroup = new ColumnConfigGroup();
-            columnConfigGroup.setName(file.getName());
+            columnConfigGroup.setName(file.getName().replace(".json", ""));
             if (file.isFile()) {
                 String json = FileUtilRt.loadFile(file);
                 columnConfigGroup.setElementList(JSON.parse(json, new TypeReference<List<ColumnConfig>>() {
