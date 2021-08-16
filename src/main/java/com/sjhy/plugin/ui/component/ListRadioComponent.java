@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 列表单选组件
+ *
  * @author makejava
  * @version 1.0.0
  * @since 2021/08/12 11:12
