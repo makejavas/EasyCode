@@ -94,7 +94,7 @@ public class ConfigTableModel extends DefaultTableModel implements EditableModel
             return;
         }
         // 非自定义数据不允许修改列名
-        if (!columnInfo.isCustom() && column == 0) {
+        if (!columnInfo.getCustom() && column == 0) {
             return;
         }
         switch (column) {
@@ -138,7 +138,7 @@ public class ConfigTableModel extends DefaultTableModel implements EditableModel
             return;
         }
         // 非自定义列不允许删除
-        if (!columnInfo.isCustom()) {
+        if (!columnInfo.getCustom()) {
             return;
         }
         this.tableInfo.getFullColumn().remove(row);

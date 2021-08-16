@@ -7,7 +7,7 @@ import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.ColumnConfig;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.factory.CellEditorFactory;
-import com.sjhy.plugin.service.TableInfoService;
+import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.tool.CurrGroupUtils;
 import com.sjhy.plugin.tool.ProjectUtils;
@@ -32,26 +32,21 @@ public class ConfigTableDialog extends DialogWrapper {
      */
     private JPanel mainPanel;
     /**
-     * 表信息服务
-     */
-    private TableInfoService tableInfoService;
-    /**
      * 表信息对象
      */
     private TableInfo tableInfo;
 
     public ConfigTableDialog() {
         super(ProjectUtils.getCurrProject());
-        this.tableInfoService = TableInfoService.getInstance(ProjectUtils.getCurrProject());
         this.mainPanel = new JPanel(new BorderLayout());
         this.initPanel();
     }
 
     private void initPanel() {
         init();
-        this.tableInfo = this.tableInfoService.getTableInfoAndConfig(CacheDataUtils.getInstance().getSelectDbTable());
-        setTitle("Config Table " + tableInfo.getObj().getName());
-        ConfigTableModel model = new ConfigTableModel(tableInfo);
+        this.tableInfo = TableInfoSettingsService.getInstance().getTableInfo(CacheDataUtils.getInstance().getSelectDbTable());
+        setTitle("Config Table " + this.tableInfo.getObj().getName());
+        ConfigTableModel model = new ConfigTableModel(this.tableInfo);
         JBTable table = new JBTable(model);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -96,7 +91,7 @@ public class ConfigTableDialog extends DialogWrapper {
     protected void processDoNotAskOnOk(int exitCode) {
         super.processDoNotAskOnOk(exitCode);
         // 保存信息
-        tableInfoService.save(tableInfo);
+        TableInfoSettingsService.getInstance().saveTableInfo(tableInfo);
     }
 
 }

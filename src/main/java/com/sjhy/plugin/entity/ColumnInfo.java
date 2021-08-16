@@ -39,7 +39,7 @@ public class ColumnInfo {
     /**
      * 标记是否为自定义附加列
      */
-    private boolean custom;
+    private Boolean custom;
     /**
      * 扩展数据
      */

@@ -216,7 +216,7 @@ public class TableInfoServiceImpl implements TableInfoService {
         }
         // 添加附加列
         for (ColumnInfo configColumn : tableInfoConfig.getFullColumn()) {
-            if (configColumn.isCustom()) {
+            if (configColumn.getCustom()) {
                 fullColumn.add(configColumn);
             }
         }
@@ -341,7 +341,7 @@ public class TableInfoServiceImpl implements TableInfoService {
                 columnInfo.setExt(new LinkedHashMap<>());
             }
             // 已经不存在的非自定义列直接删除
-            if (!exists && !columnInfo.isCustom()) {
+            if (!exists && !columnInfo.getCustom()) {
                 columnIterable.remove();
             }
         }

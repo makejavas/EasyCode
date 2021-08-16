@@ -59,17 +59,9 @@ public class TableInfoSettingsDTO {
         }
         String key = generateKey(dbTable);
         TableInfoDTO dto = this.tableInfoMap.get(key);
-        if (dto == null) {
-            dto = new TableInfoDTO();
-            dto.setName(dbTable.getName());
-            dto.setComment(dbTable.getComment());
-            dto.setPreName("");
-            dto.setSaveModelName("");
-            dto.setSavePath("");
-            dto.setTemplateGroupName("");
-            this.tableInfoMap.put(key, dto);
-        }
-        return null;
+        dto = new TableInfoDTO(dto, dbTable);
+        this.tableInfoMap.put(key, dto);
+        return dto.toTableInfo(dbTable);
     }
 
     /**
@@ -85,5 +77,17 @@ public class TableInfoSettingsDTO {
         if (dbTable == null) {
             return;
         }
+        String key = generateKey(dbTable);
+        this.tableInfoMap.put(key, TableInfoDTO.parse(tableInfo));
+    }
+
+    /**
+     * 重置表信息
+     *
+     * @param dbTable 数据库表
+     */
+    public void resetTableInfo(DbTable dbTable) {
+        String key = generateKey(dbTable);
+        this.tableInfoMap.put(key, new TableInfoDTO(null, dbTable));
     }
 }
