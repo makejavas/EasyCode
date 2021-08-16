@@ -16,7 +16,7 @@ import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.SettingsStorageService;
-import com.sjhy.plugin.service.TableInfoService;
+import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import com.sjhy.plugin.tool.ModuleUtils;
 import com.sjhy.plugin.tool.ProjectUtils;
@@ -89,7 +89,7 @@ public class SelectSavePath extends DialogWrapper {
     /**
      * 表信息服务
      */
-    private TableInfoService tableInfoService;
+    private TableInfoSettingsService tableInfoService;
     /**
      * 项目对象
      */
@@ -125,8 +125,6 @@ public class SelectSavePath extends DialogWrapper {
         return this.contentPane;
     }
 
-
-
     /**
      * 构造方法
      */
@@ -134,7 +132,7 @@ public class SelectSavePath extends DialogWrapper {
         super(project);
         this.entityMode = entityMode;
         this.project = project;
-        this.tableInfoService = TableInfoService.getInstance(project);
+        this.tableInfoService = TableInfoSettingsService.getInstance();
         this.codeGenerateService = CodeGenerateService.getInstance(project);
         // 初始化module，存在资源路径的排前面
         this.moduleList = new LinkedList<>();
@@ -151,84 +149,11 @@ public class SelectSavePath extends DialogWrapper {
         this.initEvent();
         init();
         setTitle(GlobalDict.TITLE_INFO);
+        //初始化路径
+        refreshPath();
     }
 
     private void initEvent() {
-
-    }
-
-    private void refreshData() {
-
-    }
-
-    @Override
-    protected void doOKAction() {
-        onOK();
-        super.doOKAction();
-    }
-
-    /**
-     * 确认按钮回调事件
-     */
-    private void onOK() {
-        List<Template> selectTemplateList = templateSelectComponent.getAllSelectedTemplate();
-        // 如果选择的模板是空的
-        if (selectTemplateList.isEmpty()) {
-            Messages.showWarningDialog("Can't Select Template!", GlobalDict.TITLE_INFO);
-            return;
-        }
-        String savePath = pathField.getText();
-        if (StringUtils.isEmpty(savePath)) {
-            Messages.showWarningDialog("Can't Select Save Path!", GlobalDict.TITLE_INFO);
-            return;
-        }
-        // 针对Linux系统路径做处理
-        savePath = savePath.replace("\\", "/");
-        // 保存路径使用相对路径
-        String basePath = project.getBasePath();
-        if (!StringUtils.isEmpty(basePath) && savePath.startsWith(basePath)) {
-            if (savePath.length() > basePath.length()) {
-                if ("/".equals(savePath.substring(basePath.length(), basePath.length() + 1))) {
-                    savePath = savePath.replace(basePath, ".");
-                }
-            } else {
-                savePath = savePath.replace(basePath, ".");
-            }
-        }
-        // 保存配置
-        TableInfo tableInfo;
-        if(!entityMode) {
-            tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
-        } else {
-            tableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
-        }
-        tableInfo.setSavePath(savePath);
-        tableInfo.setSavePackageName(packageField.getText());
-        tableInfo.setPreName(preField.getText());
-        tableInfo.setTemplateGroupName(templateSelectComponent.getselectedGroupName());
-        Module module = getSelectModule();
-        if (module != null) {
-            tableInfo.setSaveModelName(module.getName());
-        }
-        tableInfoService.save(tableInfo);
-
-        // 生成代码
-        codeGenerateService.generateByUnifiedConfig(selectTemplateList, unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
-    }
-
-    /**
-     * 初始化方法
-     */
-    private void initPanel() {
-        // 初始化模板组
-        this.templateSelectComponent = new TemplateSelectComponent();
-        templatePanel.add(this.templateSelectComponent.getMainPanel(), BorderLayout.CENTER);
-
-        //初始化Module选择
-        for (Module module : this.moduleList) {
-            moduleComboBox.addItem(module.getName());
-        }
-
         //监听module选择事件
         moduleComboBox.addActionListener(e -> {
             // 刷新路径
@@ -274,9 +199,6 @@ public class SelectSavePath extends DialogWrapper {
             packageChooseButton.setEnabled(false);
         }
 
-        //初始化路径
-        refreshPath();
-
         //选择路径
         pathChooseButton.addActionListener(e -> {
             //将当前选中的model设置为基础路径
@@ -290,13 +212,15 @@ public class SelectSavePath extends DialogWrapper {
                 pathField.setText(virtualFile.getPath());
             }
         });
+    }
 
+    private void refreshData() {
         // 获取选中的表信息（鼠标右键的那张表），并提示未知类型
         TableInfo tableInfo;
         if(entityMode) {
-            tableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
+            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
         } else {
-            tableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
+            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
         }
 
         // 设置默认配置信息
@@ -325,6 +249,76 @@ public class SelectSavePath extends DialogWrapper {
                 savePath = projectPath + savePath.substring(1);
             }
             pathField.setText(savePath);
+        }
+    }
+
+    @Override
+    protected void doOKAction() {
+        onOK();
+        super.doOKAction();
+    }
+
+    /**
+     * 确认按钮回调事件
+     */
+    private void onOK() {
+        List<Template> selectTemplateList = templateSelectComponent.getAllSelectedTemplate();
+        // 如果选择的模板是空的
+        if (selectTemplateList.isEmpty()) {
+            Messages.showWarningDialog("Can't Select Template!", GlobalDict.TITLE_INFO);
+            return;
+        }
+        String savePath = pathField.getText();
+        if (StringUtils.isEmpty(savePath)) {
+            Messages.showWarningDialog("Can't Select Save Path!", GlobalDict.TITLE_INFO);
+            return;
+        }
+        // 针对Linux系统路径做处理
+        savePath = savePath.replace("\\", "/");
+        // 保存路径使用相对路径
+        String basePath = project.getBasePath();
+        if (!StringUtils.isEmpty(basePath) && savePath.startsWith(basePath)) {
+            if (savePath.length() > basePath.length()) {
+                if ("/".equals(savePath.substring(basePath.length(), basePath.length() + 1))) {
+                    savePath = savePath.replace(basePath, ".");
+                }
+            } else {
+                savePath = savePath.replace(basePath, ".");
+            }
+        }
+        // 保存配置
+        TableInfo tableInfo;
+        if(!entityMode) {
+            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
+        } else {
+            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
+        }
+        tableInfo.setSavePath(savePath);
+        tableInfo.setSavePackageName(packageField.getText());
+        tableInfo.setPreName(preField.getText());
+        tableInfo.setTemplateGroupName(templateSelectComponent.getselectedGroupName());
+        Module module = getSelectModule();
+        if (module != null) {
+            tableInfo.setSaveModelName(module.getName());
+        }
+        // 保存配置
+        tableInfoService.saveTableInfo(tableInfo);
+
+        // 生成代码
+        codeGenerateService.generateByUnifiedConfig(selectTemplateList, unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
+    }
+
+    /**
+     * 初始化方法
+     */
+    private void initPanel() {
+        // 初始化模板组
+        this.templateSelectComponent = new TemplateSelectComponent();
+        templatePanel.add(this.templateSelectComponent.getMainPanel(), BorderLayout.CENTER);
+
+        //初始化Module选择
+        for (Module module : this.moduleList) {
+            moduleComboBox.addItem(module.getName());
         }
     }
 

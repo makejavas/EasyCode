@@ -57,18 +57,19 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
 
     /**
      * 生成代码，并自动保存到对应位置，使用统一配置
-     *  @param templates     模板
+     *
+     * @param templates     模板
      * @param unifiedConfig 是否使用统一配置
      * @param title         是否显示提示
-     * @param entityMode
+     * @param entityMode    实体类生成模式
      */
     @Override
     public void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,
-            boolean entityMode) {
+                                        boolean entityMode) {
         // 获取选中表信息
         TableInfo selectedTableInfo;
         List<TableInfo> tableInfoList;
-        if(!entityMode) {
+        if (!entityMode) {
             selectedTableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
             tableInfoList = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getDbTableList());
         } else {
@@ -77,7 +78,13 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         }
         // 校验选中表的保存路径是否正确
         if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
-            Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+            if (selectedTableInfo.getObj() != null) {
+                Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+            } else if (selectedTableInfo.getPsiClassObj() != null) {
+                Messages.showInfoMessage(selectedTableInfo.getPsiClassObj().getName() + "类配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+            } else {
+                Messages.showInfoMessage("配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
+            }
             return;
         }
         // 将未配置的表进行配置覆盖
@@ -87,6 +94,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
                 tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
                 tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
+                tableInfo.setPreName(finalSelectedTableInfo.getPreName());
                 tableInfoService.save(tableInfo);
             }
         });

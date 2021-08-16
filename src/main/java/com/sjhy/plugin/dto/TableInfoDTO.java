@@ -3,12 +3,12 @@ package com.sjhy.plugin.dto;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiField;
 import com.intellij.util.containers.JBIterable;
 import com.sjhy.plugin.entity.ColumnInfo;
 import com.sjhy.plugin.entity.TableInfo;
-import com.sjhy.plugin.tool.CollectionUtil;
-import com.sjhy.plugin.tool.NameUtils;
-import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.tool.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -28,9 +28,29 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 public class TableInfoDTO {
+
     public TableInfoDTO(TableInfoDTO dto, DbTable dbTable) {
         this(dbTable);
         merge(dto, this);
+    }
+
+    public TableInfoDTO(TableInfoDTO dto, PsiClass psiClass) {
+        this(psiClass);
+        merge(dto, this);
+    }
+
+    private TableInfoDTO(PsiClass psiClass) {
+        this.name = psiClass.getName();
+        this.preName = "";
+        this.comment = DocCommentUtils.getComment(psiClass.getDocComment());
+        this.templateGroupName = "";
+        this.savePackageName = "";
+        this.savePath = "";
+        this.saveModelName = "";
+        this.fullColumn = new ArrayList<>();
+        for (PsiField field : psiClass.getAllFields()) {
+            this.fullColumn.add(new ColumnInfoDTO(field));
+        }
     }
 
     private TableInfoDTO(DbTable dbTable) {
@@ -129,6 +149,39 @@ public class TableInfoDTO {
      */
     private String saveModelName;
 
+    public TableInfo toTableInfo(PsiClass psiClass) {
+        TableInfo tableInfo = new TableInfo();
+        tableInfo.setPsiClassObj(psiClass);
+        tableInfo.setName(this.getName());
+        tableInfo.setPreName(this.getPreName());
+        tableInfo.setTemplateGroupName(this.getTemplateGroupName());
+        tableInfo.setSavePackageName(this.getSavePackageName());
+        tableInfo.setSavePath(this.getSavePath());
+        tableInfo.setComment(this.getComment());
+        tableInfo.setSaveModelName(this.getSaveModelName());
+        tableInfo.setFullColumn(new ArrayList<>());
+        tableInfo.setPkColumn(new ArrayList<>());
+        tableInfo.setOtherColumn(new ArrayList<>());
+        for (PsiField field : psiClass.getAllFields()) {
+            if (PsiClassGenerateUtils.isSkipField(field)) {
+                continue;
+            }
+            ColumnInfo columnInfo = new ColumnInfo();
+            columnInfo.setName(field.getName());
+            columnInfo.setShortType(field.getType().getPresentableText());
+            columnInfo.setType(field.getType().getCanonicalText());
+            columnInfo.setComment(DocCommentUtils.getComment(field.getDocComment()));
+            columnInfo.setCustom(false);
+            tableInfo.getFullColumn().add(columnInfo);
+            if (PsiClassGenerateUtils.isPkField(field)) {
+                tableInfo.getPkColumn().add(columnInfo);
+            } else {
+                tableInfo.getOtherColumn().add(columnInfo);
+            }
+        }
+        return tableInfo;
+    }
+
     public TableInfo toTableInfo(DbTable dbTable) {
         TableInfo tableInfo = new TableInfo();
         tableInfo.setObj(dbTable);
@@ -169,7 +222,7 @@ public class TableInfoDTO {
         return tableInfo;
     }
 
-    public static TableInfoDTO parse(TableInfo tableInfo) {
+    public static TableInfoDTO valueOf(TableInfo tableInfo) {
         TableInfoDTO dto = new TableInfoDTO();
         dto.setName(tableInfo.getName());
         dto.setTemplateGroupName(tableInfo.getTemplateGroupName());

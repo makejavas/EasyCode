@@ -3,6 +3,7 @@ package com.sjhy.plugin.service.impl;
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.dto.TableInfoSettingsDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.service.TableInfoSettingsService;
@@ -41,6 +42,17 @@ public class TableInfoSettingsServiceImpl implements TableInfoSettingsService {
     @Override
     public TableInfo getTableInfo(DbTable dbTable) {
         return Objects.requireNonNull(getState()).readTableInfo(dbTable);
+    }
+
+    /**
+     * 获取表信息
+     *
+     * @param psiClass psi类
+     * @return {@link TableInfo}
+     */
+    @Override
+    public TableInfo getTableInfo(PsiClass psiClass) {
+        return Objects.requireNonNull(getState()).readTableInfo(psiClass);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.sjhy.plugin.service;
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.dto.TableInfoSettingsDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.service.impl.TableInfoSettingsServiceImpl;
@@ -30,6 +31,14 @@ public interface TableInfoSettingsService extends PersistentStateComponent<Table
      * @return {@link TableInfo}
      */
     TableInfo getTableInfo(DbTable dbTable);
+
+    /**
+     * 获取表信息
+     *
+     * @param psiClass psi类
+     * @return {@link TableInfo}
+     */
+    TableInfo getTableInfo(PsiClass psiClass);
 
     /**
      * 保存表信息

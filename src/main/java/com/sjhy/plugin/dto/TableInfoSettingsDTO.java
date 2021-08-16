@@ -3,6 +3,7 @@ package com.sjhy.plugin.dto;
 import com.intellij.database.model.DasNamespace;
 import com.intellij.database.psi.DbElement;
 import com.intellij.database.psi.DbTable;
+import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.entity.TableInfo;
 import lombok.Data;
 
@@ -47,16 +48,32 @@ public class TableInfoSettingsDTO {
         return builder.toString();
     }
 
+    private String generateKey(PsiClass psiClass) {
+        return psiClass.getQualifiedName();
+    }
     /**
-     * 读取表信息
+     * 读表信息
      *
-     * @param dbTable 原始表对象
-     * @return 储存的表信息
+     * @param psiClass psi类
+     * @return {@link TableInfo}
      */
+    @SuppressWarnings("Duplicates")
+    public TableInfo readTableInfo(PsiClass psiClass) {
+        String key = generateKey(psiClass);
+        TableInfoDTO dto = this.tableInfoMap.get(key);
+        dto = new TableInfoDTO(dto, psiClass);
+        this.tableInfoMap.put(key, dto);
+        return dto.toTableInfo(psiClass);
+    }
+
+    /**
+     * 读表信息
+     *
+     * @param dbTable 数据库表
+     * @return {@link TableInfo}
+     */
+    @SuppressWarnings("Duplicates")
     public TableInfo readTableInfo(DbTable dbTable) {
-        if (dbTable == null) {
-            return null;
-        }
         String key = generateKey(dbTable);
         TableInfoDTO dto = this.tableInfoMap.get(key);
         dto = new TableInfoDTO(dto, dbTable);
@@ -74,11 +91,16 @@ public class TableInfoSettingsDTO {
             return;
         }
         DbTable dbTable = tableInfo.getObj();
-        if (dbTable == null) {
+        PsiClass psiClass = tableInfo.getPsiClassObj();
+        String key;
+        if (dbTable != null) {
+            key = generateKey(dbTable);
+        } else if (psiClass != null) {
+            key = generateKey(psiClass);
+        } else {
             return;
         }
-        String key = generateKey(dbTable);
-        this.tableInfoMap.put(key, TableInfoDTO.parse(tableInfo));
+        this.tableInfoMap.put(key, TableInfoDTO.valueOf(tableInfo));
     }
 
     /**
