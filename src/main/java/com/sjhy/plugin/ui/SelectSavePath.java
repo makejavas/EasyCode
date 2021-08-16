@@ -14,22 +14,23 @@ import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
-import com.sjhy.plugin.entity.TemplateGroup;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.service.TableInfoService;
-import com.sjhy.plugin.tool.*;
+import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.ModuleUtils;
+import com.sjhy.plugin.tool.ProjectUtils;
+import com.sjhy.plugin.tool.StringUtils;
+import com.sjhy.plugin.ui.component.TemplateSelectComponent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -70,10 +71,6 @@ public class SelectSavePath extends DialogWrapper {
      */
     private JButton pathChooseButton;
     /**
-     * 模板全选框
-     */
-    private JCheckBox allCheckBox;
-    /**
      * 模板面板
      */
     private JPanel templatePanel;
@@ -86,21 +83,9 @@ public class SelectSavePath extends DialogWrapper {
      */
     private JCheckBox titleConfig;
     /**
-     * 分组选择框
-     */
-    private JComboBox<String> groupComboBox;
-    /**
-     * 所有模板复选框
-     */
-    private List<JCheckBox> checkBoxList = new ArrayList<>();
-    /**
      * 数据缓存工具类
      */
     private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
-    /**
-     * 模板组对象
-     */
-    private TemplateGroup templateGroup;
     /**
      * 表信息服务
      */
@@ -122,6 +107,11 @@ public class SelectSavePath extends DialogWrapper {
      * 实体模式生成代码
      */
     private boolean entityMode;
+
+    /**
+     * 模板选择组件
+     */
+    private TemplateSelectComponent templateSelectComponent;
 
     /**
      * 构造方法
@@ -146,7 +136,6 @@ public class SelectSavePath extends DialogWrapper {
         this.project = project;
         this.tableInfoService = TableInfoService.getInstance(project);
         this.codeGenerateService = CodeGenerateService.getInstance(project);
-        this.templateGroup = CurrGroupUtils.getCurrTemplateGroup();
         // 初始化module，存在资源路径的排前面
         this.moduleList = new LinkedList<>();
         for (Module module : ModuleManager.getInstance(project).getModules()) {
@@ -157,9 +146,19 @@ public class SelectSavePath extends DialogWrapper {
                 this.moduleList.add(module);
             }
         }
-        initPanel();
+        this.initPanel();
+        this.refreshData();
+        this.initEvent();
         init();
         setTitle(GlobalDict.TITLE_INFO);
+    }
+
+    private void initEvent() {
+
+    }
+
+    private void refreshData() {
+
     }
 
     @Override
@@ -169,36 +168,10 @@ public class SelectSavePath extends DialogWrapper {
     }
 
     /**
-     * 获取已经选中的模板
-     *
-     * @return 模板对象集合
-     */
-    private List<Template> getSelectTemplate() {
-        // 获取到已选择的复选框
-        List<String> selectTemplateNameList = new ArrayList<>();
-        checkBoxList.forEach(jCheckBox -> {
-            if (jCheckBox.isSelected()) {
-                selectTemplateNameList.add(jCheckBox.getText());
-            }
-        });
-        List<Template> selectTemplateList = new ArrayList<>(selectTemplateNameList.size());
-        if (selectTemplateNameList.isEmpty()) {
-            return selectTemplateList;
-        }
-        // 将复选框转换成对应的模板对象
-        templateGroup.getElementList().forEach(template -> {
-            if (selectTemplateNameList.contains(template.getName())) {
-                selectTemplateList.add(template);
-            }
-        });
-        return selectTemplateList;
-    }
-
-    /**
      * 确认按钮回调事件
      */
     private void onOK() {
-        List<Template> selectTemplateList = getSelectTemplate();
+        List<Template> selectTemplateList = templateSelectComponent.getAllSelectedTemplate();
         // 如果选择的模板是空的
         if (selectTemplateList.isEmpty()) {
             Messages.showWarningDialog("Can't Select Template!", GlobalDict.TITLE_INFO);
@@ -232,7 +205,7 @@ public class SelectSavePath extends DialogWrapper {
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
-        tableInfo.setTemplateGroupName((String) groupComboBox.getSelectedItem());
+        tableInfo.setTemplateGroupName(templateSelectComponent.getselectedGroupName());
         Module module = getSelectModule();
         if (module != null) {
             tableInfo.setSaveModelName(module.getName());
@@ -240,34 +213,7 @@ public class SelectSavePath extends DialogWrapper {
         tableInfoService.save(tableInfo);
 
         // 生成代码
-        codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
-    }
-
-
-    /**
-     * 初始化模板组
-     */
-    private void initTemplateGroup() {
-        //添加模板组
-        checkBoxList.clear();
-        templatePanel.removeAll();
-        templatePanel.repaint();
-        templatePanel.setLayout(new GridLayout(6, 2));
-        templateGroup.getElementList().forEach(template -> {
-            JCheckBox checkBox = new JCheckBox(template.getName());
-            checkBoxList.add(checkBox);
-            templatePanel.add(checkBox);
-        });
-        // 移除所有旧事件
-        ActionListener[] actionListeners = allCheckBox.getActionListeners();
-        if (actionListeners != null && actionListeners.length > 0) {
-            for (ActionListener actionListener : actionListeners) {
-                allCheckBox.removeActionListener(actionListener);
-            }
-        }
-        //添加全选事件
-        allCheckBox.addActionListener(e -> checkBoxList.forEach(jCheckBox -> jCheckBox.setSelected(allCheckBox.isSelected())));
-        allCheckBox.setSelected(false);
+        codeGenerateService.generateByUnifiedConfig(selectTemplateList, unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
     }
 
     /**
@@ -275,7 +221,8 @@ public class SelectSavePath extends DialogWrapper {
      */
     private void initPanel() {
         // 初始化模板组
-        initTemplateGroup();
+        this.templateSelectComponent = new TemplateSelectComponent();
+        templatePanel.add(this.templateSelectComponent.getMainPanel(), BorderLayout.CENTER);
 
         //初始化Module选择
         for (Module module : this.moduleList) {
@@ -345,7 +292,7 @@ public class SelectSavePath extends DialogWrapper {
         });
 
         // 获取选中的表信息（鼠标右键的那张表），并提示未知类型
-        TableInfo tableInfo = null;
+        TableInfo tableInfo;
         if(entityMode) {
             tableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
         } else {
@@ -367,24 +314,9 @@ public class SelectSavePath extends DialogWrapper {
         if (!StringUtils.isEmpty(tableInfo.getTemplateGroupName())) {
             if (settings.getTemplateGroupMap().containsKey(tableInfo.getTemplateGroupName())) {
                 groupName = tableInfo.getTemplateGroupName();
-                this.templateGroup = settings.getTemplateGroupMap().get(groupName);
-                // 选中的模板组发生变化，尝试重新初始化
-                initTemplateGroup();
             }
         }
-        for (String key : settings.getTemplateGroupMap().keySet()) {
-            groupComboBox.addItem(key);
-        }
-        groupComboBox.setSelectedItem(groupName);
-        groupComboBox.addActionListener(e -> {
-            String selectedItem = (String) groupComboBox.getSelectedItem();
-            if (this.templateGroup.getName().equals(selectedItem)) {
-                return;
-            }
-            this.templateGroup = settings.getTemplateGroupMap().get(selectedItem);
-            // 选中的模板组发生变化，尝试重新初始化
-            initTemplateGroup();
-        });
+        templateSelectComponent.setSelectedGroupName(groupName);
         String savePath = tableInfo.getSavePath();
         if (!StringUtils.isEmpty(savePath)) {
             // 判断是否需要拼接项目路径
