@@ -52,4 +52,14 @@ public class TableInfoSettingsServiceImpl implements TableInfoSettingsService {
     public void saveTableInfo(TableInfo tableInfo) {
         Objects.requireNonNull(getState()).saveTableInfo(tableInfo);
     }
+
+    /**
+     * 重置表信息
+     *
+     * @param dbTable 数据库表
+     */
+    @Override
+    public void resetTableInfo(DbTable dbTable) {
+        Objects.requireNonNull(getState()).resetTableInfo(dbTable);
+    }
 }

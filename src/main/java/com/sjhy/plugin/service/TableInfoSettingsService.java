@@ -37,4 +37,11 @@ public interface TableInfoSettingsService extends PersistentStateComponent<Table
      * @param tableInfo 表信息
      */
     void saveTableInfo(TableInfo tableInfo);
+
+    /**
+     * 重置表信息
+     *
+     * @param dbTable 数据库表
+     */
+    void resetTableInfo(DbTable dbTable);
 }
