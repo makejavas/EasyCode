@@ -88,10 +88,10 @@ public class ConfigTableDialog extends DialogWrapper {
     }
 
     @Override
-    protected void processDoNotAskOnOk(int exitCode) {
-        super.processDoNotAskOnOk(exitCode);
+    protected void doOKAction() {
         // 保存信息
         TableInfoSettingsService.getInstance().saveTableInfo(tableInfo);
+        super.doOKAction();
     }
 
 }

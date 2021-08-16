@@ -5,11 +5,12 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ExceptionUtil;
-import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.constants.StrState;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
@@ -18,10 +19,13 @@ import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.service.TableInfoService;
 import com.sjhy.plugin.tool.*;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,19 +40,11 @@ import java.util.List;
  * @version 1.0.0
  * @since 2018/07/17 13:10
  */
-public class SelectSavePath extends JDialog {
+public class SelectSavePath extends DialogWrapper {
     /**
      * 主面板
      */
     private JPanel contentPane;
-    /**
-     * 确认按钮
-     */
-    private JButton buttonOK;
-    /**
-     * 取消按钮
-     */
-    private JButton buttonCancel;
     /**
      * 模型下拉框
      */
@@ -134,10 +130,18 @@ public class SelectSavePath extends JDialog {
         this(project, false);
     }
 
+    @Override
+    protected @Nullable JComponent createCenterPanel() {
+        return this.contentPane;
+    }
+
+
+
     /**
      * 构造方法
      */
     public SelectSavePath(Project project, boolean entityMode) {
+        super(project);
         this.entityMode = entityMode;
         this.project = project;
         this.tableInfoService = TableInfoService.getInstance(project);
@@ -153,27 +157,15 @@ public class SelectSavePath extends JDialog {
                 this.moduleList.add(module);
             }
         }
+        initPanel();
         init();
         setTitle(GlobalDict.TITLE_INFO);
-        setContentPane(contentPane);
-        setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
+    }
 
-        buttonOK.addActionListener(e -> onOK());
-
-        buttonCancel.addActionListener(e -> onCancel());
-
-        // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                onCancel();
-            }
-        });
-
-        // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    @Override
+    protected void doOKAction() {
+        onOK();
+        super.doOKAction();
     }
 
     /**
@@ -249,16 +241,8 @@ public class SelectSavePath extends JDialog {
 
         // 生成代码
         codeGenerateService.generateByUnifiedConfig(getSelectTemplate(), unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
-        // 关闭窗口
-        dispose();
     }
 
-    /**
-     * 取消按钮回调事件
-     */
-    private void onCancel() {
-        dispose();
-    }
 
     /**
      * 初始化模板组
@@ -289,7 +273,7 @@ public class SelectSavePath extends JDialog {
     /**
      * 初始化方法
      */
-    private void init() {
+    private void initPanel() {
         // 初始化模板组
         initTemplateGroup();
 
@@ -400,7 +384,6 @@ public class SelectSavePath extends JDialog {
             this.templateGroup = settings.getTemplateGroupMap().get(selectedItem);
             // 选中的模板组发生变化，尝试重新初始化
             initTemplateGroup();
-            this.open();
         });
         String savePath = tableInfo.getSavePath();
         if (!StringUtils.isEmpty(savePath)) {
@@ -462,14 +445,5 @@ public class SelectSavePath extends JDialog {
             path += "/" + packageName.replace(".", "/");
         }
         pathField.setText(path);
-    }
-
-    /**
-     * 打开窗口
-     */
-    public void open() {
-        this.pack();
-        setLocationRelativeTo(null);
-        this.setVisible(true);
     }
 }

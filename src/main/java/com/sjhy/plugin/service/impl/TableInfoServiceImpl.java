@@ -216,7 +216,7 @@ public class TableInfoServiceImpl implements TableInfoService {
         }
         // 添加附加列
         for (ColumnInfo configColumn : tableInfoConfig.getFullColumn()) {
-            if (configColumn.getCustom()) {
+            if (Boolean.TRUE.equals(configColumn.getCustom())) {
                 fullColumn.add(configColumn);
             }
         }

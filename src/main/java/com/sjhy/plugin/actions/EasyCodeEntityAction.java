@@ -36,6 +36,9 @@ public class EasyCodeEntityAction extends AnAction {
 
         // 过滤选择Java文件
         VirtualFile[] psiFiles = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        if (psiFiles == null) {
+            return;
+        }
         PsiManager psiManager = PsiManager.getInstance(project);
         List<PsiJavaFile> psiJavaFiles = Arrays.stream(psiFiles)
                 .map(psiManager::findFile)
@@ -55,7 +58,7 @@ public class EasyCodeEntityAction extends AnAction {
         // 缓存选中值
         cacheDataUtils.setSelectPsiClass(psiClassList.get(0));
         cacheDataUtils.setPsiClassList(psiClassList);
-        new SelectSavePath(project, true).open();
+        new SelectSavePath(project, true).show();
     }
 
     /**
@@ -64,13 +67,9 @@ public class EasyCodeEntityAction extends AnAction {
     private List<PsiClass> resolvePsiClassByFile(List<PsiJavaFile> psiJavaFiles) {
         List<PsiClass> psiClassList = Lists.newArrayListWithCapacity(psiJavaFiles.size());
         for (PsiJavaFile psiJavaFile : psiJavaFiles) {
-            PsiClass psiClass = Arrays.stream(psiJavaFile.getClasses())
+            Arrays.stream(psiJavaFile.getClasses())
                     .filter(o -> o.getModifierList() != null && o.getModifierList().hasModifierProperty(PsiModifier.PUBLIC))
-                    .findFirst()
-                    .orElse(null);
-            if (psiClass != null) {
-                psiClassList.add(psiClass);
-            }
+                    .findFirst().ifPresent(psiClassList::add);
         }
         return psiClassList;
     }

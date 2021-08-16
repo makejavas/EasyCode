@@ -44,6 +44,6 @@ public class MainAction extends AnAction {
             return;
         }
         //开始处理
-        new SelectSavePath(event.getProject()).open();
+        new SelectSavePath(event.getProject()).show();
     }
 }
