@@ -37,7 +37,7 @@ public class $!{tableName} {
     /**
      * 分页查询
      *
-     * @param actualFlightInfo 筛选条件
+     * @param $!{tool.firstLowerCase($tableInfo.name)} 筛选条件
      * @param pageRequest      分页对象
      * @return 查询结果
      */
