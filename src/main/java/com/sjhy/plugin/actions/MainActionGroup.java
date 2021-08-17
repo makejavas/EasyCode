@@ -3,7 +3,10 @@ package com.sjhy.plugin.actions;
 import com.intellij.database.psi.DbTable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
+import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.CacheDataUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,8 +112,19 @@ public class MainActionGroup extends ActionGroup {
             configAction = new ConfigAction("Config Table");
             actionManager.registerAction(configActionId, configAction);
         }
+        AnAction clearConfigAction = new AnAction("Clear Config") {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                DbTable dbTable = CacheDataUtils.getInstance().getSelectDbTable();
+                if (dbTable == null) {
+                    return;
+                }
+                TableInfoSettingsService.getInstance().resetTableInfo(dbTable);
+                Messages.showInfoMessage(dbTable.getName() + "表配置信息已重置成功", GlobalDict.TITLE_INFO);
+            }
+        };
         // 返回所有菜单
-        return new AnAction[]{mainAction, configAction};
+        return new AnAction[]{mainAction, configAction, clearConfigAction};
     }
 
 
