@@ -12,7 +12,8 @@ $!callback.setSavePath($tool.append($tableInfo.savePath, "/service"))
 #if($tableInfo.savePackageName)package $!{tableInfo.savePackageName}.#{end}service;
 
 import $!{tableInfo.savePackageName}.entity.$!{tableInfo.name};
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 /**
  * $!{tableInfo.comment}($!{tableInfo.name})表服务接口
@@ -31,13 +32,13 @@ public interface $!{tableName} {
     $!{tableInfo.name} queryById($!pk.shortType $!pk.name);
 
     /**
-     * 查询多条数据
+     * 分页查询
      *
-     * @param offset 查询起始位置
-     * @param limit 查询条数
-     * @return 对象列表
+     * @param $!tool.firstLowerCase($!{tableInfo.name}) 筛选条件
+     * @param pageRequest      分页对象
+     * @return 查询结果
      */
-    List<$!{tableInfo.name}> queryAllByLimit(int offset, int limit);
+    Page<$!{tableInfo.name}> queryByPage($!{tableInfo.name} $!tool.firstLowerCase($!{tableInfo.name}), PageRequest pageRequest);
 
     /**
      * 新增数据

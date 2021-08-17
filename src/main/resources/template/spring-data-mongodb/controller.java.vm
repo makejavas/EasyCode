@@ -1,5 +1,5 @@
 ##导入宏定义、设置包名、类名、文件名##导入宏定义
-$!define
+$!{define.vm}
 #setPackageSuffix("controller")
 #setTableSuffix("Controller")
 #save("/controller", "Controller.java")

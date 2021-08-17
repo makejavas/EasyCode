@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.ui.ex.MultiLineLabel;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.AbstractGroup;
@@ -166,6 +167,19 @@ public class ExportImportComponent {
                 mainPanel.add(handler.getRadioComponent());
             }
         }
+        // 没有需要选择处理的分组则不构建Dialog
+        boolean anyMatch = allHandlerList.stream().anyMatch(item -> item.getRadioComponent() != null);
+        if (!anyMatch) {
+            // 执行每个处理器
+            for (Handler handler : allHandlerList) {
+                handler.execute();
+            }
+            // 执行回调
+            if (callback != null) {
+                callback.run();
+            }
+            return;
+        }
         // 构建dialog
         DialogBuilder dialogBuilder = new DialogBuilder(ProjectUtils.getCurrProject());
         dialogBuilder.setTitle(GlobalDict.TITLE_INFO);
@@ -184,6 +198,7 @@ public class ExportImportComponent {
                 }
                 // 关闭并退出
                 dialogWrapper.close(DialogWrapper.OK_EXIT_CODE);
+                Messages.showInfoMessage("导入完成", GlobalDict.TITLE_INFO);
             }
         });
         // 显示窗口
@@ -191,6 +206,9 @@ public class ExportImportComponent {
     }
 
     private <T extends AbstractGroup> void addRadioComponent(List<Handler> allHandlerList, String groupName, Map<String, T> localMap, Map<String, T> remoteMap) {
+        if (CollectionUtil.isEmpty(remoteMap)) {
+            return;
+        }
         for (String key : remoteMap.keySet()) {
             if (localMap.containsKey(key)) {
                 ListRadioComponent listRadioComponent = new ListRadioComponent(groupName + "->" + key, Stream.of(Operator.values()).map(item -> StringUtils.capitalize(item.name())).collect(Collectors.toList()));

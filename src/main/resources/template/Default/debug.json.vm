@@ -1,3 +1,6 @@
+// 禁止将生成结果写入到文件
+$!callback.setWriteFile(false)
+
 //调试表原始对象
 $!tool.debug($tableInfo.obj)
 

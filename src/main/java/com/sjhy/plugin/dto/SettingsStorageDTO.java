@@ -1,5 +1,6 @@
 package com.sjhy.plugin.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.intellij.ide.fileTemplates.impl.UrlUtil;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
@@ -130,6 +131,7 @@ public class SettingsStorageDTO {
     /**
      * 类型映射组
      */
+    @JsonProperty("typeMapper")
     private Map<String, TypeMapperGroup> typeMapperGroupMap;
     /**
      * 当前模板组名
@@ -138,6 +140,7 @@ public class SettingsStorageDTO {
     /**
      * 模板组
      */
+    @JsonProperty("template")
     private Map<String, TemplateGroup> templateGroupMap;
     /**
      * 当前配置表组名
@@ -146,6 +149,7 @@ public class SettingsStorageDTO {
     /**
      * 配置表组
      */
+    @JsonProperty("columnConfig")
     private Map<String, ColumnConfigGroup> columnConfigGroupMap;
     /**
      * 当前全局配置组名
@@ -154,6 +158,7 @@ public class SettingsStorageDTO {
     /**
      * 全局配置组
      */
+    @JsonProperty("globalConfig")
     private Map<String, GlobalConfigGroup> globalConfigGroupMap;
 
     public void fillDefaultVal() {

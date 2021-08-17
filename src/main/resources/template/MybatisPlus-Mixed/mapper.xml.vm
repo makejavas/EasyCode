@@ -1,5 +1,5 @@
 ##引入mybatis支持
-$!mybatisSupport
+$!{mybatisSupport.vm}
 
 ##设置保存名称与保存位置
 $!callback.setFileName($tool.append($!{tableInfo.name}, "Dao.xml"))

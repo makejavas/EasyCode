@@ -46,6 +46,11 @@
   },
   {
     "matchType": "ORDINARY",
+    "columnType": "date",
+    "javaType": "java.util.Date"
+  },
+  {
+    "matchType": "ORDINARY",
     "columnType": "datetime",
     "javaType": "java.util.Date"
   },
@@ -53,6 +58,11 @@
     "matchType": "ORDINARY",
     "columnType": "timestamp",
     "javaType": "java.util.Date"
+  },
+  {
+    "matchType": "ORDINARY",
+    "columnType": "time",
+    "javaType": "java.time.LocalTime"
   },
   {
     "matchType": "ORDINARY",

@@ -1,5 +1,5 @@
 ##导入宏定义
-$!define
+$!{define.vm}
 
 ##设置表后缀（宏定义）
 #setTableSuffix("Controller")

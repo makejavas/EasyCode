@@ -93,8 +93,8 @@ public class ConfigTableModel extends DefaultTableModel implements EditableModel
         if (columnInfo == null) {
             return;
         }
-        // 非自定义数据不允许修改列名
-        if (!columnInfo.getCustom() && column == 0) {
+        // 非自定义数据不允许修改
+        if (!columnInfo.getCustom() && column <= 2) {
             return;
         }
         switch (column) {
@@ -125,6 +125,9 @@ public class ConfigTableModel extends DefaultTableModel implements EditableModel
                 break;
             default:
                 ColumnConfig columnConfig = CurrGroupUtils.getCurrColumnConfigGroup().getElementList().get(column - 3);
+                if (columnInfo.getExt() == null) {
+                    columnInfo.setExt(new HashMap<>(16));
+                }
                 columnInfo.getExt().put(columnConfig.getTitle(), value);
                 break;
         }

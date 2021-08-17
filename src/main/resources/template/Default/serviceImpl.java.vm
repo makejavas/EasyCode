@@ -15,9 +15,11 @@ import $!{tableInfo.savePackageName}.entity.$!{tableInfo.name};
 import $!{tableInfo.savePackageName}.dao.$!{tableInfo.name}Dao;
 import $!{tableInfo.savePackageName}.service.$!{tableInfo.name}Service;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * $!{tableInfo.comment}($!{tableInfo.name})表服务实现类
@@ -42,15 +44,16 @@ public class $!{tableName} implements $!{tableInfo.name}Service {
     }
 
     /**
-     * 查询多条数据
+     * 分页查询
      *
-     * @param offset 查询起始位置
-     * @param limit 查询条数
-     * @return 对象列表
+     * @param $!{tool.firstLowerCase($tableInfo.name)} 筛选条件
+     * @param pageRequest      分页对象
+     * @return 查询结果
      */
     @Override
-    public List<$!{tableInfo.name}> queryAllByLimit(int offset, int limit) {
-        return this.$!{tool.firstLowerCase($!{tableInfo.name})}Dao.queryAllByLimit(offset, limit);
+    public Page<$!{tableInfo.name}> queryByPage($!{tableInfo.name} $!{tool.firstLowerCase($tableInfo.name)}, PageRequest pageRequest) {
+        long total = this.$!{tool.firstLowerCase($tableInfo.name)}Dao.count($!{tool.firstLowerCase($tableInfo.name)});
+        return new PageImpl<>(this.$!{tool.firstLowerCase($tableInfo.name)}Dao.queryAllByLimit($!{tool.firstLowerCase($tableInfo.name)}, pageRequest), pageRequest, total);
     }
 
     /**

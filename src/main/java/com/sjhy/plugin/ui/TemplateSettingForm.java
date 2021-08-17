@@ -157,7 +157,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
     @Override
     public void apply() {
         getSettingsStorage().setTemplateGroupMap(this.templateGroupMap);
-        getSettingsStorage().setCurrTypeMapperGroupName(this.currTemplateGroup.getName());
+        getSettingsStorage().setCurrTemplateGroupName(this.currTemplateGroup.getName());
         // 保存包后重新加载配置
         this.loadSettingsStore(getSettingsStorage());
     }

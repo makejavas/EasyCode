@@ -153,7 +153,7 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
     @Override
     public void apply() {
         getSettingsStorage().setGlobalConfigGroupMap(this.globalConfigGroupMap);
-        getSettingsStorage().setCurrTypeMapperGroupName(this.currGlobalConfigGroup.getName());
+        getSettingsStorage().setCurrGlobalConfigGroupName(this.currGlobalConfigGroup.getName());
         // 保存包后重新加载配置
         this.loadSettingsStore(getSettingsStorage());
     }

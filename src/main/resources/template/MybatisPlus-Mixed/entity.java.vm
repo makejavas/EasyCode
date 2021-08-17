@@ -1,5 +1,5 @@
 ##导入宏定义
-$!define
+$!{define.vm}
 
 ##保存文件（宏定义）
 #save("/entity", ".java")

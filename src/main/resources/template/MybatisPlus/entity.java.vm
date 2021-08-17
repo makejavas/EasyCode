@@ -1,5 +1,5 @@
 ##导入宏定义
-$!define
+$!{define.vm}
 
 ##保存文件（宏定义）
 #save("/entity", ".java")
@@ -8,7 +8,7 @@ $!define
 #setPackageSuffix("entity")
 
 ##自动导入包（全局变量）
-$!autoImport
+$!{autoImport.vm}
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 

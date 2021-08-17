@@ -1,5 +1,5 @@
 ##导入宏定义、设置包名、类名、文件名##导入宏定义
-$!define
+$!{define.vm}
 #setPackageSuffix("service")
 #setTableSuffix("Service")
 #save("/service", "Service.java")
@@ -30,7 +30,7 @@ import java.util.List;
  * @since $!time.currTime()
  */
 public interface $!{tableName} {
-	
+
     void save($entityShortType $entityVarName);
 
     void deleteById($pkShortType id);
