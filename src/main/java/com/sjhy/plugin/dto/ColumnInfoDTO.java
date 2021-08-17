@@ -3,6 +3,7 @@ package com.sjhy.plugin.dto;
 import com.intellij.database.model.DasColumn;
 import com.intellij.psi.PsiField;
 import com.sjhy.plugin.entity.TypeMapper;
+import com.sjhy.plugin.enums.MatchType;
 import com.sjhy.plugin.tool.CurrGroupUtils;
 import com.sjhy.plugin.tool.DocCommentUtils;
 import com.sjhy.plugin.tool.NameUtils;
@@ -42,18 +43,15 @@ public class ColumnInfoDTO {
 
     private String getJavaType(String dbType) {
         for (TypeMapper typeMapper : CurrGroupUtils.getCurrTypeMapperGroup().getElementList()) {
-            switch (typeMapper.getMatchType()) {
-                case REGEX:
-                    if (Pattern.compile(typeMapper.getColumnType()).matcher(dbType).matches()) {
-                        return typeMapper.getJavaType();
-                    }
-                    break;
-                case ORDINARY:
-                default:
-                    if (dbType.equalsIgnoreCase(typeMapper.getColumnType())) {
-                        return typeMapper.getJavaType();
-                    }
-                    break;
+            if (typeMapper.getMatchType() == MatchType.ORDINARY) {
+                if (dbType.equalsIgnoreCase(typeMapper.getColumnType())) {
+                    return typeMapper.getJavaType();
+                }
+            } else {
+                // 不区分大小写的正则匹配模式
+                if (Pattern.compile(typeMapper.getColumnType(), Pattern.CASE_INSENSITIVE).matcher(dbType).matches()) {
+                    return typeMapper.getJavaType();
+                }
             }
         }
         return "java.lang.Object";

@@ -64,7 +64,13 @@ public class VelocityUtils {
             builder.append(writer.toString());
             return builder.toString().replace("\r", "");
         }
+        String code = stringWriter.toString();
+        // 清除前面空格
+        StringBuilder sb = new StringBuilder(code);
+        while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
+            sb.deleteCharAt(0);
+        }
         // 返回结果
-        return stringWriter.toString();
+        return sb.toString();
     }
 }

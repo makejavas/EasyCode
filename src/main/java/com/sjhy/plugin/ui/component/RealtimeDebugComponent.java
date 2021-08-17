@@ -31,7 +31,7 @@ import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
-import com.sjhy.plugin.service.TableInfoService;
+import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.CollectionUtil;
 import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.ui.base.EditorSettingsInit;
@@ -122,7 +122,7 @@ public class RealtimeDebugComponent {
             }
         }
         // 获取表信息
-        TableInfo tableInfo = TableInfoService.getInstance(ProjectUtils.getCurrProject()).getTableInfoAndConfig(dbTable);
+        TableInfo tableInfo = TableInfoSettingsService.getInstance().getTableInfo(dbTable);
         // 为未配置的表设置一个默认包名
         if (tableInfo.getSavePackageName() == null) {
             tableInfo.setSavePackageName("com.companyname.modulename");

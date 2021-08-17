@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="e3588" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="e3588" layout-manager="GridLayoutManager" row-count="10" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -74,7 +74,7 @@
           </component>
           <grid id="7831c" binding="templatePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <grid row="4" column="1" row-span="3" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="1" row-span="6" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -82,7 +82,7 @@
           </grid>
           <component id="91ae2" class="javax.swing.JLabel">
             <constraints>
-              <grid row="4" column="0" row-span="3" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="0" row-span="6" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="string" key="label.template"/>
@@ -90,7 +90,7 @@
           </component>
           <vspacer id="98aa7">
             <constraints>
-              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+              <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
             </constraints>
           </vspacer>
           <component id="caddc" class="javax.swing.JLabel">
@@ -119,20 +119,40 @@
               <text resource-bundle="string" key="label.module"/>
             </properties>
           </component>
-          <component id="5e5a1" class="javax.swing.JCheckBox" binding="unifiedConfig">
+          <component id="5e5a1" class="javax.swing.JCheckBox" binding="unifiedConfigCheckBox">
             <constraints>
               <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="string" key="label.unified.config"/>
+              <toolTipText value="在多表生成时，每张表会有自己保存的配置信息。&lt;br&gt;勾选统一配置表示所有表都使用当前的配置信息进行生成。&lt;br&gt;否则使用自身保存的配置信息生成代码。"/>
             </properties>
           </component>
-          <component id="af94e" class="javax.swing.JCheckBox" binding="titleConfig">
+          <component id="af94e" class="javax.swing.JCheckBox" binding="titleSureCheckBox">
             <constraints>
               <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="禁止提示"/>
+              <text value="弹框选是"/>
+              <toolTipText value="后续弹出的所有代码覆盖弹框全部选是"/>
+            </properties>
+          </component>
+          <component id="53e7" class="javax.swing.JCheckBox" binding="reFormatCheckBox">
+            <constraints>
+              <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="格式化代码"/>
+              <toolTipText value="对生成完毕的代码进行格式化"/>
+            </properties>
+          </component>
+          <component id="846f2" class="javax.swing.JCheckBox" binding="titleRefuseCheckBox">
+            <constraints>
+              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="弹框选否"/>
+              <toolTipText value="后续弹出的所有代码覆盖弹框全部选否"/>
             </properties>
           </component>
         </children>

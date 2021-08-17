@@ -1,5 +1,6 @@
 package com.sjhy.plugin.tool;
 
+import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.impl.CodeGenerateServiceImpl;
@@ -25,14 +26,14 @@ public class ExtraCodeGenerateUtils {
      */
     private TableInfo tableInfo;
     /**
-     * 文件覆盖提示
+     * 生成配置
      */
-    private Boolean title;
+    private GenerateOptions generateOptions;
 
-    public ExtraCodeGenerateUtils(CodeGenerateServiceImpl codeGenerateService, TableInfo tableInfo, Boolean title) {
+    public ExtraCodeGenerateUtils(CodeGenerateServiceImpl codeGenerateService, TableInfo tableInfo, GenerateOptions generateOptions) {
         this.codeGenerateService = codeGenerateService;
         this.tableInfo = tableInfo;
-        this.title = title;
+        this.generateOptions = generateOptions;
     }
 
     /**
@@ -53,6 +54,6 @@ public class ExtraCodeGenerateUtils {
             return;
         }
         // 生成代码
-        codeGenerateService.generate(Collections.singletonList(currTemplate), Collections.singletonList(this.tableInfo), this.title, param);
+        codeGenerateService.generate(Collections.singletonList(currTemplate), Collections.singletonList(this.tableInfo), this.generateOptions, param);
     }
 }

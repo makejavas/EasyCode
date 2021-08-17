@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ExceptionUtil;
 import com.sjhy.plugin.constants.StrState;
 import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
@@ -77,11 +78,19 @@ public class SelectSavePath extends DialogWrapper {
     /**
      * 统一配置复选框
      */
-    private JCheckBox unifiedConfig;
+    private JCheckBox unifiedConfigCheckBox;
     /**
-     * 禁止提示复选框
+     * 弹框选是复选框
      */
-    private JCheckBox titleConfig;
+    private JCheckBox titleSureCheckBox;
+    /**
+     * 格式化代码复选框
+     */
+    private JCheckBox reFormatCheckBox;
+    /**
+     * 弹框全否复选框
+     */
+    private JCheckBox titleRefuseCheckBox;
     /**
      * 数据缓存工具类
      */
@@ -305,7 +314,7 @@ public class SelectSavePath extends DialogWrapper {
         tableInfoService.saveTableInfo(tableInfo);
 
         // 生成代码
-        codeGenerateService.generateByUnifiedConfig(selectTemplateList, unifiedConfig.isSelected(), !titleConfig.isSelected(), this.entityMode);
+        codeGenerateService.generate(selectTemplateList, getGenerateOptions());
     }
 
     /**
@@ -320,6 +329,21 @@ public class SelectSavePath extends DialogWrapper {
         for (Module module : this.moduleList) {
             moduleComboBox.addItem(module.getName());
         }
+    }
+
+    /**
+     * 获取生成选项
+     *
+     * @return {@link GenerateOptions}
+     */
+    private GenerateOptions getGenerateOptions() {
+        return GenerateOptions.builder()
+                .entityModel(this.entityMode)
+                .reFormat(reFormatCheckBox.isSelected())
+                .titleSure(titleSureCheckBox.isSelected())
+                .titleRefuse(titleRefuseCheckBox.isSelected())
+                .unifiedConfig(unifiedConfigCheckBox.isSelected())
+                .build();
     }
 
     /**

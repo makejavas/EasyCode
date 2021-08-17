@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.dict.GlobalDict;
+import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.Callback;
 import com.sjhy.plugin.entity.SaveFile;
@@ -16,10 +17,11 @@ import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import com.sjhy.plugin.service.CodeGenerateService;
 import com.sjhy.plugin.service.SettingsStorageService;
-import com.sjhy.plugin.service.TableInfoService;
+import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author makejava
@@ -38,7 +40,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
     /**
      * 表信息服务
      */
-    private TableInfoService tableInfoService;
+    private TableInfoSettingsService tableInfoService;
     /**
      * 缓存数据工具
      */
@@ -51,30 +53,27 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
     public CodeGenerateServiceImpl(Project project) {
         this.project = project;
         this.moduleManager = ModuleManager.getInstance(project);
-        this.tableInfoService = TableInfoService.getInstance(project);
+        this.tableInfoService = TableInfoSettingsService.getInstance();
         this.cacheDataUtils = CacheDataUtils.getInstance();
     }
 
     /**
-     * 生成代码，并自动保存到对应位置，使用统一配置
+     * 生成
      *
-     * @param templates     模板
-     * @param unifiedConfig 是否使用统一配置
-     * @param title         是否显示提示
-     * @param entityMode    实体类生成模式
+     * @param templates       模板
+     * @param generateOptions 生成选项
      */
     @Override
-    public void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,
-                                        boolean entityMode) {
+    public void generate(Collection<Template> templates, GenerateOptions generateOptions) {
         // 获取选中表信息
         TableInfo selectedTableInfo;
         List<TableInfo> tableInfoList;
-        if (!entityMode) {
-            selectedTableInfo = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getSelectDbTable());
-            tableInfoList = tableInfoService.getTableInfoAndConfig(cacheDataUtils.getDbTableList());
+        if (Boolean.TRUE.equals(generateOptions.getEntityModel())) {
+            selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
+            tableInfoList = cacheDataUtils.getPsiClassList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
         } else {
-            selectedTableInfo = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getSelectPsiClass());
-            tableInfoList = tableInfoService.getTableInfoAndConfigByPsiClass(cacheDataUtils.getPsiClassList());
+            selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
+            tableInfoList = cacheDataUtils.getDbTableList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
         }
         // 校验选中表的保存路径是否正确
         if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
@@ -95,11 +94,11 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
                 tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
                 tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
                 tableInfo.setPreName(finalSelectedTableInfo.getPreName());
-                tableInfoService.save(tableInfo);
+                tableInfoService.saveTableInfo(tableInfo);
             }
         });
         // 如果使用统一配置，直接全部覆盖
-        if (unifiedConfig) {
+        if (Boolean.TRUE.equals(generateOptions.getUnifiedConfig())) {
             tableInfoList.forEach(tableInfo -> {
                 tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
                 tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
@@ -109,29 +108,18 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         }
 
         // 生成代码
-        generate(templates, tableInfoList, title);
+        generate(templates, tableInfoList, generateOptions, null);
     }
 
     /**
      * 生成代码，并自动保存到对应位置
      *
-     * @param templates     模板
-     * @param tableInfoList 表信息对象
-     * @param title         是否显示提示
+     * @param templates       模板
+     * @param tableInfoList   表信息对象
+     * @param generateOptions 生成配置
+     * @param otherParam      其他参数
      */
-    private void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title) {
-        generate(templates, tableInfoList, title, null);
-    }
-
-    /**
-     * 生成代码，并自动保存到对应位置
-     *
-     * @param templates     模板
-     * @param tableInfoList 表信息对象
-     * @param title         是否显示提示
-     * @param otherParam    其他参数
-     */
-    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, boolean title, Map<String, Object> otherParam) {
+    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, GenerateOptions generateOptions, Map<String, Object> otherParam) {
         if (CollectionUtil.isEmpty(templates) || CollectionUtil.isEmpty(tableInfoList)) {
             return;
         }
@@ -159,33 +147,28 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
             // 设置模型路径与导包列表
             setModulePathAndImportList(param, tableInfo);
             // 设置额外代码生成服务
-            param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, title));
+            param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, generateOptions));
             for (Template template : templates) {
                 Callback callback = new Callback();
+                callback.setWriteFile(true);
+                callback.setReformat(generateOptions.getReFormat());
+                // 默认名称
+                callback.setFileName(tableInfo.getName() + "Default.java");
+                // 默认路径
+                callback.setSavePath(tableInfo.getSavePath());
                 // 设置回调对象
                 param.put("callback", callback);
                 // 开始生成
                 String code = VelocityUtils.generate(template.getCode(), param);
-                // 清除前面空格
-                StringBuilder sb = new StringBuilder(code);
-                while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
-                    sb.deleteCharAt(0);
-                }
-                code = sb.toString();
                 // 设置一个默认保存路径与默认文件名
-                if (StringUtils.isEmpty(callback.getFileName())) {
-                    callback.setFileName(tableInfo.getName() + "Default.java");
-                }
-                if (StringUtils.isEmpty(callback.getSavePath())) {
-                    callback.setSavePath(tableInfo.getSavePath());
-                }
                 String path = callback.getSavePath();
                 path = path.replace("\\", "/");
                 // 针对相对路径进行处理
                 if (path.startsWith(".")) {
                     path = project.getBasePath() + path.substring(1);
                 }
-                new SaveFile(project, path, callback.getFileName(), code, callback.isReformat(), title).write();
+                callback.setSavePath(path);
+                new SaveFile(project, code, callback, generateOptions).write();
             }
         }
     }
@@ -207,7 +190,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         setModulePathAndImportList(param, tableInfo);
         // 处理模板，注入全局变量
         TemplateUtils.addGlobalConfig(template);
-        return VelocityUtils.generate(template.getCode(), param).trim();
+        return VelocityUtils.generate(template.getCode(), param);
     }
 
     /**

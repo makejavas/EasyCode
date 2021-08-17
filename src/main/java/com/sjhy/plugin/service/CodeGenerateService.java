@@ -2,6 +2,7 @@ package com.sjhy.plugin.service;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.entity.Template;
 import org.jetbrains.annotations.NotNull;
@@ -27,14 +28,12 @@ public interface CodeGenerateService {
     }
 
     /**
-     * 生成代码，并自动保存到对应位置，使用统一配置
-     *  @param templates     模板
-     * @param unifiedConfig 是否使用统一配置
-     * @param title         是否显示提示
-     * @param entityMode
+     * 生成
+     *
+     * @param templates       模板
+     * @param generateOptions 生成选项
      */
-    void generateByUnifiedConfig(Collection<Template> templates, boolean unifiedConfig, boolean title,
-            boolean entityMode);
+    void generate(Collection<Template> templates, GenerateOptions generateOptions);
 
     /**
      * 生成代码

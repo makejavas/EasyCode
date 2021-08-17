@@ -22,5 +22,9 @@ public class Callback {
     /**
      * 是否重新格式化代码
      */
-    private boolean reformat = true;
+    private Boolean reformat;
+    /**
+     * 是否写入文件，部分模块不需要写入文件。例如debug.json模板
+     */
+    private Boolean writeFile;
 }

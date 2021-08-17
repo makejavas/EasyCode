@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.testFramework.LightVirtualFile;
+import com.sjhy.plugin.dto.GenerateOptions;
 import com.sjhy.plugin.tool.CompareFileUtils;
 import com.sjhy.plugin.tool.FileUtils;
 import com.sjhy.plugin.tool.MessageDialogUtils;
@@ -37,48 +38,35 @@ public class SaveFile {
      */
     private Project project;
     /**
-     * 文件保存目录
-     */
-    private String path;
-    /**
-     * 文件名
-     */
-    private String fileName;
-    /**
      * 文件内容
      */
     private String content;
     /**
-     * 是否需要重新格式化代码
-     */
-    private boolean reformat;
-    /**
-     * 是否显示操作提示
-     */
-    private boolean operateTitle;
-    /**
      * 文件工具类
      */
     private FileUtils fileUtils = FileUtils.getInstance();
+    /**
+     * 回调对象
+     */
+    private Callback callback;
+    /**
+     * 生成配置
+     */
+    private GenerateOptions generateOptions;
 
     /**
-     * 构建对象
+     * 保存文件
      *
-     * @param project      项目对象
-     * @param path         绝对路径
-     * @param fileName     文件名
-     * @param content      文件内容
-     * @param reformat     是否重新格式化代码
-     * @param operateTitle 操作提示
+     * @param project         项目
+     * @param content         内容
+     * @param callback        回调
+     * @param generateOptions 生成选项
      */
-    public SaveFile(@NonNull Project project, @NonNull String path, @NonNull String fileName, String content, boolean reformat, boolean operateTitle) {
-        this.path = path;
+    public SaveFile(@NonNull Project project, @NonNull String content, @NonNull Callback callback, @NonNull GenerateOptions generateOptions) {
         this.project = project;
-        this.fileName = fileName;
-        LOG.assertTrue(content != null);
+        this.callback = callback;
         this.content = content.replace("\r", "");
-        this.reformat = reformat;
-        this.operateTitle = operateTitle;
+        this.generateOptions = generateOptions;
     }
 
     /**
@@ -94,7 +82,7 @@ public class SaveFile {
         }
         // 路径对比，判断项目路径是否为文件保存路径的子路径
         String projectPath = handlerPath(baseDir.getPath());
-        String tmpFilePath = handlerPath(this.path);
+        String tmpFilePath = handlerPath(callback.getSavePath());
         if (tmpFilePath.length() > projectPath.length()) {
             if (!"/".equals(tmpFilePath.substring(projectPath.length(), projectPath.length() + 1))) {
                 return false;
@@ -133,13 +121,16 @@ public class SaveFile {
      * 通过IDEA自带的Psi文件方式写入
      */
     public void write() {
+        if (!Boolean.TRUE.equals(callback.getWriteFile())) {
+            return;
+        }
         // 判断目录是否存在
         VirtualFile baseDir = ProjectUtils.getBaseDir(project);
         if (baseDir == null) {
             throw new IllegalStateException("项目基本路径不存在");
         }
         // 处理保存路径
-        String savePath = handlerPath(this.path, false);
+        String savePath = handlerPath(callback.getSavePath(), false);
         if (isProjectFile()) {
             // 删除保存路径的前面部分
             savePath = savePath.substring(handlerPath(baseDir.getPath()).length());
@@ -165,7 +156,7 @@ public class SaveFile {
         if (directory == null) {
             return;
         }
-        VirtualFile psiFile = directory.findChild(this.fileName);
+        VirtualFile psiFile = directory.findChild(callback.getFileName());
         // 保存或覆盖
         saveOrReplaceFile(psiFile, directory);
     }
@@ -181,12 +172,19 @@ public class SaveFile {
             return saveDir;
         }
         // 尝试创建目录
-        String msg = String.format("Directory %s Not Found, Confirm Create?", this.path);
-        if (this.operateTitle && !MessageDialogUtils.yesNo(project, msg)) {
+        String msg = String.format("Directory %s Not Found, Confirm Create?", callback.getSavePath());
+        if (generateOptions.getTitleSure()) {
+            saveDir = fileUtils.createChildDirectory(project, baseDir, savePath);
+            return saveDir;
+        } else if (generateOptions.getTitleRefuse()) {
             return null;
+        } else {
+            if (MessageDialogUtils.yesNo(project, msg)) {
+                saveDir = fileUtils.createChildDirectory(project, baseDir, savePath);
+                return saveDir;
+            }
         }
-        saveDir = fileUtils.createChildDirectory(project, baseDir, savePath);
-        return saveDir;
+        return null;
     }
 
     /**
@@ -200,16 +198,22 @@ public class SaveFile {
         Document document;
         // 文件不存在直接创建
         if (file == null) {
-            file = fileUtils.createChildFile(project, directory, this.fileName);
+            file = fileUtils.createChildFile(project, directory, callback.getFileName());
             if (file == null) {
                 return;
             }
             document = coverFile(file);
         } else {
             // 提示覆盖文件
-            if (operateTitle) {
+            if (generateOptions.getTitleSure()) {
+                // 默认选是
+                document = coverFile(file);
+            } else if (generateOptions.getTitleRefuse()) {
+                // 默认选否
+                return;
+            } else {
                 String msg = String.format("File %s Exists, Select Operate Mode?", file.getPath());
-                int result = MessageDialogUtils.yesNoCancel(project, msg, "Conver", "Compare", "Cancel");
+                int result = MessageDialogUtils.yesNoCancel(project, msg, "Convert", "Compare", "Cancel");
                 switch (result) {
                     case Messages.YES:
                         // 覆盖文件
@@ -218,7 +222,7 @@ public class SaveFile {
                     case Messages.NO:
                         // 对比代码时也格式化代码
                         String newText = content;
-                        if (reformat) {
+                        if (Boolean.TRUE.equals(callback.getReformat())) {
                             // 保留旧文件内容，用新文件覆盖旧文件执行格式化，然后再还原旧文件内容
                             String oldText = getFileText(file);
                             Document tmpDoc = coverFile(file);
@@ -231,20 +235,17 @@ public class SaveFile {
                             // 还原旧文件
                             coverFile(file, oldText);
                         }
-                        FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(fileName);
-                        CompareFileUtils.showCompareWindow(project, file, new LightVirtualFile(fileName, fileType, newText));
+                        FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(callback.getFileName());
+                        CompareFileUtils.showCompareWindow(project, file, new LightVirtualFile(callback.getFileName(), fileType, newText));
                         return;
                     case Messages.CANCEL:
                     default:
                         return;
                 }
-            } else {
-                // 没有操作提示的情况下直接覆盖
-                document = coverFile(file);
             }
         }
         // 执行代码格式化操作
-        if (reformat) {
+        if (Boolean.TRUE.equals(callback.getReformat())) {
             FileUtils.getInstance().reformatFile(project, file);
         }
         // 提交文档改动，并非VCS中的提交文件
@@ -278,6 +279,6 @@ public class SaveFile {
      * @return 覆盖后的文档对象
      */
     private Document coverFile(VirtualFile file, String text) {
-        return FileUtils.getInstance().writeFileContent(project, file, fileName, text);
+        return FileUtils.getInstance().writeFileContent(project, file, callback.getFileName(), text);
     }
 }
