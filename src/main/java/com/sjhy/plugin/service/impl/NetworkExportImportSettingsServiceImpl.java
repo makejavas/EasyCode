@@ -43,7 +43,7 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
                 token = matcher.group();
             }
             // 显示token
-            Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator());
+            Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.shujuhaiyang.com'>www.shujuhaiyang.com</a>");
         }
     }
 
