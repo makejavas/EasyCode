@@ -108,7 +108,7 @@ public final class HttpUtils {
     private static String handlerRequest(HttpUriRequest request) {
         try {
             CloseableHttpResponse response = HTTP_CLIENT.execute(request);
-            String body = EntityUtils.toString(response.getEntity());
+            String body = EntityUtils.toString(response.getEntity(), "UTF-8");
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 Messages.showWarningDialog("连接到服务器错误！", GlobalDict.TITLE_INFO);
                 return null;
