@@ -7,6 +7,8 @@ import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.entity.TableInfo;
 import lombok.Data;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +38,10 @@ public class TableInfoSettingsDTO {
                 builder.insert(0, ".");
             }
             builder.insert(0, name);
-            element = (DbElement) element.getParent();
-            if (element == null) {
+            try {
+                Method method = element.getClass().getDeclaredMethod("getParent");
+                element = (DbElement) method.invoke(element);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 break;
             }
             // 未必所有的数据库都是存在三层，例如MySQL就只有两层。如果上次层不是Namespace，则不再继续获取
