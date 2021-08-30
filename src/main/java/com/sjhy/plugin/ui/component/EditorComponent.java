@@ -70,6 +70,11 @@ public class EditorComponent<T extends AbstractEditorItem> {
         // 添加监控事件
         this.editor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
+            public void beforeDocumentChange(DocumentEvent event) {
+
+            }
+
+            @Override
             public void documentChanged(@NotNull DocumentEvent event) {
                 if (file != null) {
                     file.changeFileContent(editor.getDocument().getText());

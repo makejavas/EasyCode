@@ -1,9 +1,11 @@
 package com.sjhy.plugin.service.impl;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
+import com.intellij.openapi.util.TextRange;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.ExportImportSettingsService;
@@ -12,6 +14,9 @@ import com.sjhy.plugin.tool.JSON;
 import com.sjhy.plugin.tool.ProjectUtils;
 import com.sjhy.plugin.tool.StringUtils;
 
+import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +48,13 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
                 token = matcher.group();
             }
             // 显示token
-            Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.shujuhaiyang.com'>www.shujuhaiyang.com</a>");
+            try {
+                Method method = Messages.class.getMethod("showInputDialog", Project.class, String.class, String.class, Icon.class, String.class, InputValidator.class, TextRange.class, String.class);
+                method.invoke(null, ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.shujuhaiyang.com'>www.shujuhaiyang.com</a>");
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                // 兼容旧版本
+                Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null);
+            }
         }
     }
 

@@ -36,7 +36,7 @@ public class TableInfoSettingsDTO {
                 builder.insert(0, ".");
             }
             builder.insert(0, name);
-            element = element.getParent();
+            element = (DbElement) element.getParent();
             if (element == null) {
                 break;
             }
