@@ -34,6 +34,8 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     private JPanel mainPanel;
     private JTextField userSecureEditor;
     private JTextField authorEditor;
+    private JLabel userSecureLabel;
+    private JLabel userSecureTitle;
 
     /**
      * 子配置
@@ -106,6 +108,12 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
 
     @Override
     public @Nullable JComponent createComponent() {
+        // TODO 临时隐藏未开发完毕的UI组件
+        this.pushBtn.setVisible(false);
+        this.pullBtn.setVisible(false);
+        this.userSecureEditor.setVisible(false);
+        this.userSecureTitle.setVisible(false);
+        this.userSecureLabel.setVisible(false);
         // 加载储存数据
         this.loadSettingsStore();
         // 初始化事件
