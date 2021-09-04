@@ -127,7 +127,7 @@ public class GlobalConfigSettingForm implements Configurable, BaseSettings {
         // 复制配置，防止篡改
         this.globalConfigGroupMap = CloneUtils.cloneByJson(settingsStorage.getGlobalConfigGroupMap(), new TypeReference<Map<String, GlobalConfigGroup>>() {
         });
-        this.currGlobalConfigGroup = this.globalConfigGroupMap.get(settingsStorage.getCurrTypeMapperGroupName());
+        this.currGlobalConfigGroup = this.globalConfigGroupMap.get(settingsStorage.getCurrGlobalConfigGroupName());
         if (this.currGlobalConfigGroup == null) {
             this.currGlobalConfigGroup = this.globalConfigGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
         }
