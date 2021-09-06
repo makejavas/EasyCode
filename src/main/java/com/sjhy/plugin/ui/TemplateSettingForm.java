@@ -131,7 +131,7 @@ public class TemplateSettingForm implements Configurable, BaseSettings {
         // 复制配置，防止篡改
         this.templateGroupMap = CloneUtils.cloneByJson(settingsStorage.getTemplateGroupMap(), new TypeReference<Map<String, TemplateGroup>>() {
         });
-        this.currTemplateGroup = this.templateGroupMap.get(settingsStorage.getCurrTypeMapperGroupName());
+        this.currTemplateGroup = this.templateGroupMap.get(settingsStorage.getCurrTemplateGroupName());
         if (this.currTemplateGroup == null) {
             this.currTemplateGroup = this.templateGroupMap.get(GlobalDict.DEFAULT_GROUP_NAME);
         }
