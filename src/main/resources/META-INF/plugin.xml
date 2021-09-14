@@ -20,6 +20,13 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.5-java.RELEASE</p>
+      <ul>
+        <li>1.Fix failure to switch grouping</li>
+      </ul>
+      <ul>
+        <li>1.修复无法切换模板分组问题</li>
+      </ul>
       <p>1.2.4-RELEASE</p>
       <ul>
         <li>1.Optimize GUI interface</li>
