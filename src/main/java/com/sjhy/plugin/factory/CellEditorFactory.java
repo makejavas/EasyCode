@@ -1,7 +1,6 @@
 package com.sjhy.plugin.factory;
 
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBTextField;
 
@@ -27,8 +26,8 @@ public class CellEditorFactory {
      * @param editable 可编辑的
      * @return {@link TableCellEditor}
      */
-    public static TableCellEditor createComboBoxEditor(boolean editable, Class<? extends Enum> enumCls) {
-        Enum[] enumConstants = enumCls.getEnumConstants();
+    public static TableCellEditor createComboBoxEditor(boolean editable, Class<? extends Enum<?>> enumCls) {
+        Enum<?>[] enumConstants = enumCls.getEnumConstants();
         return createComboBoxEditor(editable, Stream.of(enumConstants).map(Enum::name).toArray(value -> new String[enumConstants.length]));
     }
 
@@ -51,10 +50,6 @@ public class CellEditorFactory {
             transmitFocusEvent(comboBox);
         }
         return new DefaultCellEditor(comboBox);
-    }
-
-    public static TableCellEditor createBooleanEditor() {
-        return new BooleanTableCellEditor();
     }
 
     /**
