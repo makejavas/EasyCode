@@ -109,7 +109,14 @@ public class FileUtils {
         FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
         Document document = fileDocumentManager.getDocument(file);
         if (document == null) {
-            throw new IllegalStateException("获取文档对象失败，fileName：" + fileName);
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                try {
+                    file.setBinaryContent(text.getBytes());
+                } catch (IOException e) {
+                    throw new IllegalStateException("二进制文件写入失败，fileName：" + fileName);
+                }
+            });
+            return fileDocumentManager.getDocument(file);
         }
         WriteCommandAction.runWriteCommandAction(project, () -> document.setText(text));
         PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
