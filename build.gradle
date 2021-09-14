@@ -21,7 +21,7 @@ plugins {
 
 
 group 'com.sjhy'
-version '1.2.4-RELEASE'
+version '1.2.5-RELEASE'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -48,7 +48,7 @@ intellij {
     // 各种IDEA版本去这里找
     // https://www.jetbrains.com/intellij-repository/releases
     // 依赖的插件
-    plugins = ['java', 'DatabaseTools']
+    plugins = ['java', 'DatabaseTools', 'idea']
     //Disables updating since-build attribute in plugin.xml
     updateSinceUntilBuild false
     downloadSources = true

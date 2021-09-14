@@ -227,6 +227,8 @@
     <depends>com.intellij.modules.lang</depends>
     <!--必须依赖Database Tool插件-->
     <depends>com.intellij.database</depends>
+    <!--必须依赖Java环境-->
+    <depends>com.intellij.modules.java</depends>
 
     <application-components>
         <!--<component>-->
