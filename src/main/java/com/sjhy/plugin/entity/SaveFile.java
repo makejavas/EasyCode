@@ -249,7 +249,9 @@ public class SaveFile {
             FileUtils.getInstance().reformatFile(project, file);
         }
         // 提交文档改动，并非VCS中的提交文件
-        psiDocumentManager.commitDocument(document);
+        if (document != null) {
+            psiDocumentManager.commitDocument(document);
+        }
     }
 
     private String getFileText(VirtualFile file) {
