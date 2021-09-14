@@ -14,10 +14,6 @@ import lombok.Data;
 @Builder
 public class GenerateOptions {
     /**
-     * 实体类模式
-     */
-    private Boolean entityModel;
-    /**
      * 统一配置
      */
     private Boolean unifiedConfig;

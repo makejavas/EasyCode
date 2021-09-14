@@ -66,44 +66,34 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
     @Override
     public void generate(Collection<Template> templates, GenerateOptions generateOptions) {
         // 获取选中表信息
-        TableInfo selectedTableInfo;
-        List<TableInfo> tableInfoList;
-        if (Boolean.TRUE.equals(generateOptions.getEntityModel())) {
-            selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
-            tableInfoList = cacheDataUtils.getPsiClassList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
-        } else {
-            selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
-            tableInfoList = cacheDataUtils.getDbTableList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
-        }
+        TableInfo selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
+        List<TableInfo> tableInfoList = cacheDataUtils.getDbTableList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
         // 校验选中表的保存路径是否正确
         if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
             if (selectedTableInfo.getObj() != null) {
                 Messages.showInfoMessage(selectedTableInfo.getObj().getName() + "表配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
-            } else if (selectedTableInfo.getPsiClassObj() != null) {
-                Messages.showInfoMessage(selectedTableInfo.getPsiClassObj().getName() + "类配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
             } else {
                 Messages.showInfoMessage("配置信息不正确，请尝试重新配置", GlobalDict.TITLE_INFO);
             }
             return;
         }
         // 将未配置的表进行配置覆盖
-        TableInfo finalSelectedTableInfo = selectedTableInfo;
         tableInfoList.forEach(tableInfo -> {
             if (StringUtils.isEmpty(tableInfo.getSavePath())) {
-                tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
-                tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
-                tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
-                tableInfo.setPreName(finalSelectedTableInfo.getPreName());
+                tableInfo.setSaveModelName(selectedTableInfo.getSaveModelName());
+                tableInfo.setSavePackageName(selectedTableInfo.getSavePackageName());
+                tableInfo.setSavePath(selectedTableInfo.getSavePath());
+                tableInfo.setPreName(selectedTableInfo.getPreName());
                 tableInfoService.saveTableInfo(tableInfo);
             }
         });
         // 如果使用统一配置，直接全部覆盖
         if (Boolean.TRUE.equals(generateOptions.getUnifiedConfig())) {
             tableInfoList.forEach(tableInfo -> {
-                tableInfo.setSaveModelName(finalSelectedTableInfo.getSaveModelName());
-                tableInfo.setSavePackageName(finalSelectedTableInfo.getSavePackageName());
-                tableInfo.setSavePath(finalSelectedTableInfo.getSavePath());
-                tableInfo.setPreName(finalSelectedTableInfo.getPreName());
+                tableInfo.setSaveModelName(selectedTableInfo.getSaveModelName());
+                tableInfo.setSavePackageName(selectedTableInfo.getSavePackageName());
+                tableInfo.setSavePath(selectedTableInfo.getSavePath());
+                tableInfo.setPreName(selectedTableInfo.getPreName());
             });
         }
 

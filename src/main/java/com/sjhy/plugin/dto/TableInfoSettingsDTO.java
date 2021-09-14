@@ -3,7 +3,6 @@ package com.sjhy.plugin.dto;
 import com.intellij.database.model.DasNamespace;
 import com.intellij.database.psi.DbElement;
 import com.intellij.database.psi.DbTable;
-import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.entity.TableInfo;
 import lombok.Data;
 
@@ -52,24 +51,6 @@ public class TableInfoSettingsDTO {
         return builder.toString();
     }
 
-    private String generateKey(PsiClass psiClass) {
-        return psiClass.getQualifiedName();
-    }
-    /**
-     * 读表信息
-     *
-     * @param psiClass psi类
-     * @return {@link TableInfo}
-     */
-    @SuppressWarnings("Duplicates")
-    public TableInfo readTableInfo(PsiClass psiClass) {
-        String key = generateKey(psiClass);
-        TableInfoDTO dto = this.tableInfoMap.get(key);
-        dto = new TableInfoDTO(dto, psiClass);
-        this.tableInfoMap.put(key, dto);
-        return dto.toTableInfo(psiClass);
-    }
-
     /**
      * 读表信息
      *
@@ -95,16 +76,10 @@ public class TableInfoSettingsDTO {
             return;
         }
         DbTable dbTable = tableInfo.getObj();
-        PsiClass psiClass = tableInfo.getPsiClassObj();
-        String key;
         if (dbTable != null) {
-            key = generateKey(dbTable);
-        } else if (psiClass != null) {
-            key = generateKey(psiClass);
-        } else {
-            return;
+            String key = generateKey(dbTable);
+            this.tableInfoMap.put(key, TableInfoDTO.valueOf(tableInfo));
         }
-        this.tableInfoMap.put(key, TableInfoDTO.valueOf(tableInfo));
     }
 
     /**

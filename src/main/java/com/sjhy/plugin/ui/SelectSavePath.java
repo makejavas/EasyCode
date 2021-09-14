@@ -113,21 +113,9 @@ public class SelectSavePath extends DialogWrapper {
     private List<Module> moduleList;
 
     /**
-     * 实体模式生成代码
-     */
-    private boolean entityMode;
-
-    /**
      * 模板选择组件
      */
     private TemplateSelectComponent templateSelectComponent;
-
-    /**
-     * 构造方法
-     */
-    public SelectSavePath(Project project) {
-        this(project, false);
-    }
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
@@ -137,9 +125,8 @@ public class SelectSavePath extends DialogWrapper {
     /**
      * 构造方法
      */
-    public SelectSavePath(Project project, boolean entityMode) {
+    public SelectSavePath(Project project) {
         super(project);
-        this.entityMode = entityMode;
         this.project = project;
         this.tableInfoService = TableInfoSettingsService.getInstance();
         this.codeGenerateService = CodeGenerateService.getInstance(project);
@@ -225,12 +212,7 @@ public class SelectSavePath extends DialogWrapper {
 
     private void refreshData() {
         // 获取选中的表信息（鼠标右键的那张表），并提示未知类型
-        TableInfo tableInfo;
-        if(entityMode) {
-            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
-        } else {
-            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
-        }
+        TableInfo tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
 
         // 设置默认配置信息
         if (!StringUtils.isEmpty(tableInfo.getSaveModelName())) {
@@ -296,12 +278,7 @@ public class SelectSavePath extends DialogWrapper {
             }
         }
         // 保存配置
-        TableInfo tableInfo;
-        if(!entityMode) {
-            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
-        } else {
-            tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
-        }
+        TableInfo tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
@@ -338,7 +315,6 @@ public class SelectSavePath extends DialogWrapper {
      */
     private GenerateOptions getGenerateOptions() {
         return GenerateOptions.builder()
-                .entityModel(this.entityMode)
                 .reFormat(reFormatCheckBox.isSelected())
                 .titleSure(titleSureCheckBox.isSelected())
                 .titleRefuse(titleRefuseCheckBox.isSelected())
