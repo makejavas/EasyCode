@@ -6,28 +6,24 @@ buildscript {
         maven { url 'https://dl.bintray.com/jetbrains/intellij-plugin-service' }
         maven { url 'https://dl.bintray.com/jetbrains/intellij-third-party-dependencies/' }
     }
-    // https://github.com/JetBrains/gradle-intellij-plugin/ 关注开发插件版本
-    dependencies {
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.6.5"
-    }
 }
 
 //2.1 插件配置
 // 这两个插件是必备
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.6.5'
+    id 'org.jetbrains.intellij' version '0.7.3'
 }
-
 
 group 'com.sjhy'
 version '1.2.5-RELEASE'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
