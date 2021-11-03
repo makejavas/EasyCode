@@ -101,6 +101,8 @@ public class TableInfoDTO {
         for (ColumnInfoDTO columnInfo : oldData.getFullColumn()) {
             ColumnInfoDTO newColumn = map.get(columnInfo.getName());
             if (newColumn != null) {
+                // ext属性转移
+                newColumn.setExt(columnInfo.getExt());
                 tmpList.add(newColumn);
             }
         }
