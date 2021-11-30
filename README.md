@@ -73,4 +73,6 @@
 > 3. 不要解压zip包，安装时直接选zip包即可。
 > ```  
 
-#### QQ群：[373603580](https://shang.qq.com/wpa/qunwpa?idkey=4d495321e527ec2ce459c0d0d6320414cd9677d92d5287df831d4e1c4ec09740)
+#### QQ群1：[373603580](https://shang.qq.com/wpa/qunwpa?idkey=4d495321e527ec2ce459c0d0d6320414cd9677d92d5287df831d4e1c4ec09740)
+#### QQ群2：[167490920](https://qm.qq.com/cgi-bin/qm/qr?k=r0emWZbPZIb6BqxpLM4Z4jo2mHoC0zZK&jump_from=webapi)
+#### Telegram：[https://t.me/gotoeasycode](https://t.me/gotoeasycode)
