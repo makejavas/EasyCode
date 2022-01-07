@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 本地文件导入导出设置服务实现
@@ -52,7 +53,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
         FileUtil.createIfDoesntExist(file);
         WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> {
             try {
-                byte[] bytes = JSON.toJson(settingsStorage).getBytes();
+                byte[] bytes = JSON.toJsonByFormat(settingsStorage).getBytes(StandardCharsets.UTF_8);
                 VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
                 if (virtualFile != null) {
                     virtualFile.setBinaryContent(bytes);
