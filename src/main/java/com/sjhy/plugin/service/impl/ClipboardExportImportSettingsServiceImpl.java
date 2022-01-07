@@ -25,7 +25,7 @@ public class ClipboardExportImportSettingsServiceImpl implements ExportImportSet
      */
     @Override
     public void exportConfig(SettingsStorageDTO settingsStorage) {
-        String json = JSON.toJson(settingsStorage);
+        String json = JSON.toJsonByFormat(settingsStorage);
         CopyPasteManager.getInstance().setContents(new TextTransferable(json));
         Messages.showInfoMessage("Config info success write to clipboard！", GlobalDict.TITLE_INFO);
     }
