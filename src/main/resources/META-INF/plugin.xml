@@ -234,8 +234,7 @@
     <depends>com.intellij.modules.lang</depends>
     <!--必须依赖Database Tool插件-->
     <depends>com.intellij.database</depends>
-    <!--必须依赖Java环境-->
-    <depends>com.intellij.modules.java</depends>
+    <depends optional="true" config-file="easycode-java.xml">com.intellij.modules.java</depends>
 
     <application-components>
         <!--<component>-->
@@ -262,12 +261,6 @@
             <!--生成代码菜单-->
             <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
         </group>
-        <!-- 实体类生成代码 -->
-        <action id="com.sjhy.plugin.actions.EasyCodeEntityAction"
-                class="com.sjhy.plugin.actions.EasyCodeEntityAction" text="EasyCode...">
-            <add-to-group group-id="GenerateGroup" anchor="last"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
     </actions>
 
 </idea-plugin>

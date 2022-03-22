@@ -95,12 +95,11 @@ public class TableInfoSettingsDTO {
             return;
         }
         DbTable dbTable = tableInfo.getObj();
-        PsiClass psiClass = tableInfo.getPsiClassObj();
         String key;
         if (dbTable != null) {
             key = generateKey(dbTable);
-        } else if (psiClass != null) {
-            key = generateKey(psiClass);
+        } else if (tableInfo.getPsiClassObj() != null) {
+            key = generateKey((PsiClass) tableInfo.getPsiClassObj());
         } else {
             return;
         }
