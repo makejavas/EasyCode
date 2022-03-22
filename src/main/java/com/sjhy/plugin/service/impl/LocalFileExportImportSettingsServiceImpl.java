@@ -44,7 +44,7 @@ public class LocalFileExportImportSettingsServiceImpl implements ExportImportSet
     public void exportConfig(SettingsStorageDTO settingsStorage) {
         // 1.选择储存位置
         FileSaverDialog saveFileDialog = FileChooserFactory.getInstance().createSaveFileDialog(new FileSaverDescriptor("Save Config As Json", "Save to"), ProjectUtils.getCurrProject());
-        VirtualFileWrapper saveFile = saveFileDialog.save(null, "EasyCodeConfig.json");
+        VirtualFileWrapper saveFile = saveFileDialog.save((VirtualFile) null, "EasyCodeConfig.json");
         if (saveFile == null) {
             return;
         }
