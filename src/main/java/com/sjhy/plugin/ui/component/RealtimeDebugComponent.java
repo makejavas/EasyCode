@@ -14,15 +14,10 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Conditions;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ReflectionUtil;
@@ -129,17 +124,12 @@ public class RealtimeDebugComponent {
         }
         // 生成代码
         String code = CodeGenerateService.getInstance(ProjectUtils.getCurrProject()).generate(new Template("temp", editorComponent.getFile().getCode()), tableInfo);
-
+        String fileName = editorComponent.getFile().getName();
         // 创建编辑框
         EditorFactory editorFactory = EditorFactory.getInstance();
-        PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(ProjectUtils.getCurrProject());
-        String fileName = editorComponent.getFile().getName();
-        FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(fileName);
-        PsiFile psiFile = psiFileFactory.createFileFromText(fileName, fileType, code, 0, true);
+        Document document = editorFactory.createDocument(code);
         // 标识为模板，让velocity跳过语法校验
-        psiFile.getViewProvider().putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(ProjectUtils.getCurrProject()).getDefaultProperties());
-        Document document = PsiDocumentManager.getInstance(ProjectUtils.getCurrProject()).getDocument(psiFile);
-        assert document != null;
+        document.putUserData(FileTemplateManager.DEFAULT_TEMPLATE_PROPERTIES, FileTemplateManager.getInstance(ProjectUtils.getCurrProject()).getDefaultProperties());
         Editor editor = editorFactory.createViewer(document, ProjectUtils.getCurrProject());
         // 配置编辑框
         EditorSettingsInit.init(editor);

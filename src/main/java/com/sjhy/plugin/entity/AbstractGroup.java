@@ -58,8 +58,8 @@ public interface AbstractGroup<T, E extends AbstractItem<E>> {
      *
      * @return {@link T}
      */
+    @SuppressWarnings("unchecked")
     default T cloneObj() {
-        //noinspection unchecked
         return (T) CloneUtils.cloneByJson(this);
     }
 }
