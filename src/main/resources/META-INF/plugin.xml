@@ -20,6 +20,15 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.6-java.RELEASE</p>
+      <ul>
+        <li>1.Fix the problem of exported Chinese garbled code</li>
+        <li>2.Fix the problem that additional columns cannot be edited</li>
+      </ul>
+      <ul>
+        <li>1.修复导出中文乱码问题</li>
+        <li>2.修复附加列无法编辑问题</li>
+      </ul>
       <p>1.2.5-java.RELEASE</p>
       <ul>
         <li>1.Fix failure to switch grouping</li>
