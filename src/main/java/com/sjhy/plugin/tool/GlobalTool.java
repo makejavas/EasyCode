@@ -221,7 +221,7 @@ public class GlobalTool extends NameUtils {
      * @param json json字符串
      * @return map对象
      */
-    public Map parseJson(String json) {
+    public Map<?,?> parseJson(String json) {
         if (StringUtils.isEmpty(json)) {
             return null;
         }
