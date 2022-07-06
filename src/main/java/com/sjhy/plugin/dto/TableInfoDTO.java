@@ -49,7 +49,7 @@ public class TableInfoDTO {
     }
 
     private static void merge(TableInfoDTO oldData, TableInfoDTO newData) {
-        if (oldData == null || CollectionUtil.isEmpty(oldData.getFullColumn())) {
+        if (oldData == null) {
             return;
         }
         if (!StringUtils.isEmpty(oldData.getPreName())) {
