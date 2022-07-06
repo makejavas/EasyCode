@@ -119,7 +119,7 @@ public class MainActionGroup extends ActionGroup {
                 if (dbTable == null) {
                     return;
                 }
-                TableInfoSettingsService.getInstance().resetTableInfo(dbTable);
+                TableInfoSettingsService.getInstance().removeTableInfo(dbTable);
                 Messages.showInfoMessage(dbTable.getName() + "表配置信息已重置成功", GlobalDict.TITLE_INFO);
             }
         };
