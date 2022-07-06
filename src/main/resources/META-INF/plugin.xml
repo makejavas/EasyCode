@@ -24,10 +24,16 @@
       <ul>
         <li>1.Fix the problem of exported Chinese garbled code</li>
         <li>2.Fix the problem that additional columns cannot be edited</li>
+        <li>3.Fix the inconsistency between the template and the global variable escape character</li>
+        <li>4.Optimize module selection, support module name search</li>
+        <li>5.Optimize cleanup table configuration function</li>
       </ul>
       <ul>
         <li>1.修复导出中文乱码问题</li>
         <li>2.修复附加列无法编辑问题</li>
+        <li>3.修复模板与全局变量转义符不一致问题</li>
+        <li>4.优化模块选择，支持搜索</li>
+        <li>5.优化清理表配置功能</li>
       </ul>
       <p>1.2.5-java.RELEASE</p>
       <ul>
