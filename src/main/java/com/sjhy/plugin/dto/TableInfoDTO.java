@@ -70,7 +70,7 @@ public class TableInfoDTO {
     }
 
     private static void merge(TableInfoDTO oldData, TableInfoDTO newData) {
-        if (oldData == null) {
+        if (oldData == null || CollectionUtil.isEmpty(oldData.getFullColumn())) {
             return;
         }
         if (!StringUtils.isEmpty(oldData.getPreName())) {
@@ -88,32 +88,66 @@ public class TableInfoDTO {
         if (!StringUtils.isEmpty(oldData.getSaveModelName())) {
             newData.saveModelName = oldData.getSaveModelName();
         }
-        if (CollectionUtil.isEmpty(oldData.getFullColumn())) {
-            return;
+        List<String> allNewColumnNames = newData.getFullColumn().stream().map(ColumnInfoDTO::getName).collect(Collectors.toList());
+        // 列出旧的顺序，并删除已经不存在的列，不包括自定义列
+        List<ColumnInfoDTO> oldSequenceColumn = oldData.getFullColumn().stream()
+                .filter(item -> allNewColumnNames.contains(item.getName()) || Boolean.TRUE.equals(item.getCustom()))
+                .collect(Collectors.toList());
+        // 尽可能的保留原始顺序(把自定义列按原始位置插入)
+        Map<String, String> nameMap = new HashMap<>(oldSequenceColumn.size());
+        for (int i = 0; i < oldSequenceColumn.size(); i++) {
+            ColumnInfoDTO columnInfo = oldSequenceColumn.get(i);
+            if (columnInfo.getCustom()) {
+                // 如果原本是自定义列，现在变成了数据库列，则忽略调原本的自定义列
+                if (allNewColumnNames.contains(columnInfo.getName())) {
+                    continue;
+                }
+                // 获取当前自定义列的前一个名称
+                String beforeName = "";
+                if (i > 0) {
+                    beforeName = oldSequenceColumn.get(i - 1).getName();
+                }
+                nameMap.put(beforeName, columnInfo.getName());
+            }
         }
-        // 补充自定义列
-        for (ColumnInfoDTO oldColumn : oldData.getFullColumn()) {
-            if (!oldColumn.getCustom()) {
+        // 将自定义列按顺序插入到新表中
+        nameMap.forEach((k, v) -> {
+            if (StringUtils.isEmpty(k)) {
+                allNewColumnNames.add(0, v);
+            } else {
+                for (int i = 0; i < allNewColumnNames.size(); i++) {
+                    if (allNewColumnNames.get(i).equals(k)) {
+                        allNewColumnNames.add(i + 1, v);
+                        return;
+                    }
+                }
+            }
+        });
+        // 按顺序依次重写数据
+        Map<String, ColumnInfoDTO> oldColumnMap = oldData.getFullColumn().stream().collect(Collectors.toMap(ColumnInfoDTO::getName, v -> v));
+        Map<String, ColumnInfoDTO> newColumnMap = newData.getFullColumn().stream().collect(Collectors.toMap(ColumnInfoDTO::getName, v -> v));
+        List<ColumnInfoDTO> tmpList = new ArrayList<>();
+        for (String name : allNewColumnNames) {
+            ColumnInfoDTO newColumnInfo = newColumnMap.get(name);
+            if (newColumnInfo == null) {
+                newColumnInfo = oldColumnMap.get(name);
+                if (newColumnInfo == null) {
+                    throw new NullPointerException("找不到列信息");
+                }
+                tmpList.add(newColumnInfo);
                 continue;
             }
-            newData.getFullColumn().add(oldColumn);
-        }
-        // 保持旧列的顺序
-        Map<String, ColumnInfoDTO> map = newData.getFullColumn().stream().collect(Collectors.toMap(ColumnInfoDTO::getName, val -> val));
-        List<ColumnInfoDTO> tmpList = new ArrayList<>();
-        for (ColumnInfoDTO columnInfo : oldData.getFullColumn()) {
-            ColumnInfoDTO newColumn = map.get(columnInfo.getName());
-            if (newColumn != null) {
-                // ext属性转移
-                newColumn.setExt(columnInfo.getExt());
-                tmpList.add(newColumn);
+            ColumnInfoDTO oldColumnInfo = oldColumnMap.get(name);
+            if (oldColumnInfo == null) {
+                tmpList.add(newColumnInfo);
+                continue;
             }
-        }
-        // 补充剩余列
-        for (ColumnInfoDTO columnInfoDTO : newData.getFullColumn()) {
-            if (!tmpList.contains(columnInfoDTO)) {
-                tmpList.add(columnInfoDTO);
+            // 需要进行合并操作
+            newColumnInfo.setExt(oldColumnInfo.getExt());
+            if (StringUtils.isEmpty(newColumnInfo.getComment())) {
+                newColumnInfo.setComment(oldColumnInfo.getComment());
             }
+            tmpList.add(newColumnInfo);
         }
         // list数据替换
         newData.getFullColumn().clear();
@@ -187,6 +221,7 @@ public class TableInfoDTO {
         return tableInfo;
     }
 
+    @SuppressWarnings("unchecked")
     public TableInfo toTableInfo(DbTable dbTable) {
         TableInfo tableInfo = new TableInfo();
         tableInfo.setObj(dbTable);
@@ -216,7 +251,7 @@ public class TableInfoDTO {
             columnInfo.setShortType(split[split.length - 1]);
             columnInfo.setComment(dto.getComment());
             columnInfo.setCustom(dto.getCustom());
-            columnInfo.setExt(dto.getExt());
+            columnInfo.setExt(JSON.parse(dto.getExt(), HashMap.class));
             tableInfo.getFullColumn().add(columnInfo);
             if (columnInfo.getObj() != null && DasUtil.isPrimary(columnInfo.getObj())) {
                 tableInfo.getPkColumn().add(columnInfo);
@@ -242,7 +277,7 @@ public class TableInfoDTO {
             ColumnInfoDTO columnInfoDTO = new ColumnInfoDTO();
             columnInfoDTO.setName(columnInfo.getName());
             columnInfoDTO.setType(columnInfo.getType());
-            columnInfoDTO.setExt(columnInfo.getExt());
+            columnInfoDTO.setExt(JSON.toJson(columnInfo.getExt()));
             columnInfoDTO.setCustom(columnInfo.getCustom());
             columnInfoDTO.setComment(columnInfo.getComment());
             dto.getFullColumn().add(columnInfoDTO);

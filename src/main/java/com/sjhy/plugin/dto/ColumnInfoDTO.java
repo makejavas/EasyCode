@@ -30,7 +30,7 @@ public class ColumnInfoDTO {
         this.comment = DocCommentUtils.getComment(field.getDocComment());
         this.type = field.getType().getCanonicalText();
         this.custom = false;
-        this.ext = new HashMap<>();
+        this.ext = "{}";
     }
 
     public ColumnInfoDTO(DasColumn column) {
@@ -38,7 +38,7 @@ public class ColumnInfoDTO {
         this.comment = column.getComment();
         this.type = getJavaType(column.getDataType().toString());
         this.custom = false;
-        this.ext = new HashMap<>();
+        this.ext = "{}";
     }
 
     private String getJavaType(String dbType) {
@@ -74,7 +74,7 @@ public class ColumnInfoDTO {
      */
     private Boolean custom;
     /**
-     * 扩展数据
+     * 扩展数据(JSON字符串)
      */
-    private Map<String, Object> ext;
+    private String ext;
 }

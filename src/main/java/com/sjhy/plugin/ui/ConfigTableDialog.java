@@ -1,6 +1,8 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.BooleanTableCellRenderer;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.sjhy.plugin.dict.GlobalDict;
@@ -18,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * 表配置窗口
@@ -30,7 +34,7 @@ public class ConfigTableDialog extends DialogWrapper {
     /**
      * 主面板
      */
-    private JPanel mainPanel;
+    private final JPanel mainPanel;
     /**
      * 表信息对象
      */
@@ -52,8 +56,10 @@ public class ConfigTableDialog extends DialogWrapper {
 
         // 配置列编辑器
         table.getColumn("name").setCellEditor(CellEditorFactory.createTextFieldEditor());
-        table.getColumn("type").setCellEditor(CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST));
-        table.getColumn("type").setMinWidth(120);
+        TableColumn typeColumn = table.getColumn("type");
+        typeColumn.setCellRenderer(new ComboBoxTableRenderer<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST));
+        typeColumn.setCellEditor(CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST));
+        typeColumn.setMinWidth(120);
         table.getColumn("comment").setCellEditor(CellEditorFactory.createTextFieldEditor());
         // 其他附加列
         for (ColumnConfig columnConfig : CurrGroupUtils.getCurrColumnConfigGroup().getElementList()) {
@@ -66,10 +72,17 @@ public class ConfigTableDialog extends DialogWrapper {
                     if (StringUtils.isEmpty(columnConfig.getSelectValue())) {
                         column.setCellEditor(CellEditorFactory.createTextFieldEditor());
                     } else {
-                        column.setCellEditor(CellEditorFactory.createComboBoxEditor(false, columnConfig.getSelectValue().split(",")));
+                        String[] split = columnConfig.getSelectValue().split(",");
+                        ArrayList<String> list = new ArrayList<>(Arrays.asList(split));
+                        // 添加一个空值作为默认值
+                        list.add(0, "");
+                        split = list.toArray(new String[0]);
+                        column.setCellRenderer(new ComboBoxTableRenderer<>(split));
+                        column.setCellEditor(CellEditorFactory.createComboBoxEditor(false, split));
                     }
                     break;
                 case BOOLEAN:
+                    column.setCellRenderer(new BooleanTableCellRenderer());
                     column.setCellEditor(CellEditorFactory.createBooleanEditor());
                     break;
                 default:

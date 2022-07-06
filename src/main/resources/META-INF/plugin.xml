@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
-    <name>Easy Code</name>
+    <name>EasyCode</name>
     <vendor email="1353036300@qq.com" url="http://www.shujuhaiyang.com">Easy Code Office Website</vendor>
 
     <description><![CDATA[
@@ -20,6 +20,19 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.7-java.RELEASE</p>
+      <ul>
+        <li>1.Fix extended attribute save loss</li>
+        <li>2.Fix the problem that the order of newly added fields in the table cannot be consistent</li>
+        <li>3.Optimize UI</li>
+        <li>4.Optimize module selection, support module name search</li>
+        <li>5.Optimize cleanup table configuration function</li>
+      </ul>
+      <ul>
+        <li>1.修复扩展属性保存丢失问题</li>
+        <li>2.修复表新增字段后顺序无法保持一致问题</li>
+        <li>3.优化UI界面</li>
+      </ul>
       <p>1.2.6-java.RELEASE</p>
       <ul>
         <li>1.Fix the problem of exported Chinese garbled code</li>

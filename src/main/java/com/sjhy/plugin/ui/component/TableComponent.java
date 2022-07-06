@@ -13,6 +13,7 @@ import lombok.NonNull;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -68,6 +69,9 @@ public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel
         this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // 指定编辑器
         for (Column<T> column : this.columns) {
+            if (column.renderer != null) {
+                this.table.getColumn(column.name).setCellRenderer(column.renderer);
+            }
             if (column.editor != null) {
                 this.table.getColumn(column.name).setCellEditor(column.editor);
             }
@@ -157,5 +161,9 @@ public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel
          * 列编辑器
          */
         private TableCellEditor editor;
+        /**
+         * 列展示器
+         */
+        private TableCellRenderer renderer;
     }
 }

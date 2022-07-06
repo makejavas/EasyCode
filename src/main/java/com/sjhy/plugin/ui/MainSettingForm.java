@@ -2,6 +2,7 @@ package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.service.impl.ClipboardExportImportSettingsServiceImpl;
 import com.sjhy.plugin.service.impl.LocalFileExportImportSettingsServiceImpl;
@@ -151,7 +152,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
      */
     @Override
     public void loadSettingsStore(SettingsStorageDTO settingsStorage) {
-        this.versionLabel.setText(settingsStorage.getVersion());
+        this.versionLabel.setText(GlobalDict.VERSION);
         this.authorEditor.setText(settingsStorage.getAuthor());
         this.userSecureEditor.setText(settingsStorage.getUserSecure());
         if (StringUtils.isEmpty(settingsStorage.getUserSecure())) {
