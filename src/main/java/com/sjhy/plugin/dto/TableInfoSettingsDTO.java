@@ -4,12 +4,13 @@ import com.intellij.database.model.DasNamespace;
 import com.intellij.database.psi.DbElement;
 import com.intellij.database.psi.DbTable;
 import com.sjhy.plugin.entity.TableInfo;
+import com.sjhy.plugin.tool.ReflectionUtils;
 import lombok.Data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 表格信息设置传输对象
@@ -23,7 +24,7 @@ public class TableInfoSettingsDTO {
     private Map<String, TableInfoDTO> tableInfoMap;
 
     public TableInfoSettingsDTO() {
-        this.tableInfoMap = new HashMap<>(16);
+        this.tableInfoMap = new TreeMap<>();
     }
 
     private String generateKey(DbTable dbTable) {
@@ -38,9 +39,12 @@ public class TableInfoSettingsDTO {
             }
             builder.insert(0, name);
             try {
-                Method method = element.getClass().getDeclaredMethod("getParent");
+                Method method = ReflectionUtils.getDeclaredMethod(element.getClass(), "getParent");
+                if (method == null) {
+                    break;
+                }
                 element = (DbElement) method.invoke(element);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 break;
             }
             // 未必所有的数据库都是存在三层，例如MySQL就只有两层。如果上次层不是Namespace，则不再继续获取
