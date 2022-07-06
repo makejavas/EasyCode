@@ -87,6 +87,7 @@ public class TableInfoSettingsDTO {
     public TableInfo readTableInfo(DbTable dbTable) {
         String key = generateKey(dbTable);
         TableInfoDTO dto = this.tableInfoMap.get(key);
+        // 表可能新增了字段，需要重新合并保存
         dto = new TableInfoDTO(dto, dbTable);
         this.tableInfoMap.put(key, dto);
         return dto.toTableInfo(dbTable);
