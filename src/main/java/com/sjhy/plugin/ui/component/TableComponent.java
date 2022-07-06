@@ -13,7 +13,7 @@ import lombok.NonNull;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import java.util.Collections;
+import javax.swing.table.TableCellRenderer;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.BiConsumer;
@@ -30,7 +30,7 @@ public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel
     /**
      * 列信息
      */
-    private List<Column<T>> columns;
+    private final List<Column<T>> columns;
     /**
      * 表数据
      */
@@ -41,7 +41,7 @@ public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel
     @Getter
     private JBTable table;
 
-    private Class<T> cls;
+    private final Class<T> cls;
 
     public TableComponent(@NonNull List<Column<T>> columns, @NonNull List<T> dataList, Class<T> cls) {
         this.columns = columns;
@@ -68,6 +68,9 @@ public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel
         this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // 指定编辑器
         for (Column<T> column : this.columns) {
+            if (column.renderer != null) {
+                this.table.getColumn(column.name).setCellRenderer(column.renderer);
+            }
             if (column.editor != null) {
                 this.table.getColumn(column.name).setCellEditor(column.editor);
             }
@@ -157,5 +160,9 @@ public class TableComponent<T extends AbstractItem<T>> extends DefaultTableModel
          * 列编辑器
          */
         private TableCellEditor editor;
+        /**
+         * 列展示器
+         */
+        private TableCellRenderer renderer;
     }
 }

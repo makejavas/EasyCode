@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.BooleanTableCellRenderer;
@@ -20,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * 表配置窗口
@@ -80,7 +83,13 @@ public class ConfigTableDialog extends DialogWrapper {
                     if (StringUtils.isEmpty(columnConfig.getSelectValue())) {
                         column.setCellEditor(CellEditorFactory.createTextFieldEditor());
                     } else {
-                        column.setCellEditor(CellEditorFactory.createComboBoxEditor(false, columnConfig.getSelectValue().split(",")));
+                        String[] split = columnConfig.getSelectValue().split(",");
+                        ArrayList<String> list = new ArrayList<>(Arrays.asList(split));
+                        // 添加一个空值作为默认值
+                        list.add(0, "");
+                        split = list.toArray(new String[0]);
+                        column.setCellRenderer(new ComboBoxTableRenderer<>(split));
+                        column.setCellEditor(CellEditorFactory.createComboBoxEditor(false, split));
                     }
                     column.setMinWidth(100);
                     totalWidth+=100;

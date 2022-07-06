@@ -2,6 +2,7 @@ package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.ColumnConfig;
@@ -15,11 +16,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * @author makejava
@@ -27,7 +30,7 @@ import java.util.function.Consumer;
  * @date 2021/08/10 13:27
  */
 public class ColumnConfigSettingForm implements Configurable, BaseSettings {
-    private JPanel mainPanel;
+    private final JPanel mainPanel;
     /**
      * 列配置
      */
@@ -51,14 +54,16 @@ public class ColumnConfigSettingForm implements Configurable, BaseSettings {
 
     private void initTable() {
         // 第一列，类型
-        TableCellEditor typeEditor = CellEditorFactory.createComboBoxEditor(false, ColumnConfigType.class);
-        TableComponent.Column<ColumnConfig> typeColumn = new TableComponent.Column<>("type", item -> item.getType().name(), (entity, val) -> entity.setType(ColumnConfigType.valueOf(val)), typeEditor);
+        String[] columnConfigTypeNames = Stream.of(ColumnConfigType.values()).map(ColumnConfigType::name).toArray(String[]::new);
+        TableCellEditor typeEditor = CellEditorFactory.createComboBoxEditor(false, columnConfigTypeNames);
+        TableCellRenderer typeRenderer = new ComboBoxTableRenderer<>(columnConfigTypeNames);
+        TableComponent.Column<ColumnConfig> typeColumn = new TableComponent.Column<>("type", item -> item.getType().name(), (entity, val) -> entity.setType(ColumnConfigType.valueOf(val)), typeEditor, typeRenderer);
         // 第二列标题
         TableCellEditor titleEditor = CellEditorFactory.createTextFieldEditor();
-        TableComponent.Column<ColumnConfig> titleColumn = new TableComponent.Column<>("title", ColumnConfig::getTitle, ColumnConfig::setTitle, titleEditor);
+        TableComponent.Column<ColumnConfig> titleColumn = new TableComponent.Column<>("title", ColumnConfig::getTitle, ColumnConfig::setTitle, titleEditor, null);
         // 第三列选项
         TableCellEditor selectValueEditor = CellEditorFactory.createTextFieldEditor();
-        TableComponent.Column<ColumnConfig> selectValueColumn = new TableComponent.Column<>("selectValue", ColumnConfig::getSelectValue, ColumnConfig::setSelectValue, selectValueEditor);
+        TableComponent.Column<ColumnConfig> selectValueColumn = new TableComponent.Column<>("selectValue", ColumnConfig::getSelectValue, ColumnConfig::setSelectValue, selectValueEditor, null);
         List<TableComponent.Column<ColumnConfig>> columns = Arrays.asList(typeColumn, titleColumn, selectValueColumn);
 
         // 表格初始化

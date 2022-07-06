@@ -1,6 +1,7 @@
 package com.sjhy.plugin.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
 import com.sjhy.plugin.entity.TypeMapper;
@@ -14,11 +15,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * @author makejava
@@ -26,7 +29,7 @@ import java.util.function.Consumer;
  * @date 2021/08/07 15:33
  */
 public class TypeMapperSettingForm implements BaseSettings {
-    private JPanel mainPanel;
+    private final JPanel mainPanel;
     /**
      * 类型映射配置
      */
@@ -50,18 +53,22 @@ public class TypeMapperSettingForm implements BaseSettings {
 
     private void initTable() {
         // 第一列仅适用下拉框
-        TableCellEditor matchTypeEditor = CellEditorFactory.createComboBoxEditor(false, MatchType.class);
+        String[] matchTypeNames = Stream.of(MatchType.values()).map(MatchType::name).toArray(String[]::new);
+        TableCellEditor matchTypeEditor = CellEditorFactory.createComboBoxEditor(false, matchTypeNames);
+        TableCellRenderer matchTypeRenderer = new ComboBoxTableRenderer<>(matchTypeNames);
         TableComponent.Column<TypeMapper> matchTypeColumn = new TableComponent.Column<>("matchType",
                 item -> item.getMatchType() != null ? item.getMatchType().name() : MatchType.REGEX.name(),
                 (entity, val) -> entity.setMatchType(MatchType.valueOf(val)),
-                matchTypeEditor
+                matchTypeEditor,
+                matchTypeRenderer
         );
         // 第二列监听输入状态，及时修改属性值
         TableCellEditor columnTypeEditor = CellEditorFactory.createTextFieldEditor();
-        TableComponent.Column<TypeMapper> columnTypeColumn = new TableComponent.Column<>("columnType", TypeMapper::getColumnType, TypeMapper::setColumnType, columnTypeEditor);
+        TableComponent.Column<TypeMapper> columnTypeColumn = new TableComponent.Column<>("columnType", TypeMapper::getColumnType, TypeMapper::setColumnType, columnTypeEditor, null);
         // 第三列支持下拉框
         TableCellEditor javaTypeEditor = CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST);
-        TableComponent.Column<TypeMapper> javaTypeColumn = new TableComponent.Column<>("javaType", TypeMapper::getJavaType, TypeMapper::setJavaType, javaTypeEditor);
+        TableCellRenderer javaTypeRenderer = new ComboBoxTableRenderer<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST);
+        TableComponent.Column<TypeMapper> javaTypeColumn = new TableComponent.Column<>("javaType", TypeMapper::getJavaType, TypeMapper::setJavaType, javaTypeEditor, javaTypeRenderer);
         List<TableComponent.Column<TypeMapper>> columns = Arrays.asList(matchTypeColumn, columnTypeColumn, javaTypeColumn);
         // 表格初始化
         this.tableComponent = new TableComponent<>(columns, this.currTypeMapperGroup.getElementList(), TypeMapper.class);
