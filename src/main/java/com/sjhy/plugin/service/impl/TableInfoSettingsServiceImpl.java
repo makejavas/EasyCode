@@ -74,4 +74,14 @@ public class TableInfoSettingsServiceImpl implements TableInfoSettingsService {
     public void resetTableInfo(DbTable dbTable) {
         Objects.requireNonNull(getState()).resetTableInfo(dbTable);
     }
+
+    /**
+     * 删除表信息
+     *
+     * @param dbTable 数据库表
+     */
+    @Override
+    public void removeTableInfo(DbTable dbTable) {
+        Objects.requireNonNull(getState()).removeTableInfo(dbTable);
+    }
 }

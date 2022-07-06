@@ -124,4 +124,14 @@ public class TableInfoSettingsDTO {
         String key = generateKey(dbTable);
         this.tableInfoMap.put(key, new TableInfoDTO(null, dbTable));
     }
+
+    /**
+     * 删除表信息
+     *
+     * @param dbTable 数据库表
+     */
+    public void removeTableInfo(DbTable dbTable) {
+        String key = generateKey(dbTable);
+        this.tableInfoMap.remove(key);
+    }
 }
