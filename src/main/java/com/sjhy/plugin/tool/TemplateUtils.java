@@ -35,7 +35,7 @@ public final class TemplateUtils {
         for (GlobalConfig globalConfig : globalConfigs) {
             String name = globalConfig.getName();
             // 正则被替换字符转义处理
-            String value = globalConfig.getValue().replace("$", "\\$");
+            String value = globalConfig.getValue().replace("\\", "\\\\").replace("$", "\\$");
 
             // 将不带{}的变量加上{}
             template = template.replaceAll("\\$!?" + name + "(\\W)", "\\$!{" + name + "}$1");
