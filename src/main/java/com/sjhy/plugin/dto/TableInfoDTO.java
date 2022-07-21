@@ -177,6 +177,7 @@ public class TableInfoDTO {
             columnInfo.setType(field.getType().getCanonicalText());
             columnInfo.setComment(DocCommentUtils.getComment(field.getDocComment()));
             columnInfo.setCustom(false);
+            columnInfo.setExt(DocCommentUtils.getCommentTagData(field.getDocComment()));
             tableInfo.getFullColumn().add(columnInfo);
             if (PsiClassGenerateUtils.isPkField(field)) {
                 tableInfo.getPkColumn().add(columnInfo);

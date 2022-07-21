@@ -30,7 +30,7 @@ public class ColumnInfoDTO {
         this.comment = DocCommentUtils.getComment(field.getDocComment());
         this.type = field.getType().getCanonicalText();
         this.custom = false;
-        this.ext = new HashMap<>();
+        this.ext = DocCommentUtils.getCommentTagData(field.getDocComment());
     }
 
     public ColumnInfoDTO(DasColumn column) {
