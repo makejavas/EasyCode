@@ -1,12 +1,15 @@
 package com.sjhy.plugin.service;
 
 import com.intellij.database.psi.DbTable;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.sjhy.plugin.dto.TableInfoSettingsDTO;
 import com.sjhy.plugin.entity.TableInfo;
 import com.sjhy.plugin.service.impl.TableInfoSettingsServiceImpl;
 import com.sjhy.plugin.tool.ProjectUtils;
+
+import java.io.IOException;
 
 /**
  * @author makejava
@@ -20,7 +23,26 @@ public interface TableInfoSettingsService extends PersistentStateComponent<Table
      * @return {@link SettingsStorageService}
      */
     static TableInfoSettingsService getInstance() {
-        return ServiceManager.getService(ProjectUtils.getCurrProject(), TableInfoSettingsServiceImpl.class);
+        try {
+            return ProjectUtils.getCurrProject().getService(TableInfoSettingsServiceImpl.class);
+        } catch (AssertionError e) {
+            // 出现配置文件被错误修改，或不兼容时直接删除配置文件。
+            VirtualFile workspaceFile = ProjectUtils.getCurrProject().getWorkspaceFile();
+            if (workspaceFile != null) {
+                VirtualFile configFile = workspaceFile.getParent().findChild("easyCodeTableSetting.xml");
+                if (configFile != null && configFile.exists()) {
+                    WriteCommandAction.runWriteCommandAction(ProjectUtils.getCurrProject(), () -> {
+                        try {
+                            configFile.delete(null);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                }
+            }
+            // 重新获取配置
+            return ProjectUtils.getCurrProject().getService(TableInfoSettingsServiceImpl.class);
+        }
     }
 
     /**
