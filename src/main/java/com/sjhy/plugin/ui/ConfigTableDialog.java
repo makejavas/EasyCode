@@ -2,6 +2,7 @@ package com.sjhy.plugin.ui;
 
 import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.BooleanTableCellRenderer;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -54,19 +55,30 @@ public class ConfigTableDialog extends DialogWrapper {
         JBTable table = new JBTable(model);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        int totalWidth = 0;
+
         // 配置列编辑器
-        table.getColumn("name").setCellEditor(CellEditorFactory.createTextFieldEditor());
+        TableColumn nameColumn = table.getColumn("name");
+        nameColumn.setCellEditor(CellEditorFactory.createTextFieldEditor());
+        nameColumn.setMinWidth(100);
+        totalWidth+=100;
         TableColumn typeColumn = table.getColumn("type");
         typeColumn.setCellRenderer(new ComboBoxTableRenderer<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST));
         typeColumn.setCellEditor(CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST));
         typeColumn.setMinWidth(120);
-        table.getColumn("comment").setCellEditor(CellEditorFactory.createTextFieldEditor());
+        totalWidth+=120;
+        TableColumn commentColumn = table.getColumn("comment");
+        commentColumn.setCellEditor(CellEditorFactory.createTextFieldEditor());
+        commentColumn.setMinWidth(140);
+        totalWidth+=140;
         // 其他附加列
         for (ColumnConfig columnConfig : CurrGroupUtils.getCurrColumnConfigGroup().getElementList()) {
             TableColumn column = table.getColumn(columnConfig.getTitle());
             switch (columnConfig.getType()) {
                 case TEXT:
                     column.setCellEditor(CellEditorFactory.createTextFieldEditor());
+                    column.setMinWidth(120);
+                    totalWidth+=120;
                     break;
                 case SELECT:
                     if (StringUtils.isEmpty(columnConfig.getSelectValue())) {
@@ -80,10 +92,14 @@ public class ConfigTableDialog extends DialogWrapper {
                         column.setCellRenderer(new ComboBoxTableRenderer<>(split));
                         column.setCellEditor(CellEditorFactory.createComboBoxEditor(false, split));
                     }
+                    column.setMinWidth(100);
+                    totalWidth+=100;
                     break;
                 case BOOLEAN:
                     column.setCellRenderer(new BooleanTableCellRenderer());
-                    column.setCellEditor(CellEditorFactory.createBooleanEditor());
+                    column.setCellEditor(new BooleanTableCellEditor());
+                    column.setMinWidth(60);
+                    totalWidth+=60;
                     break;
                 default:
                     break;
@@ -92,7 +108,7 @@ public class ConfigTableDialog extends DialogWrapper {
 
         final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table);
         this.mainPanel.add(decorator.createPanel(), BorderLayout.CENTER);
-        this.mainPanel.setMinimumSize(new Dimension(600, 300));
+        this.mainPanel.setMinimumSize(new Dimension(totalWidth, Math.max(300, totalWidth / 3)));
     }
 
     @Override
