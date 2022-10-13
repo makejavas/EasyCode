@@ -261,6 +261,7 @@
 
     -->
     <!--必须依赖Database Tool插件-->
+    <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.database</depends>
 
     <application-components>

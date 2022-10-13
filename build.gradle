@@ -45,7 +45,7 @@ intellij {
     // https://data.services.jetbrains.com/products?code=PS&fields=releases.version%2Creleases.date%2Creleases.build
     // https://www.jetbrains.com/intellij-repository/releases
     // 依赖的插件
-    plugins = ['DatabaseTools']
+    plugins = ['com.intellij.modules.platform','com.intellij.database']
     //Disables updating since-build attribute in plugin.xml
     updateSinceUntilBuild false
     downloadSources = true
