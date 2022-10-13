@@ -4,10 +4,6 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
         maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
     }
-    // https://github.com/JetBrains/gradle-intellij-plugin/ 关注开发插件版本
-    dependencies {
-        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.7.3"
-    }
 }
 
 //2.1 插件配置
@@ -47,7 +43,7 @@ intellij {
     // 各种IDEA版本去这里找
     // https://www.jetbrains.com/intellij-repository/releases
     // 依赖的插件
-    plugins = ['java', 'DatabaseTools']
+    plugins = ['com.intellij.java', 'com.intellij.database']
     //Disables updating since-build attribute in plugin.xml
     updateSinceUntilBuild false
     downloadSources = true

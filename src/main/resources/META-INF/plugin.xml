@@ -258,8 +258,9 @@
     <!-- uncomment to enable plugin in all products
 
     -->
-    <!--必须为企业版-->
-    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.platform</depends>
+    <!--通过类生成代码，需要依赖Java插件-->
+    <depends>com.intellij.modules.java</depends>
     <!--必须依赖Database Tool插件-->
     <depends>com.intellij.database</depends>
     <depends optional="true" config-file="easycode-java.xml">com.intellij.modules.java</depends>
