@@ -63,6 +63,7 @@ public class ConfigTableDialog extends DialogWrapper {
         nameColumn.setMinWidth(100);
         totalWidth+=100;
         TableColumn typeColumn = table.getColumn("type");
+        typeColumn.setCellRenderer(new ComboBoxTableRenderer<>(GlobalDict.DEFAULT_JAVA_TYPE_LIST));
         typeColumn.setCellEditor(CellEditorFactory.createComboBoxEditor(true, GlobalDict.DEFAULT_JAVA_TYPE_LIST));
         typeColumn.setMinWidth(120);
         totalWidth+=120;
