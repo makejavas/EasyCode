@@ -6,6 +6,8 @@ import com.intellij.util.ReflectionUtil;
 import com.sjhy.plugin.entity.DebugField;
 import com.sjhy.plugin.entity.DebugMethod;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -154,8 +156,15 @@ public class GlobalTool extends NameUtils {
                         if (val != null) {
                             debugMethod.setValue(val.toString());
                         }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        ExceptionUtil.rethrow(e);
+                    } catch (IllegalAccessException e) {
+                        // 忽略不允许访问异常
+                    } catch (Throwable e) {
+                        // 其他任何异常都捕获
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
+                        e.printStackTrace(printStream);
+                        // 字节流的close方法本身就是空方法，没必要执行close操作
+                        debugMethod.setValue("调用发生异常：" + out);
                     }
                 }
             }
