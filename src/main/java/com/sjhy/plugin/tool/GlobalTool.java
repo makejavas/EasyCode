@@ -161,7 +161,7 @@ public class GlobalTool extends NameUtils {
                     } catch (Throwable e) {
                         // 其他任何异常都捕获
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        PrintStream printStream = new PrintStream(new ByteArrayOutputStream());
+                        PrintStream printStream = new PrintStream(out);
                         e.printStackTrace(printStream);
                         // 字节流的close方法本身就是空方法，没必要执行close操作
                         debugMethod.setValue("调用发生异常：" + out);
