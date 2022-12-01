@@ -50,7 +50,7 @@ public class NetworkExportImportSettingsServiceImpl implements ExportImportSetti
             // 显示token
             try {
                 Method method = Messages.class.getMethod("showInputDialog", Project.class, String.class, String.class, Icon.class, String.class, InputValidator.class, TextRange.class, String.class);
-                method.invoke(null, ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.ieasycode.com:88'>www.ieasycode.com:88</a>");
+                method.invoke(null, ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null, "Easy Code官网地址：<a href='http://www.ieasycode.com:9527'>www.ieasycode.com:9527</a>");
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 // 兼容旧版本
                 Messages.showInputDialog(ProjectUtils.getCurrProject(), result, GlobalDict.TITLE_INFO, AllIcons.General.InformationDialog, token, new NonEmptyInputValidator(), null);

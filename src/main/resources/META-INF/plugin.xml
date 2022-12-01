@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>EasyCode</name>
-    <vendor email="1353036300@qq.com" url="http://www.ieasycode.com:88">Easy Code Office Website</vendor>
+    <vendor email="1353036300@qq.com" url="http://www.ieasycode.com:9527">Easy Code Office Website</vendor>
 
     <description><![CDATA[
       <tag>EasyCode,Easy Code,easy,code,code generate,code tools</tag>
