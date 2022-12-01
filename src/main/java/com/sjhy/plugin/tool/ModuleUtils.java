@@ -35,6 +35,13 @@ public final class ModuleUtils {
      * @return 路径
      */
     public static VirtualFile getModuleDir(@NotNull Module module) {
+        // 优先使用ModuleRootManager来获取module路径
+        ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+        for (VirtualFile contentRoot : moduleRootManager.getContentRoots()) {
+            if (contentRoot.isDirectory() && contentRoot.getName().equals(module.getName())) {
+                return contentRoot;
+            }
+        }
         String modulePath = ModuleUtil.getModuleDirPath(module);
         // 统一路径分割符号
         modulePath = modulePath.replace("\\", "/");
