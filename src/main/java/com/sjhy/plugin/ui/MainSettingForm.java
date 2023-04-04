@@ -1,5 +1,6 @@
 package com.sjhy.plugin.ui;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.sjhy.plugin.dict.GlobalDict;
@@ -37,6 +38,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     private JTextField authorEditor;
     private JLabel userSecureLabel;
     private JLabel userSecureTitle;
+    private JLabel authorTitle;
 
     /**
      * 子配置
@@ -87,7 +89,7 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
     }
 
     @Override
-    public @NotNull Configurable[] getConfigurables() {
+    public Configurable @NotNull [] getConfigurables() {
         this.childConfigurableArray = new Configurable[]{
                 new TypeMapperSettingForm(),
                 new TemplateSettingForm(),
@@ -115,6 +117,9 @@ public class MainSettingForm implements Configurable, Configurable.Composite, Ba
         this.userSecureEditor.setVisible(false);
         this.userSecureTitle.setVisible(false);
         this.userSecureLabel.setVisible(false);
+        // 初始图标
+        this.authorTitle.setIcon(AllIcons.Actions.IntentionBulb);
+        this.userSecureTitle.setIcon(AllIcons.Actions.IntentionBulb);
         // 加载储存数据
         this.loadSettingsStore();
         // 初始化事件
