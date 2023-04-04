@@ -15,7 +15,7 @@ plugins {
 
 
 group 'com.sjhy'
-version '1.2.7-java.RELEASE'
+version '1.2.8-java.RELEASE'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8

@@ -20,6 +20,15 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.8-java.RELEASE</p>
+      <ul>
+        <li>1.Fix the error issue caused by missing icons in version 2023.1</li>
+        <li>2.Fix remote service connection failure issue</li>
+      </ul>
+      <ul>
+        <li>1.修复2023.1版本图标丢失导致报错问题</li>
+        <li>2.修复远程服务连接失败问题</li>
+      </ul>
       <p>1.2.7-java.RELEASE</p>
       <ul>
         <li>1.Fix extended attribute save loss</li>
