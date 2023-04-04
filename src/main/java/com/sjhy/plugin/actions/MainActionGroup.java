@@ -25,22 +25,7 @@ public class MainActionGroup extends ActionGroup {
     /**
      * 缓存数据工具类
      */
-    private CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
-
-    /**
-     * 是否不存在子菜单
-     */
-    private boolean notExistsChildren;
-
-    /**
-     * 是否分组按钮
-     *
-     * @return 是否隐藏
-     */
-    @Override
-    public boolean hideIfNoVisibleChildren() {
-        return this.notExistsChildren;
-    }
+    private final CacheDataUtils cacheDataUtils = CacheDataUtils.getInstance();
 
 
     /**
@@ -87,7 +72,6 @@ public class MainActionGroup extends ActionGroup {
         //保存数据到缓存
         cacheDataUtils.setDbTableList(dbTableList);
         cacheDataUtils.setSelectDbTable(selectDbTable);
-        this.notExistsChildren = false;
         return getMenuList();
     }
 
@@ -134,7 +118,6 @@ public class MainActionGroup extends ActionGroup {
      * @return 空菜单组
      */
     private AnAction[] getEmptyAnAction() {
-        this.notExistsChildren = true;
         return AnAction.EMPTY_ARRAY;
     }
 }

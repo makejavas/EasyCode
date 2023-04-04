@@ -4,14 +4,13 @@ import com.intellij.database.model.DasColumn;
 import com.intellij.psi.PsiField;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.enums.MatchType;
+import com.sjhy.plugin.tool.CompatibleUtils;
 import com.sjhy.plugin.tool.CurrGroupUtils;
 import com.sjhy.plugin.tool.DocCommentUtils;
 import com.sjhy.plugin.tool.NameUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -36,7 +35,7 @@ public class ColumnInfoDTO {
     public ColumnInfoDTO(DasColumn column) {
         this.name = NameUtils.getInstance().getJavaName(column.getName());
         this.comment = column.getComment();
-        this.type = getJavaType(column.getDataType().toString());
+        this.type = getJavaType(CompatibleUtils.getDataType(column).toString());
         this.custom = false;
         this.ext = "{}";
     }

@@ -15,6 +15,7 @@ import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.TypeMapper;
 import com.sjhy.plugin.enums.MatchType;
 import com.sjhy.plugin.tool.CacheDataUtils;
+import com.sjhy.plugin.tool.CompatibleUtils;
 import com.sjhy.plugin.tool.CurrGroupUtils;
 import com.sjhy.plugin.tool.StringUtils;
 import com.sjhy.plugin.ui.SelectSavePath;
@@ -84,7 +85,7 @@ public class MainAction extends AnAction {
 
         FLAG:
         for (DasColumn column : columns) {
-            String typeName = column.getDataType().getSpecification();
+            String typeName = CompatibleUtils.getDataType(column).getSpecification();
             for (TypeMapper typeMapper : typeMapperList) {
                 try {
                     if (typeMapper.getMatchType() == MatchType.ORDINARY) {
@@ -114,7 +115,7 @@ public class MainAction extends AnAction {
 
     public static class Dialog  extends DialogWrapper {
 
-        private String typeName;
+        private final String typeName;
 
         private JPanel mainPanel;
 
