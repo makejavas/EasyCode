@@ -7,12 +7,14 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.entity.TableInfo;
+import com.sjhy.plugin.tool.JSON;
 import com.sjhy.plugin.tool.ReflectionUtils;
+import com.sjhy.plugin.tool.StringUtils;
 import lombok.Data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Base64;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -25,7 +27,7 @@ import java.util.TreeMap;
  */
 @Data
 public class TableInfoSettingsDTO {
-    private Map<String, TableInfoDTO> tableInfoMap;
+    private Map<String, String> tableInfoMap;
 
     public TableInfoSettingsDTO() {
         this.tableInfoMap = new TreeMap<>();
@@ -71,9 +73,9 @@ public class TableInfoSettingsDTO {
     @SuppressWarnings("Duplicates")
     public TableInfo readTableInfo(PsiClass psiClass) {
         String key = generateKey(psiClass);
-        TableInfoDTO dto = this.tableInfoMap.get(key);
+        TableInfoDTO dto = decode(this.tableInfoMap.get(key));
         dto = new TableInfoDTO(dto, psiClass);
-        this.tableInfoMap.put(key, dto);
+        this.tableInfoMap.put(key, encode(dto));
         return dto.toTableInfo(psiClass);
     }
 
@@ -86,10 +88,10 @@ public class TableInfoSettingsDTO {
     @SuppressWarnings("Duplicates")
     public TableInfo readTableInfo(DbTable dbTable) {
         String key = generateKey(dbTable);
-        TableInfoDTO dto = this.tableInfoMap.get(key);
+        TableInfoDTO dto = decode(this.tableInfoMap.get(key));
         // 表可能新增了字段，需要重新合并保存
         dto = new TableInfoDTO(dto, dbTable);
-        this.tableInfoMap.put(key, dto);
+        this.tableInfoMap.put(key, encode(dto));
         return dto.toTableInfo(dbTable);
     }
 
@@ -112,7 +114,7 @@ public class TableInfoSettingsDTO {
             Messages.showInfoMessage(tableInfo.getName() + "表配置信息保存失败", GlobalDict.TITLE_INFO);
             return;
         }
-        this.tableInfoMap.put(key, TableInfoDTO.valueOf(tableInfo));
+        this.tableInfoMap.put(key, encode(TableInfoDTO.valueOf(tableInfo)));
     }
 
     /**
@@ -122,7 +124,7 @@ public class TableInfoSettingsDTO {
      */
     public void resetTableInfo(DbTable dbTable) {
         String key = generateKey(dbTable);
-        this.tableInfoMap.put(key, new TableInfoDTO(null, dbTable));
+        this.tableInfoMap.put(key, encode(new TableInfoDTO(null, dbTable)));
     }
 
     /**
@@ -133,5 +135,16 @@ public class TableInfoSettingsDTO {
     public void removeTableInfo(DbTable dbTable) {
         String key = generateKey(dbTable);
         this.tableInfoMap.remove(key);
+    }
+
+    private static String encode(TableInfoDTO tableInfo) {
+        return Base64.getEncoder().encodeToString(JSON.toJson(tableInfo).getBytes());
+    }
+
+    private static TableInfoDTO decode(String base64) {
+        if (StringUtils.isEmpty(base64)) {
+            return null;
+        }
+        return JSON.parse(new String(Base64.getDecoder().decode(base64)), TableInfoDTO.class);
     }
 }

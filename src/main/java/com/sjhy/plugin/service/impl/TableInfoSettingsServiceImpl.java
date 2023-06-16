@@ -17,7 +17,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @date 2021/08/14 15:20
  */
-@State(name = "EasyCodeTableSetting", storages = @Storage("easyCodeTableSetting.xml"))
+@State(name = "EasyCodeTableSetting", storages = @Storage("easyCodeTableSettingEncode.xml"))
 public class TableInfoSettingsServiceImpl implements TableInfoSettingsService {
 
     private TableInfoSettingsDTO tableInfoSettings = new TableInfoSettingsDTO();
