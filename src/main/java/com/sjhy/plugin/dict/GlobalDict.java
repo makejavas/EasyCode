@@ -39,7 +39,6 @@ public interface GlobalDict {
             "java.lang.Short",
             "java.lang.Byte",
             "java.lang.Character",
-            "java.lang.Character",
             "java.math.BigDecimal",
             "java.math.BigInteger",
             "java.lang.Double",
