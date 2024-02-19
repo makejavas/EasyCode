@@ -54,6 +54,6 @@ public class ExtraCodeGenerateUtils {
             return;
         }
         // 生成代码
-        codeGenerateService.generate(Collections.singletonList(currTemplate), Collections.singletonList(this.tableInfo), this.generateOptions, param);
+        codeGenerateService.generate(Collections.singletonList(currTemplate), Collections.singletonList(this.tableInfo), null, this.generateOptions, param);
     }
 }

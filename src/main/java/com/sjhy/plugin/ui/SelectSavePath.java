@@ -91,6 +91,11 @@ public class SelectSavePath extends DialogWrapper {
      * 弹框全否复选框
      */
     private JCheckBox titleRefuseCheckBox;
+
+    /**
+     * 参考的bean输入框
+     */
+    private JTextField referenceBean;
     /**
      * 数据缓存工具类
      */
@@ -242,6 +247,9 @@ public class SelectSavePath extends DialogWrapper {
         if (!StringUtils.isEmpty(tableInfo.getPreName())) {
             preField.setText(tableInfo.getPreName());
         }
+        if (!StringUtils.isEmpty(tableInfo.getReferenceBean())) {
+            referenceBean.setText(tableInfo.getReferenceBean());
+        }
         SettingsStorageDTO settings = SettingsStorageService.getSettingsStorage();
         String groupName = settings.getCurrTemplateGroupName();
         if (!StringUtils.isEmpty(tableInfo.getTemplateGroupName())) {
@@ -302,6 +310,7 @@ public class SelectSavePath extends DialogWrapper {
         } else {
             tableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectPsiClass());
         }
+        tableInfo.setReferenceBean(referenceBean.getText());
         tableInfo.setSavePath(savePath);
         tableInfo.setSavePackageName(packageField.getText());
         tableInfo.setPreName(preField.getText());
