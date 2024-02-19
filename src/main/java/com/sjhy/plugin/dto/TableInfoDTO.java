@@ -47,6 +47,7 @@ public class TableInfoDTO {
         this.savePackageName = "";
         this.savePath = "";
         this.saveModelName = "";
+        this.referenceBean = "";
         this.fullColumn = new ArrayList<>();
         for (PsiField field : psiClass.getAllFields()) {
             this.fullColumn.add(new ColumnInfoDTO(field));
@@ -61,6 +62,7 @@ public class TableInfoDTO {
         this.savePackageName = "";
         this.savePath = "";
         this.saveModelName = "";
+        this.referenceBean = "";
         this.fullColumn = new ArrayList<>();
         // 处理所有列
         JBIterable<? extends DasColumn> columns = DasUtil.getColumns(dbTable);
@@ -72,6 +74,9 @@ public class TableInfoDTO {
     private static void merge(TableInfoDTO oldData, TableInfoDTO newData) {
         if (oldData == null || CollectionUtil.isEmpty(oldData.getFullColumn())) {
             return;
+        }
+        if (!StringUtils.isEmpty(oldData.getReferenceBean())) {
+            newData.referenceBean = oldData.getReferenceBean();
         }
         if (!StringUtils.isEmpty(oldData.getPreName())) {
             newData.preName = oldData.getPreName();
@@ -187,6 +192,10 @@ public class TableInfoDTO {
      * 保存的model名称
      */
     private String saveModelName;
+    /**
+     * 参考的bean名
+     */
+    private String referenceBean;
 
     public TableInfo toTableInfo(PsiClass psiClass) {
         TableInfo tableInfo = new TableInfo();
@@ -235,6 +244,7 @@ public class TableInfoDTO {
         tableInfo.setFullColumn(new ArrayList<>());
         tableInfo.setPkColumn(new ArrayList<>());
         tableInfo.setOtherColumn(new ArrayList<>());
+        tableInfo.setReferenceBean(this.getReferenceBean());
         // 列
         JBIterable<? extends DasColumn> columns = DasUtil.getColumns(dbTable);
         Map<String, DasColumn> nameToObj = new HashMap<>(columns.size());
@@ -271,6 +281,7 @@ public class TableInfoDTO {
         dto.setComment(tableInfo.getComment());
         dto.setSavePackageName(tableInfo.getSavePackageName());
         dto.setSaveModelName(tableInfo.getSaveModelName());
+        dto.setReferenceBean(tableInfo.getReferenceBean());
         dto.setFullColumn(new ArrayList<>());
         // 处理列
         for (ColumnInfo columnInfo : tableInfo.getFullColumn()) {
