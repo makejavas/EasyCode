@@ -21,6 +21,9 @@ import com.sjhy.plugin.service.SettingsStorageService;
 import com.sjhy.plugin.service.TableInfoSettingsService;
 import com.sjhy.plugin.tool.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,10 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      */
     private CacheDataUtils cacheDataUtils;
     /**
+     * 名称工具
+     */
+    private NameUtils nameUtils;
+    /**
      * 导入包时过滤的包前缀
      */
     private static final String FILTER_PACKAGE_NAME = "java.lang";
@@ -54,6 +61,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
     public CodeGenerateServiceImpl(Project project) {
         this.project = project;
         this.moduleManager = ModuleManager.getInstance(project);
+        this.nameUtils = NameUtils.getInstance();
         this.tableInfoService = TableInfoSettingsService.getInstance();
         this.cacheDataUtils = CacheDataUtils.getInstance();
     }
@@ -75,6 +83,15 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         } else {
             selectedTableInfo = tableInfoService.getTableInfo(cacheDataUtils.getSelectDbTable());
             tableInfoList = cacheDataUtils.getDbTableList().stream().map(item -> tableInfoService.getTableInfo(item)).collect(Collectors.toList());
+        }
+        FindRelevancyBeanFileVisitor fileVisitor = null;
+        if (!StringUtils.isEmpty(selectedTableInfo.getReferenceBean())) {
+            fileVisitor = new FindRelevancyBeanFileVisitor(selectedTableInfo.getReferenceBean());
+            try {
+                Files.walkFileTree(Paths.get(project.getBasePath()), fileVisitor);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         // 校验选中表的保存路径是否正确
         if (StringUtils.isEmpty(selectedTableInfo.getSavePath())) {
@@ -110,7 +127,7 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
         }
 
         // 生成代码
-        generate(templates, tableInfoList, generateOptions, null);
+        generate(templates, tableInfoList, fileVisitor, generateOptions, null);
     }
 
     /**
@@ -118,13 +135,15 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
      *
      * @param templates       模板
      * @param tableInfoList   表信息对象
+     * @param fileVisitor
      * @param generateOptions 生成配置
      * @param otherParam      其他参数
      */
-    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, GenerateOptions generateOptions, Map<String, Object> otherParam) {
+    public void generate(Collection<Template> templates, Collection<TableInfo> tableInfoList, FindRelevancyBeanFileVisitor fileVisitor, GenerateOptions generateOptions, Map<String, Object> otherParam) {
         if (CollectionUtil.isEmpty(templates) || CollectionUtil.isEmpty(tableInfoList)) {
             return;
         }
+        boolean isReferenceBean = fileVisitor != null;
         // 处理模板，注入全局变量（克隆一份，防止篡改）
         templates = CloneUtils.cloneByJson(templates, new TypeReference<ArrayList<Template>>() {
         });
@@ -151,25 +170,45 @@ public class CodeGenerateServiceImpl implements CodeGenerateService {
             // 设置额外代码生成服务
             param.put("generateService", new ExtraCodeGenerateUtils(this, tableInfo, generateOptions));
             for (Template template : templates) {
+                String templateName = template.getName().replace(".vm", "");
+                boolean hasReferenceBean = isReferenceBean && fileVisitor.isExist(templateName);
+
                 Callback callback = new Callback();
                 callback.setWriteFile(true);
                 callback.setReformat(generateOptions.getReFormat());
-                // 默认名称
-                callback.setFileName(tableInfo.getName() + "Default.java");
-                // 默认路径
-                callback.setSavePath(tableInfo.getSavePath());
-                // 设置回调对象
+                // 默认路径和默认名称
+                if (hasReferenceBean) {
+                    callback.setSavePath(fileVisitor.getPath(templateName));
+                    callback.setFileName(fileVisitor.getFileName(templateName).replace(fileVisitor.getReferenceBeanName(), tableInfo.getName()));
+                    if (!templateName.contains("xml")) {
+                        tableInfo.setSavePackageName(fileVisitor.getCutOffPackage(templateName));
+                        tableInfo.setSaveFullPackageName(fileVisitor.getPackage(templateName));
+                    }
+                }else {
+                    callback.setSavePath(tableInfo.getSavePath());
+                    callback.setFileName(tableInfo.getName() + "Default.java");
+                }
                 param.put("callback", callback);
+
+
                 // 开始生成
                 String code = VelocityUtils.generate(template.getCode(), param);
-                // 设置一个默认保存路径与默认文件名
-                String path = callback.getSavePath();
-                path = path.replace("\\", "/");
-                // 针对相对路径进行处理
-                if (path.startsWith(".")) {
-                    path = project.getBasePath() + path.substring(1);
+
+
+                // 重新填充callback. 有可能在生成代码的过程中，被模板方法修改
+                if (hasReferenceBean) {
+                    callback.setSavePath(fileVisitor.getPath(templateName));
+                }else {
+                    // 设置一个默认保存路径与默认文件名
+                    String path = callback.getSavePath();
+                    path = path.replace("\\", "/");
+                    // 针对相对路径进行处理
+                    if (path.startsWith(".")) {
+                        path = project.getBasePath() + path.substring(1);
+                    }
+                    callback.setSavePath(path);
                 }
-                callback.setSavePath(path);
+
                 new SaveFile(project, code, callback, generateOptions).write();
             }
         }

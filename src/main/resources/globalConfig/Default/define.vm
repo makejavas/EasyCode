@@ -10,6 +10,10 @@
 #if($suffix!="")package #end#if($tableInfo.savePackageName!="")$!{tableInfo.savePackageName}.#{end}$!suffix;
 #end
 
+#macro(setPackage)
+    $!tableInfo.saveFullPackageName
+#end
+
 ##定义直接保存路径与文件名简化的宏定义，调用方式：#save("/entity", ".java")
 #macro(save $path $fileName)
     $!callback.setSavePath($tool.append($tableInfo.savePath, $path))

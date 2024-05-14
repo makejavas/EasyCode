@@ -69,4 +69,13 @@ public class TableInfo {
      * 保存的model名称
      */
     private String saveModelName;
+    /**
+     * 参考的bean名
+     */
+    private String referenceBean;
+    /**
+     * 保存的包名称
+     */
+    private String saveFullPackageName;
+
 }
