@@ -1,7 +1,6 @@
 package com.sjhy.plugin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.sjhy.plugin.dict.GlobalDict;
 import com.sjhy.plugin.dto.SettingsStorageDTO;
@@ -11,6 +10,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +50,12 @@ public class GenerateDefaultConfigTest {
         json = json.replace("\\r\\n", "\\n");
         // 2.mac处理
         json = json.replace("\\r", "\\n");
-        FileUtil.writeToFile(new File(GenerateDefaultConfigTest.class.getResource("/").getFile().replace("out", "src").replace("test", "main").replace("classes", "resources") + "defaultConfig.json"), json);
+        File buildPath = new File(GenerateDefaultConfigTest.class.getResource("/").getPath());
+        // 找到根目录
+        while (!buildPath.getName().equals("EasyCode")) {
+            buildPath = buildPath.getParentFile();
+        }
+        Files.write(new File(buildPath, "src/main/resources/defaultConfig.json").toPath(), json.getBytes());
     }
 
     private void loadTemplate(SettingsStorageDTO settingsStorage, File root) throws IOException {

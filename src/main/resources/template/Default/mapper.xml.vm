@@ -60,26 +60,26 @@ $!callback.setSavePath($tool.append($modulePath, "/src/main/resources/mapper"))
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="$!pk.name" useGeneratedKeys="true">
-        insert into $!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($velocityHasNext), #end#end)
-        values (#foreach($column in $tableInfo.otherColumn)#{$!{column.name}}#if($velocityHasNext), #end#end)
+        insert into $!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($foreach.hasNext), #end#end)
+        values (#foreach($column in $tableInfo.otherColumn)#{$!{column.name}}#if($foreach.hasNext), #end#end)
     </insert>
 
     <insert id="insertBatch" keyProperty="$!pk.name" useGeneratedKeys="true">
-        insert into $!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($velocityHasNext), #end#end)
+        insert into $!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($foreach.hasNext), #end#end)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#foreach($column in $tableInfo.otherColumn)#{entity.$!{column.name}}#if($velocityHasNext), #end#end)
+        (#foreach($column in $tableInfo.otherColumn)#{entity.$!{column.name}}#if($foreach.hasNext), #end#end)
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch" keyProperty="$!pk.name" useGeneratedKeys="true">
-        insert into $!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($velocityHasNext), #end#end)
+        insert into $!{tableInfo.obj.name}(#foreach($column in $tableInfo.otherColumn)$!column.obj.name#if($foreach.hasNext), #end#end)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#foreach($column in $tableInfo.otherColumn)#{entity.$!{column.name}}#if($velocityHasNext), #end#end)
+            (#foreach($column in $tableInfo.otherColumn)#{entity.$!{column.name}}#if($foreach.hasNext), #end#end)
         </foreach>
         on duplicate key update
-        #foreach($column in $tableInfo.otherColumn)$!column.obj.name = values($!column.obj.name)#if($velocityHasNext),
+        #foreach($column in $tableInfo.otherColumn)$!column.obj.name = values($!column.obj.name)#if($foreach.hasNext),
         #end#end
 
     </insert>
