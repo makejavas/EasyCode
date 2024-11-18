@@ -49,9 +49,6 @@ public class MainActionGroup extends ActionGroup {
         if (psiElement instanceof DbTable) {
             selectDbTable = (DbTable) psiElement;
         }
-        if (selectDbTable == null) {
-            return getEmptyAnAction();
-        }
         //获取选中的所有表
         PsiElement[] psiElements = event.getData(LangDataKeys.PSI_ELEMENT_ARRAY);
         if (psiElements == null || psiElements.length == 0) {
@@ -67,6 +64,9 @@ public class MainActionGroup extends ActionGroup {
         }
         if (dbTableList.isEmpty()) {
             return getEmptyAnAction();
+        }
+        if (selectDbTable == null) {
+            selectDbTable = dbTableList.get(0);
         }
 
         //保存数据到缓存
