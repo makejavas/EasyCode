@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.sjhy.plugin.easycode</id>
     <name>EasyCode</name>
-    <vendor email="1353036300@qq.com" url="http://www.ieasycode.com:9527">Easy Code Office Website</vendor>
+    <vendor email="1353036300@qq.com" url="https://www.ieasycode.com">Easy Code Office Website</vendor>
 
     <description><![CDATA[
       <tag>EasyCode,Easy Code,easy,code,code generate,code tools</tag>
@@ -20,6 +20,15 @@
 
 
     <change-notes><![CDATA[
+      <p>1.2.9-java.RELEASE</p>
+      <ul>
+        <li>1.Fix the incorrect configuration information of some user prompt tables</li>
+        <li>2.Compatible with idea 2024.3</li>
+      </ul>
+      <ul>
+        <li>1.修复部分用户提示表配置信息不正确问题</li>
+        <li>2.兼容idea 2024.3</li>
+      </ul>
       <p>1.2.8-java.RELEASE</p>
       <ul>
         <li>1.Fix the error issue caused by missing icons in version 2023.1</li>

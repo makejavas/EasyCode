@@ -15,7 +15,7 @@ public interface GlobalDict {
     /**
      * 版本号
      */
-    String VERSION = "1.2.8";
+    String VERSION = "1.2.9";
     /**
      * 作者名称
      */
